@@ -61,4 +61,4 @@ python -m pytest tests/
 
 ## License
 
-See LICENSE.md for details.
+See LICENSE.md for details.1
