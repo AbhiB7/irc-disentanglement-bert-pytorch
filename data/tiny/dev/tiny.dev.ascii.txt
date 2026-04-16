@@ -1,0 +1,100 @@
+[03:01] <LinuxJones> night all :)
+=== yohannes [~yohannes@adsl-67-112-218-21.dsl.sntc01.pacbell.net]  has joined #ubuntu
+[03:10] <yohannes> can anyone recommend any app to create/open *.rar file?
+[03:10] <Hikaru79> yohannes, why not WinRAR?
+[03:10] <Hikaru79> http://www.rarlab.com/
+[03:10] <yohannes> i am trying to weight my option. any other apps?
+[03:10] <Hikaru79> Just download RAR 3.41 for Linux
+[03:10] <Hikaru79> Oh
+[03:10] <Hikaru79> I see
+[03:10] <Hikaru79> Only one I know of, sorry =(
+[03:11] <yohannes> btw, how can i install that darn thing? :)
+[03:11] <yohannes> i downloaded winrar, does not have any instruction to install
+[03:11] <Nafallo> file-roller
+[03:11] <yohannes> i suspect i need to do something with the makefile included
+=== mubix [~mubix@ca-29palms-cmts2d-189.losaca.adelphia.net]  has joined #ubuntu
+=== ud [~ud@25.b.001.ham.iprimus.net.au]  has joined #ubuntu
+=== blocke [~blocke@pool-70-18-134-61.pghk.east.verizon.net]  has joined #ubuntu
+=== lev is now known as lev-away
+[03:18] <blocke> hi... is anyone elses laptop spinning down the hard drive after like one second of inactivity since updating in the last few days?  its driving me nuts and I'm afraid of damage to the hard drive :(
+=== miked593 [~miked593@ip68-6-239-231.sd.sd.cox.net]  has joined #ubuntu
+=== LKSEONG_ is now known as KentutMerah
+[03:20] <Nafallo> blocke: 5 seconds. that's the minimum you can have. hdparm -S 1 that is :-).
+=== GnuHippy [~jason@blk-222-217-193.eastlink.ca]  has joined #ubuntu
+[03:20] <blocke> any idea what is setting it by default in ubuntu?
+[03:20] <Nafallo> blocke: /etc/acpi/power.sh
+[03:20] <blocke> it didn't used to be so short on this laptop until I upgraded to hoary... can't be good for the hard drive
+[03:21] <GnuHippy> the gimp ScriptFU filters are broken in hoary
+[03:21] <Nafallo> blocke: it makes battery time :-P
+[03:21] <Nafallo> blocke: in warty default is 12.
+[03:21] <blocke> yeah I see that, strange
+[03:21] <blocke> its not respecting it
+=== natea [~natea@h000f66a887c6.ne.client2.attbi.com]  has joined #ubuntu
+[03:22] <blocke> its literally spinning down after a second of inactivity
+[03:22] <Nafallo> blocke: sudo hdparm -i /dev/hda
+=== Hydroxide [user@adsl-98-2.bway.net]  has left #ubuntu []
+[03:24] <blocke> http://www.pastebin.com/116669
+[03:25] <GnuHippy> wow it is scary how much work they have done on hoary already and how fast updates and fixes are made
+=== holycow [~yada@S0106002078ccd651.vf.shawcable.net]  has joined #ubuntu
+[03:25] <jdub> GnuHippy: that's largely merging with sid.
+=== poin_t [point@203.130.197.108]  has joined #ubuntu
+[03:25] <GnuHippy> Do they have 1000 Keebler elves working around the clock?
+=== draconian [~draconian@ip68-7-178-227.sd.sd.cox.net]  has joined #ubuntu
+[03:25] <GnuHippy> ic jdub
+[03:26] <GnuHippy> was Sarge released yet?
+[03:26] <usual> hey jdub, how goes it
+[03:26] <usual> sarge wont be released until i have grandkids
+[03:27] <GnuHippy> I'll take that as a no
+[03:27] <blocke> gah... stop spinning down!
+=== ajmitch checks to see if his packages are in hoary/universe
+[03:27] <Nafallo> blocke: hmm, that didn't say spindown time :-P. well, sudo hdparm -S 12 /dev/hda does what you want :-).
+[03:27] <blocke> I did that several minutes ago
+[03:27] <ud> In universe there is fluxbox_0.1.14-4_i386.deb and fluxbox_0.9.9-1_i386.deb but i can only manage to apt 0.1.14-4. How can I get the 0.9.9-1 release?
+=== blocke reboots in the vein hope that its just a fluke...
+[03:28] <ajmitch> great, I have about 10 packages in universe for hoary :)
+[03:29] <KentutMerah> ud, dpkg ?
+[03:29] <ud> umm.. I use apt-get. But should I try dpkg?
+[03:30] <jdub> ud: 0.9.9 is most likely the hoary version, not the warty version
+[03:30] <jdub> ud: dpkg won't help you
+[03:30] <jdub> (well, it could, but it's not advisable)
+[03:30] <ud> ahh but its in the the same repo?
+=== nomasteryoda is away: IM me @ nomasteryoda on AIM / YIM
+[03:31] <jdub> it's in the same pool
+[03:31] <jdub> all the warty and hoary packages are in the same pool
+[03:31] <ud> ahh ok
+[03:31] <jdub> but they're for different releases
+[03:31] <ud> I wondered if that was the case
+[03:32] <ud> Because it wouldnt show the newer release with apt-cache search
+[03:32] <ud> Is there a way I can use the newer release?
+=== logic [~me@222-152-218-210.jetstream.xtra.co.nz]  has joined #ubuntu
+[03:33] <jdub> ud: hoary is the development branch
+[03:34] <jdub> ud: unless you're very familiar with debian, i wouldn't recommend it
+=== blocke [~blocke@pool-70-18-134-61.pghk.east.verizon.net]  has joined #ubuntu
+[03:34] <Nafallo> ud: there is, but as jdub just said, it's not advisible :-).
+=== defendguin [~supertux@adsl-6-68-108.msy.bellsouth.net]  has joined #ubuntu
+[03:34] <ud> ok thanks for your help, ill just have to wait :)
+=== CPayan [~chatzilla@user-1120jfl.dsl.mindspring.com]  has joined #ubuntu
+=== hazmat [~hazmat@j71055.upc-j.chello.nl]  has joined #ubuntu
+[03:35] <CPayan> brettcar: sad
+=== Tex___ [tex@beer.tclug.org]  has joined #ubuntu
+[03:37] <blocke> hmm I had to hdparm -B 255 to stop the spinning down, oh well, at least I have a workaround
+=== Striss [~Strain@blk-222-170-205.eastlink.ca]  has joined #Ubuntu
+[03:38] <Nafallo> blocke: hehe
+[03:38] <Striss> hey guys, I just installed Fluxbox, and I"m running it...all the fonts in my gnome apps look kinda gross now
+[03:38] <Striss> they don't look like they did in gnome
+[03:41] <dopey> fluxbox is in ubuntu?
+[03:41] <jdub> dopey: in universe, of course.
+[03:41] <dopey> that makes more sense
+[03:41] <djtansey> does anyone here have k3b experience? i can record things with cdrecord but k3b won't let me (did k3bsetup and all and it seems happy. but k3b says my device isn't a cd writer)
+[03:41] <dopey> i thought universe was unsupported though
+[03:41] <jdub> it is
+[03:42] <Nafallo> djtansey: k3b won't work with kernel 2.6.8|2.6.8.1
+=== Dethread [~Dethread@24-205-231-52.slo-cres.charterpipeline.net]  has joined #ubuntu
+[03:43] <djtansey> Nafallo: so go back to 2.6.7?
+[03:44] <Nafallo> djtansey: yepp, or upgrade to 2.6.9
+[03:44] <CPayan> hmm progression or regression
+[03:44] <djtansey> Nafallo: thanks. i'll see if ubuntu has 2.6.9 packaged
+[03:44] <jdub> it will work with the ubuntu kernel
+[03:44] <djtansey> jdub: k3b will?
+[03:44] <jdub> no, there's no 2.6.9 in warty or hoary
+[03:44] <jdub> yes

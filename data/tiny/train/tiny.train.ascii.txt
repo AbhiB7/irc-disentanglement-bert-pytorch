@@ -1,0 +1,100 @@
+[00:42] <pedlar> i think so
+[00:42] <delire> spanglesontoast in that case..
+[00:43] <benplaut> spanglesontoast: do you live in kentucky?
+[00:43] <pusling> IIIEars: do not remember. Just tried if it worked. I have normal dvd-player for watching movies ;)
+[00:43] <benplaut> o/t
+[00:43] <shinu> pusling: but how can i kill the mount process?... the cdrom is not mounted yet...
+[00:43] <kent> pedlar, and you ran that *after* you added the hoary-extra  right?
+[00:43] <IIIEars> Okay. :)
+=== haich [~haich@76.Red-83-37-198.pooles.rima-tde.net]  has joined #ubuntu
+=== ubuntu [~ubuntu@82.249.146.204]  has joined #ubuntu
+[00:43] <delire> spanglesontoast apt-get install linux-source-$(uname -r) linux-headers-$(uname  -r)
+=== Johnnyfav [~a@toronto-HSE-ppp4079548.sympatico.ca]  has joined #ubuntu
+[00:43] <limer> pusling: ok, execute dpkg -i ?
+[00:43] <pedlar> yup
+[00:43] <crimsun> toxicfume: you can install it manually using sudo dpkg -i
+[00:43] <Johnnyfav> can you logon to http sites through terminal?
+[00:43] <pedlar> kent, and just did it again
+[00:43] <pusling> limer: something like that. yes
+[00:44] <toxicfume> crimsun: oh okay
+[00:44] <pusling> shinu: force-unload cdrom-filetype-modules and try kill again
+[00:44] <delire> spanglesontoast i can't remember if "linux-headers-$(uname -r)" is right however. i run debian here
+[00:44] <toxicfume> crimsun: okay, looks like it's done, what do i do next?
+[00:44] <delire> spanglesontoast we have different package names for this material
+[00:45] <spanglesontoast> ah
+[00:45] <IIIEars> !marillat
+[00:45] <ubotu> add deb ftp://ftp.nerim.net/debian-marillat/ stable main to your sources.list. Change stable to testing or unstable according to the distribution you are using. "deb ftp://ftp.nerim.net/debian-marillat/ stable main".
+[00:45] <crimsun> toxicfume: what was the output from it installing? Paste to pastebin
+[00:45] <delire> spanglesontoast you need these files to compile against. they contain information needed by the ATI driver compilation process
+=== Groov [~bombertes@p54A39F20.dip0.t-ipconnect.de]  has joined #ubuntu
+[00:45] <mrchicago> !marillat
+=== Niriven|Brb [~None@pcp0010154012pcs.coatsv01.pa.comcast.net]  has joined #ubuntu
+[00:45] <spanglesontoast> ah
+=== Niriven|Brb [~None@pcp0010154012pcs.coatsv01.pa.comcast.net]  has left #ubuntu []
+[00:46] <psychonate> OK, I think the problem may be a memory leak from Xorg, as in https://bugzilla.ubuntu.com/show_bug.cgi?id=10663 .
+[00:46] <spanglesontoast> I'm just wondering why there isn't an already made .deb
+[00:46] <spanglesontoast> for ati?
+[00:46] <benplaut> spangles: do you live in kentucky?
+[00:46] <delire> spanglesontoast compilation of anything is always involved in any platform
+[00:46] <pusling> IIIEars: it might be dangerous, because it sometimes is diffeent versions of mplayer than in multiverse (and other package-depends)
+[00:46] <delire> spanglesontoast there is, xorg-fglrx-*
+[00:46] <spanglesontoast> benplaut no I live in uk surrey godalming
+[00:46] <IIIEars> pusling yes it sure is. - ubotu doesn't know that
+[00:46] <delire> spanglesontoast apt-cache search fglrx
+=== discman is now known as discman|away
+[00:47] <disasm> heh heh heh, i install the ati binary 3d accel driver for xorg, and it works fine, but now prboom is in a itty bitty window thats barely see-able, back to google...
+[00:47] <spanglesontoast> yea I know but I was advised to use the one from the ati site
+[00:47] <benplaut> spangles: never mind... my sister (who lives in kentucky) has someone named spanglesontoast in her IM address book :)
+[00:47] <delire> spanglesontoast that's what i advise
+[00:47] <spanglesontoast> benplaut how old is she?
+[00:47] <delire> benplaut 3 degrees of separation in the linux community ;)
+[00:47] <spanglesontoast> oh
+[00:47] <benplaut> 16
+[00:47] <spanglesontoast> snap
+[00:47] <spanglesontoast> :D
+[00:47] <shinu> pusling: you do mean modprode -r -f modulename right?
+=== apollo2011 [~ksut@69.177.116.221.adsl.snet.net]  has joined #ubuntu
+[00:48] <psychonate> OK, no responses in the last half hour. I may as well mute myself.
+[00:48] <ompaul> delire, more like 2.756. :)
+[00:48] <pusling> shinu: yes
+[00:48] <shinu> pusling: it just says module is in use ;.;
+[00:48] <crimsun> psychonate: with what issue?
+[00:48] <spanglesontoast> weird world eh benplaut
+[00:48] <psychonate> crimsun, I think it might be a memory leak issue with X.
+[00:49] <psychonate> At least one person in #linuxhelp tried to help me.
+[00:49] <spanglesontoast> theres two source packages
+[00:49] <delire> ompaul hmm, yes i think that is closer to experience
+[00:49] <apollo2011> I have (K)ubuntu system with both KDE and Gnome installed. I use KDE by default.  However, I just noticed that the Switch User option is suddenly missing from my K Menu.
+[00:49] <pusling> shinu: perhaps you should also unload modules depending on <module_you_try_to_remove>
+[00:49] <shinu> uh...
+[00:49] <shinu> alright...
+[00:49] <shinu> ill try that
+[00:49] <psychonate> crimsun, I pasted a link to a bugzilla entry that may be similar
+[00:49] <delire> psychonate no, i haven't had this experience
+[00:49] <shinu> pusling: but if i reload them later my cdrom will be working fine again right?
+[00:50] <pusling> shinu: yes. and after unloading them, you might be able to kill mount
+[00:50] <shinu> yup
+[00:50] <ompaul> delire, defines I kind of know X
+[00:50] <shinu> ok ill try that
+[00:50] <psychonate> Well, could someone at least tell me if my memory/swap usage looks normal?
+[00:50] <ompaul> I think I have just lost three years of archives
+=== mattlacey [~matt@exten-halls-247.soton.ac.uk]  has joined #ubuntu
+[00:50] <delire> ompaul tentatively relativistic association - the bulk of human relationships
+[00:50] <spanglesontoast> brb going to have a shower while the linux-source downloads
+[00:51] <psychonate> I don't personally know what "normal" should look like.
+[00:51] <ompaul> delire, now there is a truism
+[00:51] <crimsun> psychonate: I'm much more prone to believe that an application or a set of applications are simply not releasing memory properly back to the X server
+=== ompaul goes in search of the strange bits and bytes
+[00:52] <delire> ompaul ouch. let's hope you're not running a journaled fs ;)
+[00:52] <ompaul> delire, like I would not do that ...
+[00:53] <psychonate> crimsun, I don't doubt the possibility., and your guess is probably better than mine, but if I close all the apps running in X, it looks like the problem still stands until I restart the X server. I don't know if that helps you at all.
+[00:53] <delire> ompaul hehe. recovery with reiserfs and ext2 is reasonably easy compared to that of ext3
+[00:53] <Shiggity> Peace all!
+=== pedlar [~pedlar@dvb73.resnet.neu.edu]  has joined #ubuntu
+=== Groov [~bombertes@p54A39F20.dip0.t-ipconnect.de]  has left #ubuntu []
+[00:53] <crimsun> psychonate: closing those apps won't help if the apps don't release memory properly...
+[00:53] <ompaul> delire: time for  `sudo su - `
+[00:53] <delire> ompaul hmm
+[00:54] <delire> psychonate have you tried seeing what happens if you start X and then leave it with no applications running at all?
+[00:54] <crimsun> psychonate: in fact, that really points to certain applications, since if the fault lay with the X server, restarting the X server _still_ wouldn't reclaim that memory
+[00:54] <pedlar> since it looks like i won't have luck finding the gstreamer0.8-lame plugin, anybody know of a cd ripper that uses mencoder?
