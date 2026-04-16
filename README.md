@@ -62,3 +62,7 @@ python -m pytest tests/
 ## License
 
 See LICENSE.md for details.1
+
+## Acknowledgements
+
+https://github.com/jkkummerfeld/irc-disentanglement
