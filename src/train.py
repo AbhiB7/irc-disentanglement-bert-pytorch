@@ -79,7 +79,7 @@ def parse_args():
     parser.add_argument(
         "--max-dist",
         type=int,
-        default=101,
+        default=30,
         help="Maximum distance to consider for linking",
     )
 
@@ -89,7 +89,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--learning-rate", type=float, default=2e-5, help="Learning rate for optimizer"
+        "--learning-rate", type=float, default=5e-5, help="Learning rate for optimizer"
     )
 
     parser.add_argument(
@@ -146,7 +146,7 @@ def parse_args():
 
     # Threshold for prediction
     parser.add_argument(
-        "--threshold", type=float, default=0.5, help="Threshold for binary prediction"
+        "--threshold", type=float, default=0.3, help="Threshold for binary prediction"
     )
 
     # Test mode options
@@ -396,6 +396,29 @@ def train_epoch(model, train_loader, optimizer, scheduler, device, epoch):
         )
 
         loss = outputs["loss"]
+        probs = outputs["probs"]
+
+        # SMART LOGGING: Track model behavior on rare positive samples and general trends.
+        # 1. Log every batch that contains a positive sample (label=1) to see how the model handles replies.
+        # 2. Log every 50 batches to monitor general probability distribution and avoid log flooding.
+        pos_in_batch = (labels == 1).any().item()
+        if pos_in_batch or (batch_idx + 1) % 50 == 0:
+            pos_labels = (labels == 1).sum().item()
+            neg_labels = (labels == 0).sum().item()
+            avg_prob = probs.mean().item()
+            max_prob = probs.max().item()
+            min_prob = probs.min().item()
+
+            log_msg = (
+                f"  Batch {batch_idx + 1} Stats: "
+                f"Pos/Neg Labels: {pos_labels}/{neg_labels}, "
+                f"Prob Range: [{min_prob:.4f}, {max_prob:.4f}], "
+                f"Avg Prob: {avg_prob:.4f}"
+            )
+            if pos_in_batch:
+                log_msg = "[POSITIVE BATCH] " + log_msg
+
+            logger.info(log_msg)
 
         # Backward pass
         optimizer.zero_grad()
@@ -441,14 +464,16 @@ def save_checkpoint(model, optimizer, scheduler, epoch, args, metrics, checkpoin
     }
 
     checkpoint_path = checkpoint_dir / f"checkpoint_epoch_{epoch}.pt"
-    
+
     # Remove existing checkpoint file if it exists (Windows compatibility)
     if checkpoint_path.exists():
         try:
             checkpoint_path.unlink()
         except OSError as e:
-            logger.warning(f"Could not remove existing checkpoint {checkpoint_path}: {e}")
-    
+            logger.warning(
+                f"Could not remove existing checkpoint {checkpoint_path}: {e}"
+            )
+
     # Save to temporary file first, then rename (atomic operation)
     temp_path = checkpoint_dir / f"checkpoint_epoch_{epoch}.pt.tmp"
     try:

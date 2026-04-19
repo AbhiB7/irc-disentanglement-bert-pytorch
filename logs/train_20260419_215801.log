@@ -1,0 +1,114 @@
+2026-04-19 21:58:01,553 - __main__ - INFO - ================================================================================
+2026-04-19 21:58:01,554 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-04-19 21:58:01,554 - __main__ - INFO - ================================================================================
+2026-04-19 21:58:01,554 - __main__ - INFO - Mode: train
+2026-04-19 21:58:01,554 - __main__ - INFO - Device: cpu
+2026-04-19 21:58:01,554 - __main__ - INFO - Model: bert-base-uncased
+2026-04-19 21:58:01,554 - __main__ - INFO - Batch size: 16
+2026-04-19 21:58:01,555 - __main__ - INFO - Learning rate: 2e-05
+2026-04-19 21:58:01,555 - __main__ - INFO - Epochs: 1
+2026-04-19 21:58:01,556 - __main__ - INFO - Max dist: 30
+2026-04-19 21:58:01,556 - __main__ - INFO - Max length: 128
+2026-04-19 21:58:01,556 - __main__ - INFO - Output dir: checkpoints
+2026-04-19 21:58:01,556 - __main__ - INFO - Using device: cpu
+2026-04-19 21:58:01,556 - __main__ - INFO - Loading tokenizer: bert-base-uncased
+2026-04-19 21:58:02,412 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-19 21:58:02,675 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-19 21:58:02,914 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-19 21:58:03,157 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-19 21:58:03,394 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-19 21:58:03,625 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-19 21:58:03,702 - __main__ - INFO - Tokenizer loaded: BertTokenizer
+2026-04-19 21:58:03,702 - __main__ - INFO - Creating dataloaders...
+2026-04-19 21:58:03,703 - __main__ - INFO - Loading 1 train files...
+2026-04-19 21:58:03,703 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-04-19 21:58:03,703 - data_loader - INFO -   max_dist=30, max_length=128, is_test=False
+2026-04-19 21:58:03,704 - data_loader - INFO -   test_start=1000, test_end=1000000
+2026-04-19 21:58:03,707 - data_loader - INFO - Loading conversation from data/tiny\train\tiny.train.ascii.txt
+2026-04-19 21:58:03,724 - data_loader - INFO -   Read 100 lines from ASCII file
+2026-04-19 21:58:03,725 - data_loader - INFO -   Parsed 100 messages, found 19 unique users
+2026-04-19 21:58:03,728 - data_loader - INFO -   Loaded 0 gold links from annotation file
+2026-04-19 21:58:03,728 - data_loader - INFO -   Conversation 'tiny.train' loaded in 0.02s
+2026-04-19 21:58:03,728 - data_loader - INFO -   Creating pairs for tiny.train: all 100 messages
+2026-04-19 21:58:03,735 - data_loader - INFO -   Created 2288 pairs for tiny.train
+2026-04-19 21:58:03,735 - data_loader - INFO -   File 1/1: tiny.train - 100 messages, 2288 total pairs so far
+2026-04-19 21:58:03,735 - data_loader - INFO - Dataset initialization complete: 2288 pairs from 1 conversations in 0.03s
+2026-04-19 21:58:03,735 - __main__ - INFO -   Train dataset created: 2288 pairs
+2026-04-19 21:58:03,735 - __main__ - INFO - Loading 1 dev files...
+2026-04-19 21:58:03,735 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-04-19 21:58:03,735 - data_loader - INFO -   max_dist=30, max_length=128, is_test=False
+2026-04-19 21:58:03,735 - data_loader - INFO -   test_start=1000, test_end=1000000
+2026-04-19 21:58:03,735 - data_loader - INFO - Loading conversation from data/tiny\dev\tiny.dev.ascii.txt
+2026-04-19 21:58:03,747 - data_loader - INFO -   Read 100 lines from ASCII file
+2026-04-19 21:58:03,748 - data_loader - INFO -   Parsed 100 messages, found 15 unique users
+2026-04-19 21:58:03,765 - data_loader - INFO -   Loaded 77 gold links from annotation file
+2026-04-19 21:58:03,766 - data_loader - INFO -   Conversation 'tiny.dev' loaded in 0.03s
+2026-04-19 21:58:03,766 - data_loader - INFO -   Creating pairs for tiny.dev: all 100 messages
+2026-04-19 21:58:03,779 - data_loader - INFO -   Created 1923 pairs for tiny.dev
+2026-04-19 21:58:03,779 - data_loader - INFO -   File 1/1: tiny.dev - 100 messages, 1923 total pairs so far
+2026-04-19 21:58:03,779 - data_loader - INFO - Dataset initialization complete: 1923 pairs from 1 conversations in 0.04s
+2026-04-19 21:58:03,779 - __main__ - INFO -   Dev dataset created: 1923 pairs
+2026-04-19 21:58:03,781 - __main__ - INFO -   Train dataset: 2288 pairs
+2026-04-19 21:58:03,781 - __main__ - INFO -   Dev dataset: 1923 pairs
+2026-04-19 21:58:03,781 - __main__ - INFO - Creating model...
+2026-04-19 21:58:04,008 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-19 21:58:06,418 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-19 21:58:06,436 - __main__ - INFO -   Parameters: 109,483,013 trainable, 109,483,013 total
+2026-04-19 21:58:06,436 - __main__ - INFO -   BERT hidden size: 768
+2026-04-19 21:58:06,436 - __main__ - INFO -   Combined size: 772
+2026-04-19 21:58:06,437 - __main__ - INFO - Created AdamW optimizer with lr=2e-05
+2026-04-19 21:58:06,438 - __main__ - INFO - Created scheduler with 100 warmup steps, 143 total steps
+2026-04-19 21:58:06,438 - __main__ - INFO - Starting training from epoch 1...
+2026-04-19 21:58:06,438 - __main__ - INFO - ================================================================================
+2026-04-19 21:58:06,438 - __main__ - INFO - Epoch 1/1
+2026-04-19 21:58:06,438 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-04-19 21:58:06,439 - __main__ - INFO - Starting epoch 1 with 143 batches
+2026-04-19 21:59:28,075 - __main__ - INFO -   Epoch 1 progress: 10/143 batches (0.12 batches/s, avg_loss=0.4699)
+2026-04-19 22:00:40,476 - __main__ - INFO -   Epoch 1 progress: 20/143 batches (0.13 batches/s, avg_loss=0.4234)
+2026-04-19 22:01:41,013 - __main__ - INFO -   Epoch 1 progress: 30/143 batches (0.14 batches/s, avg_loss=0.3639)
+2026-04-19 22:02:43,835 - __main__ - INFO -   Epoch 1 progress: 40/143 batches (0.14 batches/s, avg_loss=0.3004)
+2026-04-19 22:03:47,158 - __main__ - INFO -   Batch 50 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0152, 0.0399], Avg Prob: 0.0258
+2026-04-19 22:03:51,164 - __main__ - INFO -   Epoch 1 progress: 50/143 batches (0.15 batches/s, avg_loss=0.2479)
+2026-04-19 22:05:03,230 - __main__ - INFO -   Epoch 1 progress: 60/143 batches (0.14 batches/s, avg_loss=0.2090)
+2026-04-19 22:06:14,811 - __main__ - INFO -   Epoch 1 progress: 70/143 batches (0.14 batches/s, avg_loss=0.1802)
+2026-04-19 22:07:27,670 - __main__ - INFO -   Epoch 1 progress: 80/143 batches (0.14 batches/s, avg_loss=0.1582)
+2026-04-19 22:08:40,412 - __main__ - INFO -   Epoch 1 progress: 90/143 batches (0.14 batches/s, avg_loss=0.1410)
+2026-04-19 22:09:48,146 - __main__ - INFO -   Batch 100 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0015, 0.0061], Avg Prob: 0.0024
+2026-04-19 22:09:51,946 - __main__ - INFO -   Epoch 1 progress: 100/143 batches (0.14 batches/s, avg_loss=0.1272)
+2026-04-19 22:11:04,241 - __main__ - INFO -   Epoch 1 progress: 110/143 batches (0.14 batches/s, avg_loss=0.1158)
+2026-04-19 22:12:14,907 - __main__ - INFO -   Epoch 1 progress: 120/143 batches (0.14 batches/s, avg_loss=0.1063)
+2026-04-19 22:13:27,551 - __main__ - INFO -   Epoch 1 progress: 130/143 batches (0.14 batches/s, avg_loss=0.0983)
+2026-04-19 22:14:45,101 - __main__ - INFO -   Epoch 1 progress: 140/143 batches (0.14 batches/s, avg_loss=0.0913)
+2026-04-19 22:15:08,210 - __main__ - INFO - Epoch 1 complete in 1021.77s, avg_loss=0.0895
+2026-04-19 22:15:08,213 - __main__ - INFO - Train Loss: 0.0895
+2026-04-19 22:15:08,214 - __main__ - INFO - Evaluating on dev set...
+2026-04-19 22:15:08,217 - __main__ - INFO - Starting evaluation on 1923 pairs
+2026-04-19 22:15:27,018 - __main__ - INFO -   Evaluation progress: 10/121 batches (0.53 batches/s)
+2026-04-19 22:15:45,686 - __main__ - INFO -   Evaluation progress: 20/121 batches (0.53 batches/s)
+2026-04-19 22:16:04,590 - __main__ - INFO -   Evaluation progress: 30/121 batches (0.53 batches/s)
+2026-04-19 22:16:24,126 - __main__ - INFO -   Evaluation progress: 40/121 batches (0.53 batches/s)
+2026-04-19 22:16:46,372 - __main__ - INFO -   Evaluation progress: 50/121 batches (0.51 batches/s)
+2026-04-19 22:17:11,700 - __main__ - INFO -   Evaluation progress: 60/121 batches (0.49 batches/s)
+2026-04-19 22:17:36,448 - __main__ - INFO -   Evaluation progress: 70/121 batches (0.47 batches/s)
+2026-04-19 22:17:57,139 - __main__ - INFO -   Evaluation progress: 80/121 batches (0.47 batches/s)
+2026-04-19 22:18:16,703 - __main__ - INFO -   Evaluation progress: 90/121 batches (0.48 batches/s)
+2026-04-19 22:18:35,690 - __main__ - INFO -   Evaluation progress: 100/121 batches (0.48 batches/s)
+2026-04-19 22:18:54,163 - __main__ - INFO -   Evaluation progress: 110/121 batches (0.49 batches/s)
+2026-04-19 22:19:16,100 - __main__ - INFO -   Evaluation progress: 120/121 batches (0.48 batches/s)
+2026-04-19 22:19:16,435 - __main__ - INFO - Evaluation complete in 248.22s
+2026-04-19 22:19:16,435 - __main__ - INFO -   Loss: 1.4665, Accuracy: 0.9839, Precision: 0.0000, Recall: 0.0000, F1: 0.0000
+2026-04-19 22:19:16,435 - __main__ - INFO -   TP: 0, FP: 0, TN: 1892, FN: 31
+2026-04-19 22:19:16,435 - __main__ - INFO - Dev Loss: 1.4665
+2026-04-19 22:19:16,436 - __main__ - INFO - Dev Accuracy: 0.9839
+2026-04-19 22:19:16,436 - __main__ - INFO - Dev Precision: 0.0000
+2026-04-19 22:19:16,436 - __main__ - INFO - Dev Recall: 0.0000
+2026-04-19 22:19:16,436 - __main__ - INFO - Dev F1: 0.0000
+2026-04-19 22:19:16,436 - __main__ - INFO -   TP: 0, FP: 0, TN: 1892, FN: 31
+2026-04-19 22:19:16,436 - __main__ - INFO -   No improvement for 1 epochs
+2026-04-19 22:19:19,683 - __main__ - INFO - Saved checkpoint to checkpoints\checkpoint_epoch_1.pt
+2026-04-19 22:19:19,684 - __main__ - INFO - Training complete in 1273.25s!
+2026-04-19 22:19:19,684 - __main__ - INFO - Best F1: 0.0000 at epoch 0
+2026-04-19 22:19:19,684 - __main__ - INFO - ================================================================================
+2026-04-19 22:19:19,685 - __main__ - INFO - Done!
+2026-04-19 22:19:19,685 - __main__ - INFO - ================================================================================
+2026-04-19 22:19:19,685 - __main__ - INFO - Log file: c:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\logs\train_20260419_215801.log

@@ -186,18 +186,21 @@ def load_conversation(ascii_path: str, annotation_path: str) -> IRCConversation:
 
 
 def compute_features(
-    msg_i: IRCMessage, msg_j: IRCMessage, conversation: IRCConversation
+    msg_i: IRCMessage,
+    msg_j: IRCMessage,
+    conversation: IRCConversation,
+    max_dist: int = 30,
 ) -> List[float]:
     """
     Compute 4 handcrafted features as per project plan:
     1. time_diff_min: Time difference in minutes (capped at 100)
     2. speaker_match: 1 if same speaker, 0 otherwise
-    3. pos_dist: Position distance (j - i) normalized by MAX_DIST
+    3. pos_dist: Position distance (j - i) normalized by max_dist
     4. word_jaccard: Jaccard similarity of word sets
 
     Returns: List of 4 feature values
     """
-    MAX_DIST = 101  # From original code: args.max_dist default
+    MAX_DIST = max_dist  # Use provided max_dist for normalization
 
     # 1. Time difference in minutes
     time_diff = 0.0
@@ -207,7 +210,6 @@ def compute_features(
         if hi == hj:
             time_diff = abs(mj - mi)
         else:
-            # Simplified: assume within same hour for now
             time_diff = abs((hj * 60 + mj) - (hi * 60 + mi))
     time_diff_norm = min(time_diff / 60.0, 1.0)  # Normalize to 0-1, cap at 60min
 
@@ -242,7 +244,7 @@ class IRCDisentanglementDataset(Dataset):
         ascii_files: List[str],
         annotation_files: List[str],
         tokenizer,
-        max_dist: int = 101,
+        max_dist: int = 30,
         max_length: int = 128,
         is_test: bool = False,
         test_start: int = 1000,
@@ -253,7 +255,7 @@ class IRCDisentanglementDataset(Dataset):
             ascii_files: List of ASCII file paths
             annotation_files: List of annotation file paths (parallel to ascii_files)
             tokenizer: BERT tokenizer
-            max_dist: Maximum distance to consider for linking (default 101)
+            max_dist: Maximum distance to consider for linking (default 30)
             max_length: Maximum token length for BERT
             is_test: If True, generate pairs for all messages (no gold labels)
             test_start/end: For test mode, which messages to process
@@ -371,7 +373,9 @@ class IRCDisentanglementDataset(Dataset):
                     label = -1.0  # Placeholder
 
                 # Compute features
-                features = compute_features(msg_j, msg_i, conv)  # parent, child
+                features = compute_features(
+                    msg_j, msg_i, conv, max_dist=self.max_dist
+                )  # parent, child
 
                 # Store
                 self.pairs.append((text_pair, label, features))

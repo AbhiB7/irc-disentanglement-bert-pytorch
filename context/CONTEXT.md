@@ -66,24 +66,26 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 **Integration**: Features are concatenated to the 768-dim [CLS] vector, resulting in a 772-dim input to the classification head.
 
 ### Pair Generation & Class Imbalance
-- **Window**: `MAX_DIST` (default 15).
-- **Imbalance**: Ratio is typically 1 positive to 14 negatives.
-- **Solution**: Use `pos_weight=14` in `BCEWithLogitsLoss`.
+- **Window**: `MAX_DIST` (default 30). Reduced from 101 to optimize for local 4070 GPU memory/speed.
+- **Imbalance**: Handled via `pos_weight` in `BCEWithLogitsLoss`.
+- **Solution**: Use `pos_weight=5.0` in `BCEWithLogitsLoss` (reduced from 14.0 to prevent gradient instability).
 
 ---
 
 ## 4. Hardware & Training Strategy
 
-### GPU Selection (Vast.ai Reference)
+### GPU Selection & Local Optimization
 | GPU                        | VRAM      | Price (USD/hr)  | Notes                                     |
 | -------------------------- | --------- | --------------- | ----------------------------------------- |
 | **RTX 4090 (Recommended)** | **24 GB** | **~$0.29–0.39** | Fits BERT-base with batch_size=64.        |
+| RTX 4070 (Local)           | 12 GB     | -               | Requires `max_dist=30` for feasibility.   |
 | A100 40GB                  | 40 GB     | ~$0.63          | Overkill for BERT-base but very stable.   |
 
 ### Training Hyperparameters
-- **Learning Rate**: 2e-5
-- **Epochs**: 3 (BERT typically converges in 2-4 epochs)
-- **Batch Size**: 32 (Safe for 24GB VRAM)
+- **Learning Rate**: 5e-5 (Increased from 2e-5 to overcome majority-class bias).
+- **Epochs**: 3 (BERT typically converges in 2-4 epochs).
+- **Batch Size**: 32 (Safe for 24GB VRAM).
+- **Threshold**: 0.3 (Lowered from 0.5 to improve recall on rare positive samples).
 - **Early Stopping**: Implemented via `--patience` (default 3) to monitor Dev F1.
 
 ---
@@ -93,7 +95,7 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 ### Project Structure
 - `src/data_loader.py`: Handles file discovery, message parsing, and pair generation.
 - `src/model.py`: Defines `CrossEncoderWithFeatures` and model initialization.
-- `src/train.py`: Main entry point for training, evaluation, and checkpointing.
+- `src/train.py`: Main entry point for training, evaluation, and checkpointing. Includes **Smart Logging** for imbalanced data diagnostics.
 - `tests/`: Comprehensive unit tests for data and model logic.
 
 ### Setup Instructions

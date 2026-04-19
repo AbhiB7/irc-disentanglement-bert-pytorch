@@ -1,0 +1,233 @@
+2026-04-19 22:40:11,063 - __main__ - INFO - ================================================================================
+2026-04-19 22:40:11,063 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-04-19 22:40:11,063 - __main__ - INFO - ================================================================================
+2026-04-19 22:40:11,063 - __main__ - INFO - Mode: train
+2026-04-19 22:40:11,063 - __main__ - INFO - Device: cpu
+2026-04-19 22:40:11,063 - __main__ - INFO - Model: bert-base-uncased
+2026-04-19 22:40:11,063 - __main__ - INFO - Batch size: 16
+2026-04-19 22:40:11,063 - __main__ - INFO - Learning rate: 5e-05
+2026-04-19 22:40:11,063 - __main__ - INFO - Epochs: 1
+2026-04-19 22:40:11,063 - __main__ - INFO - Max dist: 30
+2026-04-19 22:40:11,063 - __main__ - INFO - Max length: 128
+2026-04-19 22:40:11,064 - __main__ - INFO - Output dir: checkpoints
+2026-04-19 22:40:11,064 - __main__ - INFO - Using device: cpu
+2026-04-19 22:40:11,064 - __main__ - INFO - Loading tokenizer: bert-base-uncased
+2026-04-19 22:40:11,658 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-19 22:40:11,658 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-19 22:40:11,901 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-19 22:40:12,133 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-19 22:40:12,360 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-19 22:40:12,588 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-19 22:40:12,819 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-19 22:40:12,880 - __main__ - INFO - Tokenizer loaded: BertTokenizer
+2026-04-19 22:40:12,880 - __main__ - INFO - Creating dataloaders...
+2026-04-19 22:40:12,880 - __main__ - INFO - Loading 1 train files...
+2026-04-19 22:40:12,880 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-04-19 22:40:12,880 - data_loader - INFO -   max_dist=30, max_length=128, is_test=False
+2026-04-19 22:40:12,881 - data_loader - INFO -   test_start=1000, test_end=1000000
+2026-04-19 22:40:12,882 - data_loader - INFO - Loading conversation from data/tiny\train\tiny.train.ascii.txt
+2026-04-19 22:40:12,893 - data_loader - INFO -   Read 300 lines from ASCII file
+2026-04-19 22:40:12,894 - data_loader - INFO -   Parsed 300 messages, found 32 unique users
+2026-04-19 22:40:12,928 - data_loader - INFO -   Loaded 212 gold links from annotation file
+2026-04-19 22:40:12,928 - data_loader - INFO -   Conversation 'tiny.train' loaded in 0.05s
+2026-04-19 22:40:12,928 - data_loader - INFO -   Creating pairs for tiny.train: all 300 messages
+2026-04-19 22:40:12,951 - data_loader - INFO -   Created 7685 pairs for tiny.train
+2026-04-19 22:40:12,951 - data_loader - INFO -   File 1/1: tiny.train - 300 messages, 7685 total pairs so far
+2026-04-19 22:40:12,951 - data_loader - INFO - Dataset initialization complete: 7685 pairs from 1 conversations in 0.07s
+2026-04-19 22:40:12,952 - __main__ - INFO -   Train dataset created: 7685 pairs
+2026-04-19 22:40:12,952 - __main__ - INFO - Loading 1 dev files...
+2026-04-19 22:40:12,952 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-04-19 22:40:12,952 - data_loader - INFO -   max_dist=30, max_length=128, is_test=False
+2026-04-19 22:40:12,952 - data_loader - INFO -   test_start=1000, test_end=1000000
+2026-04-19 22:40:12,953 - data_loader - INFO - Loading conversation from data/tiny\dev\tiny.dev.ascii.txt
+2026-04-19 22:40:12,973 - data_loader - INFO -   Read 250 lines from ASCII file
+2026-04-19 22:40:12,974 - data_loader - INFO -   Parsed 250 messages, found 30 unique users
+2026-04-19 22:40:13,001 - data_loader - INFO -   Loaded 188 gold links from annotation file
+2026-04-19 22:40:13,001 - data_loader - INFO -   Conversation 'tiny.dev' loaded in 0.05s
+2026-04-19 22:40:13,001 - data_loader - INFO -   Creating pairs for tiny.dev: all 250 messages
+2026-04-19 22:40:13,016 - data_loader - INFO -   Created 5726 pairs for tiny.dev
+2026-04-19 22:40:13,016 - data_loader - INFO -   File 1/1: tiny.dev - 250 messages, 5726 total pairs so far
+2026-04-19 22:40:13,016 - data_loader - INFO - Dataset initialization complete: 5726 pairs from 1 conversations in 0.06s
+2026-04-19 22:40:13,016 - __main__ - INFO -   Dev dataset created: 5726 pairs
+2026-04-19 22:40:13,017 - __main__ - INFO -   Train dataset: 7685 pairs
+2026-04-19 22:40:13,017 - __main__ - INFO -   Dev dataset: 5726 pairs
+2026-04-19 22:40:13,017 - __main__ - INFO - Creating model...
+2026-04-19 22:40:13,242 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-19 22:40:14,407 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-19 22:40:14,419 - __main__ - INFO -   Parameters: 109,483,013 trainable, 109,483,013 total
+2026-04-19 22:40:14,419 - __main__ - INFO -   BERT hidden size: 768
+2026-04-19 22:40:14,419 - __main__ - INFO -   Combined size: 772
+2026-04-19 22:40:14,419 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
+2026-04-19 22:40:14,419 - __main__ - INFO - Created scheduler with 100 warmup steps, 481 total steps
+2026-04-19 22:40:14,419 - __main__ - INFO - Starting training from epoch 1...
+2026-04-19 22:40:14,419 - __main__ - INFO - ================================================================================
+2026-04-19 22:40:14,419 - __main__ - INFO - Epoch 1/1
+2026-04-19 22:40:14,419 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-04-19 22:40:14,420 - __main__ - INFO - Starting epoch 1 with 481 batches
+2026-04-19 22:40:23,069 - __main__ - INFO - [POSITIVE BATCH]   Batch 2 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.5025, 0.6437], Avg Prob: 0.5589
+2026-04-19 22:40:52,812 - __main__ - INFO - [POSITIVE BATCH]   Batch 7 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.4811, 0.6487], Avg Prob: 0.5647
+2026-04-19 22:41:13,977 - __main__ - INFO -   Epoch 1 progress: 10/481 batches (0.17 batches/s, avg_loss=0.8327)
+2026-04-19 22:42:15,991 - __main__ - INFO -   Epoch 1 progress: 20/481 batches (0.16 batches/s, avg_loss=0.6821)
+2026-04-19 22:43:30,318 - __main__ - INFO -   Epoch 1 progress: 30/481 batches (0.15 batches/s, avg_loss=0.5118)
+2026-04-19 22:44:04,356 - __main__ - INFO - [POSITIVE BATCH]   Batch 35 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0163, 0.0382], Avg Prob: 0.0265
+2026-04-19 22:44:48,868 - __main__ - INFO -   Epoch 1 progress: 40/481 batches (0.15 batches/s, avg_loss=0.4198)
+2026-04-19 22:45:59,283 - __main__ - INFO -   Batch 50 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0068, 0.0292], Avg Prob: 0.0117
+2026-04-19 22:46:03,334 - __main__ - INFO -   Epoch 1 progress: 50/481 batches (0.14 batches/s, avg_loss=0.3392)
+2026-04-19 22:47:27,454 - __main__ - INFO -   Epoch 1 progress: 60/481 batches (0.14 batches/s, avg_loss=0.2839)
+2026-04-19 22:47:38,687 - __main__ - INFO - [POSITIVE BATCH]   Batch 62 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0028, 0.0147], Avg Prob: 0.0059
+2026-04-19 22:48:23,083 - __main__ - INFO - [POSITIVE BATCH]   Batch 68 Stats: Pos/Neg Labels: 2/14, Prob Range: [0.0039, 0.2032], Avg Prob: 0.0303
+2026-04-19 22:48:30,496 - __main__ - INFO - [POSITIVE BATCH]   Batch 69 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0047, 0.2362], Avg Prob: 0.0289
+2026-04-19 22:48:41,780 - __main__ - INFO -   Epoch 1 progress: 70/481 batches (0.14 batches/s, avg_loss=0.2976)
+2026-04-19 22:49:49,416 - __main__ - INFO - [POSITIVE BATCH]   Batch 80 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0097, 0.7276], Avg Prob: 0.0783
+2026-04-19 22:49:53,216 - __main__ - INFO -   Epoch 1 progress: 80/481 batches (0.14 batches/s, avg_loss=0.2674)
+2026-04-19 22:50:47,119 - __main__ - INFO - [POSITIVE BATCH]   Batch 88 Stats: Pos/Neg Labels: 2/14, Prob Range: [0.0058, 0.6220], Avg Prob: 0.0592
+2026-04-19 22:51:05,034 - __main__ - INFO -   Epoch 1 progress: 90/481 batches (0.14 batches/s, avg_loss=0.2480)
+2026-04-19 22:52:25,145 - __main__ - INFO - [POSITIVE BATCH]   Batch 100 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0045, 0.9453], Avg Prob: 0.0688
+2026-04-19 22:52:30,442 - __main__ - INFO -   Epoch 1 progress: 100/481 batches (0.14 batches/s, avg_loss=0.2304)
+2026-04-19 22:53:45,674 - __main__ - INFO -   Epoch 1 progress: 110/481 batches (0.14 batches/s, avg_loss=0.2106)
+2026-04-19 22:53:55,361 - __main__ - INFO - [POSITIVE BATCH]   Batch 112 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0027, 0.0154], Avg Prob: 0.0054
+2026-04-19 22:54:27,524 - __main__ - INFO - [POSITIVE BATCH]   Batch 117 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0044, 0.5694], Avg Prob: 0.0442
+2026-04-19 22:54:49,816 - __main__ - INFO -   Epoch 1 progress: 120/481 batches (0.14 batches/s, avg_loss=0.2067)
+2026-04-19 22:55:49,253 - __main__ - INFO - [POSITIVE BATCH]   Batch 130 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0042, 0.8322], Avg Prob: 0.0628
+2026-04-19 22:55:52,831 - __main__ - INFO -   Epoch 1 progress: 130/481 batches (0.14 batches/s, avg_loss=0.1936)
+2026-04-19 22:56:39,483 - __main__ - INFO - [POSITIVE BATCH]   Batch 138 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0023, 0.0534], Avg Prob: 0.0120
+2026-04-19 22:56:57,161 - __main__ - INFO -   Epoch 1 progress: 140/481 batches (0.14 batches/s, avg_loss=0.1873)
+2026-04-19 22:57:13,653 - __main__ - INFO - [POSITIVE BATCH]   Batch 143 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0036, 0.9378], Avg Prob: 0.0675
+2026-04-19 22:58:04,195 - __main__ - INFO -   Batch 150 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0026, 0.0440], Avg Prob: 0.0102
+2026-04-19 22:58:08,176 - __main__ - INFO -   Epoch 1 progress: 150/481 batches (0.14 batches/s, avg_loss=0.1773)
+2026-04-19 22:59:12,630 - __main__ - INFO -   Epoch 1 progress: 160/481 batches (0.14 batches/s, avg_loss=0.1671)
+2026-04-19 22:59:28,353 - __main__ - INFO - [POSITIVE BATCH]   Batch 163 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0018, 0.5622], Avg Prob: 0.0384
+2026-04-19 23:00:19,804 - __main__ - INFO -   Epoch 1 progress: 170/481 batches (0.14 batches/s, avg_loss=0.1586)
+2026-04-19 23:00:25,187 - __main__ - INFO - [POSITIVE BATCH]   Batch 171 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0012, 0.0670], Avg Prob: 0.0082
+2026-04-19 23:01:43,124 - __main__ - INFO -   Epoch 1 progress: 180/481 batches (0.14 batches/s, avg_loss=0.1559)
+2026-04-19 23:02:18,180 - __main__ - INFO - [POSITIVE BATCH]   Batch 185 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0013, 0.7789], Avg Prob: 0.0879
+2026-04-19 23:02:59,860 - __main__ - INFO -   Epoch 1 progress: 190/481 batches (0.14 batches/s, avg_loss=0.1502)
+2026-04-19 23:03:31,789 - __main__ - INFO - [POSITIVE BATCH]   Batch 195 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0010, 0.8845], Avg Prob: 0.0574
+2026-04-19 23:04:09,241 - __main__ - INFO -   Batch 200 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0010, 0.0609], Avg Prob: 0.0058
+2026-04-19 23:04:13,442 - __main__ - INFO -   Epoch 1 progress: 200/481 batches (0.14 batches/s, avg_loss=0.1433)
+2026-04-19 23:05:01,709 - __main__ - INFO - [POSITIVE BATCH]   Batch 207 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0008, 0.9649], Avg Prob: 0.0629
+2026-04-19 23:05:29,086 - __main__ - INFO -   Epoch 1 progress: 210/481 batches (0.14 batches/s, avg_loss=0.1366)
+2026-04-19 23:06:52,101 - __main__ - INFO -   Epoch 1 progress: 220/481 batches (0.14 batches/s, avg_loss=0.1306)
+2026-04-19 23:07:10,803 - __main__ - INFO - [POSITIVE BATCH]   Batch 223 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0008, 0.9904], Avg Prob: 0.0634
+2026-04-19 23:07:17,580 - __main__ - INFO - [POSITIVE BATCH]   Batch 224 Stats: Pos/Neg Labels: 2/14, Prob Range: [0.0008, 0.9862], Avg Prob: 0.0905
+2026-04-19 23:08:08,173 - __main__ - INFO -   Epoch 1 progress: 230/481 batches (0.14 batches/s, avg_loss=0.1263)
+2026-04-19 23:08:20,065 - __main__ - INFO - [POSITIVE BATCH]   Batch 232 Stats: Pos/Neg Labels: 2/14, Prob Range: [0.0008, 0.3897], Avg Prob: 0.0272
+2026-04-19 23:08:36,120 - __main__ - INFO - [POSITIVE BATCH]   Batch 234 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0008, 0.9863], Avg Prob: 0.1214
+2026-04-19 23:08:53,312 - __main__ - INFO - [POSITIVE BATCH]   Batch 236 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0013, 0.2691], Avg Prob: 0.0190
+2026-04-19 23:09:34,891 - __main__ - INFO -   Epoch 1 progress: 240/481 batches (0.14 batches/s, avg_loss=0.1335)
+2026-04-19 23:09:48,249 - __main__ - INFO - [POSITIVE BATCH]   Batch 242 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0043, 0.9853], Avg Prob: 0.0862
+2026-04-19 23:10:34,890 - __main__ - INFO - [POSITIVE BATCH]   Batch 247 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0028, 0.9706], Avg Prob: 0.1150
+2026-04-19 23:11:00,288 - __main__ - INFO -   Batch 250 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0033, 0.0237], Avg Prob: 0.0074
+2026-04-19 23:11:04,373 - __main__ - INFO -   Epoch 1 progress: 250/481 batches (0.14 batches/s, avg_loss=0.1311)
+2026-04-19 23:11:39,309 - __main__ - INFO - [POSITIVE BATCH]   Batch 255 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0024, 0.9551], Avg Prob: 0.0696
+2026-04-19 23:12:18,164 - __main__ - INFO -   Epoch 1 progress: 260/481 batches (0.14 batches/s, avg_loss=0.1264)
+2026-04-19 23:13:30,006 - __main__ - INFO -   Epoch 1 progress: 270/481 batches (0.14 batches/s, avg_loss=0.1220)
+2026-04-19 23:14:17,400 - __main__ - INFO - [POSITIVE BATCH]   Batch 277 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0014, 0.4441], Avg Prob: 0.0448
+2026-04-19 23:14:44,726 - __main__ - INFO -   Epoch 1 progress: 280/481 batches (0.14 batches/s, avg_loss=0.1187)
+2026-04-19 23:14:55,870 - __main__ - INFO - [POSITIVE BATCH]   Batch 282 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0009, 0.4930], Avg Prob: 0.0335
+2026-04-19 23:16:01,669 - __main__ - INFO -   Epoch 1 progress: 290/481 batches (0.14 batches/s, avg_loss=0.1158)
+2026-04-19 23:16:13,154 - __main__ - INFO - [POSITIVE BATCH]   Batch 292 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0012, 0.9445], Avg Prob: 0.0629
+2026-04-19 23:16:52,369 - __main__ - INFO - [POSITIVE BATCH]   Batch 297 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0009, 0.9460], Avg Prob: 0.0670
+2026-04-19 23:17:18,817 - __main__ - INFO -   Batch 300 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0008, 0.0107], Avg Prob: 0.0023
+2026-04-19 23:17:23,063 - __main__ - INFO -   Epoch 1 progress: 300/481 batches (0.13 batches/s, avg_loss=0.1122)
+2026-04-19 23:18:07,489 - __main__ - INFO - [POSITIVE BATCH]   Batch 305 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0010, 0.9665], Avg Prob: 0.1093
+2026-04-19 23:19:04,328 - __main__ - INFO -   Epoch 1 progress: 310/481 batches (0.13 batches/s, avg_loss=0.1096)
+2026-04-19 23:19:08,688 - __main__ - INFO - [POSITIVE BATCH]   Batch 311 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0009, 0.9707], Avg Prob: 0.0624
+2026-04-19 23:19:38,332 - __main__ - INFO - [POSITIVE BATCH]   Batch 315 Stats: Pos/Neg Labels: 2/14, Prob Range: [0.0008, 0.9794], Avg Prob: 0.0941
+2026-04-19 23:20:20,850 - __main__ - INFO -   Epoch 1 progress: 320/481 batches (0.13 batches/s, avg_loss=0.1073)
+2026-04-19 23:21:35,870 - __main__ - INFO -   Epoch 1 progress: 330/481 batches (0.13 batches/s, avg_loss=0.1044)
+2026-04-19 23:21:39,354 - __main__ - INFO - [POSITIVE BATCH]   Batch 331 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0007, 0.0369], Avg Prob: 0.0036
+2026-04-19 23:21:47,087 - __main__ - INFO - [POSITIVE BATCH]   Batch 332 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0008, 0.1234], Avg Prob: 0.0166
+2026-04-19 23:22:11,288 - __main__ - INFO - [POSITIVE BATCH]   Batch 335 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0011, 0.2100], Avg Prob: 0.0167
+2026-04-19 23:22:25,978 - __main__ - INFO - [POSITIVE BATCH]   Batch 337 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0013, 0.5039], Avg Prob: 0.0336
+2026-04-19 23:22:54,034 - __main__ - INFO -   Epoch 1 progress: 340/481 batches (0.13 batches/s, avg_loss=0.1116)
+2026-04-19 23:23:42,085 - __main__ - INFO - [POSITIVE BATCH]   Batch 345 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0017, 0.9476], Avg Prob: 0.0663
+2026-04-19 23:24:26,236 - __main__ - INFO -   Batch 350 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0020, 0.1371], Avg Prob: 0.0122
+2026-04-19 23:24:30,966 - __main__ - INFO -   Epoch 1 progress: 350/481 batches (0.13 batches/s, avg_loss=0.1097)
+2026-04-19 23:24:59,302 - __main__ - INFO - [POSITIVE BATCH]   Batch 354 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0015, 0.9342], Avg Prob: 0.0629
+2026-04-19 23:25:24,979 - __main__ - INFO - [POSITIVE BATCH]   Batch 357 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0015, 0.8922], Avg Prob: 0.0711
+2026-04-19 23:25:52,378 - __main__ - INFO -   Epoch 1 progress: 360/481 batches (0.13 batches/s, avg_loss=0.1074)
+2026-04-19 23:26:10,892 - __main__ - INFO - [POSITIVE BATCH]   Batch 363 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0016, 0.6010], Avg Prob: 0.0427
+2026-04-19 23:26:42,591 - __main__ - INFO - [POSITIVE BATCH]   Batch 367 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0015, 0.9878], Avg Prob: 0.0681
+2026-04-19 23:27:09,764 - __main__ - INFO -   Epoch 1 progress: 370/481 batches (0.13 batches/s, avg_loss=0.1051)
+2026-04-19 23:28:40,736 - __main__ - INFO -   Epoch 1 progress: 380/481 batches (0.13 batches/s, avg_loss=0.1027)
+2026-04-19 23:29:54,333 - __main__ - INFO -   Epoch 1 progress: 390/481 batches (0.13 batches/s, avg_loss=0.1005)
+2026-04-19 23:31:08,174 - __main__ - INFO -   Batch 400 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0012, 0.0027], Avg Prob: 0.0018
+2026-04-19 23:31:11,804 - __main__ - INFO -   Epoch 1 progress: 400/481 batches (0.13 batches/s, avg_loss=0.0984)
+2026-04-19 23:31:50,970 - __main__ - INFO - [POSITIVE BATCH]   Batch 406 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0009, 0.9783], Avg Prob: 0.0641
+2026-04-19 23:31:57,571 - __main__ - INFO - [POSITIVE BATCH]   Batch 407 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0011, 0.1727], Avg Prob: 0.0132
+2026-04-19 23:32:14,299 - __main__ - INFO - [POSITIVE BATCH]   Batch 409 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0010, 0.3362], Avg Prob: 0.0283
+2026-04-19 23:32:26,202 - __main__ - INFO -   Epoch 1 progress: 410/481 batches (0.13 batches/s, avg_loss=0.0983)
+2026-04-19 23:32:36,378 - __main__ - INFO - [POSITIVE BATCH]   Batch 412 Stats: Pos/Neg Labels: 3/13, Prob Range: [0.0013, 0.6380], Avg Prob: 0.0915
+2026-04-19 23:33:32,227 - __main__ - INFO - [POSITIVE BATCH]   Batch 419 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0012, 0.7720], Avg Prob: 0.0947
+2026-04-19 23:33:44,027 - __main__ - INFO -   Epoch 1 progress: 420/481 batches (0.13 batches/s, avg_loss=0.0984)
+2026-04-19 23:34:04,181 - __main__ - INFO - [POSITIVE BATCH]   Batch 423 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0012, 0.6673], Avg Prob: 0.0446
+2026-04-19 23:34:59,258 - __main__ - INFO -   Epoch 1 progress: 430/481 batches (0.13 batches/s, avg_loss=0.0967)
+2026-04-19 23:35:09,759 - __main__ - INFO - [POSITIVE BATCH]   Batch 432 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0013, 0.9679], Avg Prob: 0.0631
+2026-04-19 23:36:14,800 - __main__ - INFO -   Epoch 1 progress: 440/481 batches (0.13 batches/s, avg_loss=0.0953)
+2026-04-19 23:37:18,053 - __main__ - INFO - [POSITIVE BATCH]   Batch 449 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0011, 0.9782], Avg Prob: 0.0648
+2026-04-19 23:37:26,747 - __main__ - INFO -   Batch 450 Stats: Pos/Neg Labels: 0/16, Prob Range: [0.0011, 0.0313], Avg Prob: 0.0049
+2026-04-19 23:37:31,059 - __main__ - INFO -   Epoch 1 progress: 450/481 batches (0.13 batches/s, avg_loss=0.0933)
+2026-04-19 23:37:34,586 - __main__ - INFO - [POSITIVE BATCH]   Batch 451 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0013, 0.8562], Avg Prob: 0.0556
+2026-04-19 23:38:50,125 - __main__ - INFO -   Epoch 1 progress: 460/481 batches (0.13 batches/s, avg_loss=0.0916)
+2026-04-19 23:40:11,876 - __main__ - INFO -   Epoch 1 progress: 470/481 batches (0.13 batches/s, avg_loss=0.0900)
+2026-04-19 23:40:29,311 - __main__ - INFO - [POSITIVE BATCH]   Batch 473 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0012, 0.8680], Avg Prob: 0.0565
+2026-04-19 23:40:42,891 - __main__ - INFO - [POSITIVE BATCH]   Batch 475 Stats: Pos/Neg Labels: 1/15, Prob Range: [0.0010, 0.8341], Avg Prob: 0.0566
+2026-04-19 23:41:23,798 - __main__ - INFO -   Epoch 1 progress: 480/481 batches (0.13 batches/s, avg_loss=0.0889)
+2026-04-19 23:41:26,832 - __main__ - INFO - Epoch 1 complete in 3672.41s, avg_loss=0.0887
+2026-04-19 23:41:26,841 - __main__ - INFO - Train Loss: 0.0887
+2026-04-19 23:41:26,844 - __main__ - INFO - Evaluating on dev set...
+2026-04-19 23:41:26,852 - __main__ - INFO - Starting evaluation on 5726 pairs
+2026-04-19 23:41:44,357 - __main__ - INFO -   Evaluation progress: 10/358 batches (0.57 batches/s)
+2026-04-19 23:42:02,990 - __main__ - INFO -   Evaluation progress: 20/358 batches (0.55 batches/s)
+2026-04-19 23:42:21,436 - __main__ - INFO -   Evaluation progress: 30/358 batches (0.55 batches/s)
+2026-04-19 23:42:39,383 - __main__ - INFO -   Evaluation progress: 40/358 batches (0.55 batches/s)
+2026-04-19 23:42:56,744 - __main__ - INFO -   Evaluation progress: 50/358 batches (0.56 batches/s)
+2026-04-19 23:43:14,003 - __main__ - INFO -   Evaluation progress: 60/358 batches (0.56 batches/s)
+2026-04-19 23:43:34,810 - __main__ - INFO -   Evaluation progress: 70/358 batches (0.55 batches/s)
+2026-04-19 23:43:53,439 - __main__ - INFO -   Evaluation progress: 80/358 batches (0.55 batches/s)
+2026-04-19 23:44:12,838 - __main__ - INFO -   Evaluation progress: 90/358 batches (0.54 batches/s)
+2026-04-19 23:44:31,559 - __main__ - INFO -   Evaluation progress: 100/358 batches (0.54 batches/s)
+2026-04-19 23:44:51,279 - __main__ - INFO -   Evaluation progress: 110/358 batches (0.54 batches/s)
+2026-04-19 23:45:11,054 - __main__ - INFO -   Evaluation progress: 120/358 batches (0.54 batches/s)
+2026-04-19 23:45:31,251 - __main__ - INFO -   Evaluation progress: 130/358 batches (0.53 batches/s)
+2026-04-19 23:45:51,044 - __main__ - INFO -   Evaluation progress: 140/358 batches (0.53 batches/s)
+2026-04-19 23:46:10,126 - __main__ - INFO -   Evaluation progress: 150/358 batches (0.53 batches/s)
+2026-04-19 23:46:29,392 - __main__ - INFO -   Evaluation progress: 160/358 batches (0.53 batches/s)
+2026-04-19 23:46:48,408 - __main__ - INFO -   Evaluation progress: 170/358 batches (0.53 batches/s)
+2026-04-19 23:47:07,494 - __main__ - INFO -   Evaluation progress: 180/358 batches (0.53 batches/s)
+2026-04-19 23:47:25,106 - __main__ - INFO -   Evaluation progress: 190/358 batches (0.53 batches/s)
+2026-04-19 23:47:43,455 - __main__ - INFO -   Evaluation progress: 200/358 batches (0.53 batches/s)
+2026-04-19 23:48:02,016 - __main__ - INFO -   Evaluation progress: 210/358 batches (0.53 batches/s)
+2026-04-19 23:48:20,197 - __main__ - INFO -   Evaluation progress: 220/358 batches (0.53 batches/s)
+2026-04-19 23:48:41,827 - __main__ - INFO -   Evaluation progress: 230/358 batches (0.53 batches/s)
+2026-04-19 23:49:00,395 - __main__ - INFO -   Evaluation progress: 240/358 batches (0.53 batches/s)
+2026-04-19 23:49:19,291 - __main__ - INFO -   Evaluation progress: 250/358 batches (0.53 batches/s)
+2026-04-19 23:49:40,334 - __main__ - INFO -   Evaluation progress: 260/358 batches (0.53 batches/s)
+2026-04-19 23:50:01,010 - __main__ - INFO -   Evaluation progress: 270/358 batches (0.53 batches/s)
+2026-04-19 23:50:22,276 - __main__ - INFO -   Evaluation progress: 280/358 batches (0.52 batches/s)
+2026-04-19 23:50:42,374 - __main__ - INFO -   Evaluation progress: 290/358 batches (0.52 batches/s)
+2026-04-19 23:51:02,196 - __main__ - INFO -   Evaluation progress: 300/358 batches (0.52 batches/s)
+2026-04-19 23:51:21,597 - __main__ - INFO -   Evaluation progress: 310/358 batches (0.52 batches/s)
+2026-04-19 23:51:39,434 - __main__ - INFO -   Evaluation progress: 320/358 batches (0.52 batches/s)
+2026-04-19 23:51:57,876 - __main__ - INFO -   Evaluation progress: 330/358 batches (0.52 batches/s)
+2026-04-19 23:52:16,267 - __main__ - INFO -   Evaluation progress: 340/358 batches (0.52 batches/s)
+2026-04-19 23:52:36,993 - __main__ - INFO -   Evaluation progress: 350/358 batches (0.52 batches/s)
+2026-04-19 23:52:52,500 - __main__ - INFO - Evaluation complete in 685.65s
+2026-04-19 23:52:52,500 - __main__ - INFO -   Loss: 0.0592, Accuracy: 0.9633, Precision: 0.2285, Recall: 0.9385, F1: 0.3675
+2026-04-19 23:52:52,500 - __main__ - INFO -   TP: 61, FP: 206, TN: 5455, FN: 4
+2026-04-19 23:52:52,501 - __main__ - INFO - Dev Loss: 0.0592
+2026-04-19 23:52:52,501 - __main__ - INFO - Dev Accuracy: 0.9633
+2026-04-19 23:52:52,501 - __main__ - INFO - Dev Precision: 0.2285
+2026-04-19 23:52:52,501 - __main__ - INFO - Dev Recall: 0.9385
+2026-04-19 23:52:52,502 - __main__ - INFO - Dev F1: 0.3675
+2026-04-19 23:52:52,502 - __main__ - INFO -   TP: 61, FP: 206, TN: 5455, FN: 4
+2026-04-19 23:52:52,502 - __main__ - INFO -   New best F1! Saving best model...
+2026-04-19 23:52:56,061 - __main__ - INFO - Saved checkpoint to checkpoints\best\checkpoint_epoch_1.pt
+2026-04-19 23:52:59,770 - __main__ - INFO - Saved checkpoint to checkpoints\checkpoint_epoch_1.pt
+2026-04-19 23:52:59,771 - __main__ - INFO - Training complete in 4365.35s!
+2026-04-19 23:52:59,771 - __main__ - INFO - Best F1: 0.3675 at epoch 1
+2026-04-19 23:52:59,782 - __main__ - INFO - ================================================================================
+2026-04-19 23:52:59,782 - __main__ - INFO - Done!
+2026-04-19 23:52:59,782 - __main__ - INFO - ================================================================================
+2026-04-19 23:52:59,782 - __main__ - INFO - Log file: c:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\logs\train_20260419_224011.log

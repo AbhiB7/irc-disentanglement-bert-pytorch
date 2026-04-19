@@ -98,3 +98,153 @@
 [03:44] <djtansey> jdub: k3b will?
 [03:44] <jdub> no, there's no 2.6.9 in warty or hoary
 [03:44] <jdub> yes
+[03:45] <jdub> there are plenty of people using it
+[03:45] <Nafallo> jdub: never worked with ANY 2.6 for me :-P
+[03:45] <djtansey> jdub: then any guess as to what the problem is?
+[03:45] <Nafallo> jdub: that's with both ubuntu and debian kernels.
+[03:45] <jdub> dunno if there's a FAQ or something on the website, but it would make sense to check
+[03:45] <djtansey> jdub: i did. nothing i could find that was related
+[03:45] <Nafallo> opss, typo! 2.6.8* ;-)
+[03:46] <djtansey> jdub: other than some k3bsetup .ICEauthority issues
+[03:46] <djtansey> Nafallo: but it works with 2.6.7 for you?
+[03:46] <Nafallo> jdub: k3b and 2.6.8|2.6.8.1 on both my computers with burners fail.
+[03:46] <Nafallo> djtansey: yes.
+[03:47] <Nafallo> djtansey: and it should be fixed in 2.6.9 also :-)
+[03:47] <jdub> Nafallo: the ubuntu kernels do not have those bugs.
+[03:47] <djtansey> Nafallo: thanks.
+[03:48] <jdub> plenty of other people are using k3b with ubuntu
+[03:48] <Nafallo> jdub: how come when I TRIED with ubuntu k3b couldn't see my burner?
+[03:48] <Nafallo> jdub: same thing with my girlfriend.
+[03:48] <jdub> i don't know your particular circumstances
+[03:48] <jdub> i can only relate what i know
+[03:48] <Nafallo> it just doesn't work :-)
+[03:48] <Nafallo> jdub: same here.
+[03:48] <jdub> that may be true in your case
+[03:48] <jdub> but it is not the case for many other users
+[03:50] <Nafallo> jdub: maybe it's just drive specific?
+[03:50] <jdub> i don't know
+[03:50] <Nafallo> jdub: but then, I got both a samsung and a toshiba ;-).
+=== logic is now known as logic|away
+[03:51] <Nafallo> it might be that I'm running my cd-rws as ide-cd :-)
+[03:51] <djtansey> Nafallo: but i can use cdrecord dev=/dev/hdc without problem. you'd think k3b would be equally capable
+[03:52] <Nafallo> djtansey: yepp, I've given up on the subject anyway :-P. ubuntu showed me the way nautilus does it :-P.
+[03:52] <phill> Hi, I have a rather long question, so I have posted it here on the ubuntu forums. If anyone here has any answers to it, I would very much appreciate the help!
+[03:52] <phill> http://www.ubuntuforums.org/showthread.php?p=11009#post11009
+[03:52] <djtansey> Nafallo: usually that's what i do. unfortunately i am burning audio CDs for a roadtrip :)
+[03:53] <ajmitch> djtansey: running k3b with sudo?
+[03:54] <ajmitch> not that it should matter with the patched kernel
+=== Elyran [~mirspcm@lns-th2-4f-81-56-180-71.adsl.proxad.net]  has joined #ubuntu
+[03:54] <djtansey> ajmitch: no. but i gave k3b my root password so those apps have root permissions
+[03:54] <Nafallo> phill: my friend installed that on his lappy yesterday. he just had to apt-get and s/ati/fglrx/ :-)
+[03:55] <Nafallo> phill: and then restart x and gdm ofcourse :-)
+[03:55] <Nafallo> djtansey: k3b doesn't have root permissions.
+[03:55] <Nafallo> djtansey: cdrecord and cdrdao have :-).
+[03:56] <phill> hi, ok, how do i restard x/gdm?
+=== GnuHippy [~jason@blk-222-217-193.eastlink.ca]  has joined #ubuntu
+[03:57] <djtansey> Nafallo: that's why i meants by "those apps." would giving k3b root help? (not that it matters now. i just finished my last CD using cdrecord)
+[03:57] <Nafallo> phill: logout from X, when you're at the login screen, press CTRL+F1, login and typ sudo /etc/init.d/gdm restart
+=== draconian [~draconian@ip68-7-178-227.sd.sd.cox.net]  has joined #ubuntu
+[03:59] <HrdwrBoB> ctrl+alt+f1
+[03:59] <Nafallo> HrdwrBoB: thanks :-)
+[03:59] <phill> ok will give it a go :)
+=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has joined #ubuntu
+[03:59] <phill> so i don't need to apt-get install linux-686 or whatever the binarydriverhowto said?
+[04:00] <Nafallo> ahh, yes. you have to switch kernel to :-).
+[04:00] <Nafallo> phill: that makes it easier, because you have to restart to make the new kernel load ;-).
+[04:01] <ghc> Hi all. Is this a good place to ask for some technical help on installing ubuntu on some hardware which is being difficult?
+=== Striss [~Strain@blk-222-170-205.eastlink.ca]  has joined #Ubuntu
+[04:02] <Striss> woo fluxbox is working perfect
+[04:02] <Striss> ubuntu is so great
+[04:02] <phill> i have to what? :(
+[04:02] <ghc> I've got an IBM ThinkCenter with a SATA chipset which I can't get working.
+[04:02] <Nafallo> phill: follow the howto :-)
+[04:02] <phill> ok
+=== Elroy-J [~mirak@adsl-68-74-28-228.dsl.sfldmi.ameritech.net]  has joined #ubuntu
+[04:03] <Gmail> bob2: i am going to /msg you now
+[04:04] <phill> since i'm using a 386 kernel at the moment i should just get that and it will replace my current one?
+[04:04] <Nafallo> phill: you need to run 686 yes.
+[04:04] <phill> oh
+[04:04] <phill> i need to get linux-686
+[04:04] <phill> ?
+[04:04] <Nafallo> yes
+[04:05] <phill> and then make sure grub uses that?
+[04:05] <phill> at what point do i reboot? after the kernel installs and then continue isntalling fglrx after i have linux-686 going? will linux-686 pickup my nvidia agpgart?
+[04:07] <usual> can I do a cryptoloop on my root running reiserfs?
+=== timello [~tiago@201.7.63.18]  has joined #ubuntu
+[04:07] <Nafallo> phill: install linux-686 and fglrx-driver, then sed then reboot and it will work.
+=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has left #ubuntu []
+=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has joined #ubuntu
+[04:11] <phill> natfallo: alright. last time i tried x wouldn't start :( but i'll give it another shot
+[04:11] <Nafallo> last time, did you have i686-kernel?
+[04:11] <phill> yes
+[04:11] <phill> i did the guide
+=== usual [~colin@alb-69-200-178-150.nycap.rr.com]  has joined #ubuntu
+[04:14] <cuga> Hey i just noticed this, ubuntu's ssh server is called openserver-ssh... is it still openssh just rebranded ?
+=== danhunt [~dan_hunt@hssxpa204-83-181-43.sasknet.sk.ca]  has joined #ubuntu
+[04:14] <bob2> cuga: no it's not
+[04:14] <bob2> it's called openssh-server
+[04:14] <bob2> it is openssh.
+[04:14] <Elroy-J> lol
+[04:15] <cuga> bob2: man, i must be dislexic.. if i could spell it
+[04:16] <HrdwrBoB> dyslexis
+[04:16] <HrdwrBoB> dyslexic
+[04:16] <HrdwrBoB> I can spell, just not type
+[04:16] <cuga> i was only off by one letter.. tahts hot
+=== _timello [~tiago@201.7.53.31]  has joined #ubuntu
+[04:20] <_timello> sorry, but I lost my link, repeating the question: anybody knows why I can't play any .mpg, etc? it shows me the sound, but not shows me the screen
+[04:21] <bob2> RestrictedFormats on the wiki
+[04:21] <Nafallo> _timello: probably missing codecs
+[04:21] <Nafallo> hmm
+[04:22] <Nafallo> anyone else got troubles with docbook-dsssl?
+=== dasenjo [~dasenjo@201.245.164.26]  has joined #ubuntu
+[04:22] <Nafallo> version 1.57-4
+[04:22] <Nafallo> typo
+[04:22] <Nafallo> version 1.78-4
+[04:24] <danhunt> check http://www.desktopos.com/reviews.php?op=PrintReview&id=21 for .mpg tips.
+[04:24] <Nafallo> hmm, odd
+[04:24] <Nafallo> it works now :-P
+=== atariboy [~atari@dsl-203-142-136-122.mel.directcorp.net.au]  has joined #ubuntu
+[04:25] <Nafallo> finally I'm on warty again ;-)
+[04:26] <Nafallo> takes a bit more to downgrade through aptitude than upgrade ;-)
+=== natea [~natea@h000f66a887c6.ne.client2.attbi.com]  has joined #ubuntu
+[04:29] <_timello> danhunt, I installed mplayer and the essential codecs package, but it still isn't working. I didn't find why
+[04:30] <Nafallo> _timello: run mplayer from a terminal and check the output?
+[04:34] <_timello> it shows errors like: can't open ~/.mplayer/codecs.conf, font, but I don't think so that it is the real problem
+[04:34] <bob2> it's not an error, it's a warning
+[04:35] <_timello> yes, sorry
+[04:35] <billytwowilly> how do I enable panel support in xchat?
+=== _timello is now known as timello
+=== doko [doko@dsl-082-082-066-197.arcor-ip.net]  has joined #ubuntu
+=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has left #ubuntu []
+[04:42] <timello> maybe has a package for X that allows it? Totem doesn't show me nothing either
+=== poin__t [point@203.130.197.108]  has joined #ubuntu
+[04:43] <timello> I'm using a nvidia gforce mx440
+[04:44] <Pizbit> billytwowilly: panel support = ?
+[04:45] <Pizbit> timello: You installed the w32codecs package eh? Tried changing from totem-gst to totem-xine ?
+[04:46] <timello> Pizbit, just for mplayer... I' ll go try
+[04:46] <Pizbit> (although personally I use xine)
+[04:47] <timello> apt-get install xine-ui?
+=== jg [~jg@h005018015b26.ne.client2.attbi.com]  has joined #ubuntu
+[04:48] <Pizbit> Yeah
+=== janice [~janice@adsl-11-179-21.mia.bellsouth.net]  has joined #ubuntu
+[04:49] <Nafallo> WTF!
+=== benh` [~benh@h000c414a0141.ne.client2.attbi.com]  has joined #ubuntu
+[04:49] <janice> Hi All! I took the plunge and installed Ubuntu. However, I need some help.
+[04:49] <nomasteryoda> excellent
+[04:49] <Nafallo> @ogre:/mnt/mirrors/ubuntu/pool/main/g/gnutls10$ ls -al
+[04:49] <Nafallo> lrwxrwxrwx    1 root     root           77 2004-11-02 22:07 libgnutls10-dev_1.0.4-3ubuntu1_amd64.deb -> ../../../../pool/universe/g/gnutls10/libgnutls10-dev_1.0.4-3ubuntu1_amd64.deb
+[04:49] <benh`> is it possible (or desirable) to dist-upgrade to hoary?
+[04:50] <HrdwrBoB> benh`: yes and maybe
+[04:50] <benh`> ok, just s/wart/hoary in sources.list?
+[04:50] <timello> Pizbit, it comes with codecs?
+[04:50] <nomasteryoda> HrdwrBoB: Ubuntu has given me excellent results with TVtime too
+[04:50] <nomasteryoda> much better on my old wintv card
+[04:50] <nomasteryoda> than mandrake
+[04:50] <bob2> benh`: are you willing to deal with broken things and to file bug reports?
+[04:50] <janice> I have an unsupported USRobotics wireless PCI card and I need to use ndiswrapper. Unfortunately, the install cd (Warty 4.10 Full Release) does not have ndiswrapper. What is the URL from the ubutnu website that I can download it from?
+[04:50] <HrdwrBoB> heh
+[04:50] <HrdwrBoB> good to hear :)
+[04:51] <HrdwrBoB> janice: if you start synaptic
+[04:51] <HrdwrBoB> and you enable 'restricted'
+[04:51] <HrdwrBoB> you can install ndiswrapper
+[04:51] <benh`> bob2, depends on how broken and yes

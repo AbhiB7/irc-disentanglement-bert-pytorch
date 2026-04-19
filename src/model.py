@@ -148,8 +148,9 @@ class CrossEncoderWithFeatures(nn.Module):
         # Compute loss if labels provided
         if labels is not None:
             # Binary cross-entropy loss
-            # Use pos_weight=14 as mentioned in plan (imbalanced dataset)
-            loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(14.0).to(logits.device))
+            # Reduced pos_weight from 14.0 to 5.0 to prevent gradient instability
+            # and help the model converge on imbalanced data.
+            loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(5.0).to(logits.device))
             loss = loss_fn(logits, labels)
             outputs['loss'] = loss
         

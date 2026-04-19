@@ -8,12 +8,19 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
+- ✅ **Model Fix**: Resolved "all-zero" prediction issue via hyperparameter tuning.
 - ✅ **Early Stopping**: Implemented and verified in `train.py`.
 - ✅ **Documentation**: Refactored into three distinct files (`instructions.md`, `context.md`, `progress.md`).
 - ✅ **Environment**: Python 3.13 compatibility confirmed on Windows.
+- ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
 - 🔄 **Next Major Milestone**: Execute full training run on GPU (Vast.ai).
 
 ## Recent Completions (2026-04-19)
+- **Model Fix**: Resolved "all-zero" prediction issue by reducing `pos_weight` (14.0 -> 5.0), increasing learning rate (2e-5 -> 5e-5), and lowering threshold (0.5 -> 0.3).
+- **Diagnostic Logging**: Added "Smart Logging" to `train.py` to track probability distributions and positive batch statistics.
+- **Dataset Fix**: Recreated `tiny` dataset with guaranteed gold links to enable valid local verification.
+- **Optimization**: Reduced default `max_dist` from 101 to 30 to support local training on RTX 4070.
+- **Feature Refactoring**: Refactored `compute_features` to dynamically accept `max_dist` for correct normalization.
 - **Early Stopping**: Added `--patience` argument and logic to `train.py`. Verified via `args.json`.
 - **Context Audit**: Consolidated redundant documentation and separated behavioral rules from project knowledge.
 - **Code Explanation**: Clarified `data_loader.py` entry points and `args` object usage for the user.
@@ -26,7 +33,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - [x] Update `progress.md` with current state.
 
 ## Next Steps
-1. **GPU Training**: Prepare `full_train.sh` for execution on a Vast.ai RTX 4090 instance.
+1. **GPU Training**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti (15-hour overnight run).
 2. **Inference**: Run the trained model on all 10 dev files.
 3. **Evaluation**: Use `graph-eval.py` to generate final link-level F1 metrics.
 4. **Comparison**: Compare BERT results against the Study 1 DyNet baseline.

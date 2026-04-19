@@ -42,8 +42,6 @@ Thumbs.db
 checkpoints/
 checkpoints_tiny/
 
-# Logs
-logs/
 
 # Large data files (if not needed in repo)
 acl19-irc-disentanglement_auto-data-full.txt/

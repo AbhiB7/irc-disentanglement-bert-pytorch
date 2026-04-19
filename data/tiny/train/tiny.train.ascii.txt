@@ -1,100 +1,300 @@
-[00:42] <pedlar> i think so
-[00:42] <delire> spanglesontoast in that case..
-[00:43] <benplaut> spanglesontoast: do you live in kentucky?
-[00:43] <pusling> IIIEars: do not remember. Just tried if it worked. I have normal dvd-player for watching movies ;)
-[00:43] <benplaut> o/t
-[00:43] <shinu> pusling: but how can i kill the mount process?... the cdrom is not mounted yet...
-[00:43] <kent> pedlar, and you ran that *after* you added the hoary-extra  right?
-[00:43] <IIIEars> Okay. :)
-=== haich [~haich@76.Red-83-37-198.pooles.rima-tde.net]  has joined #ubuntu
-=== ubuntu [~ubuntu@82.249.146.204]  has joined #ubuntu
-[00:43] <delire> spanglesontoast apt-get install linux-source-$(uname -r) linux-headers-$(uname  -r)
-=== Johnnyfav [~a@toronto-HSE-ppp4079548.sympatico.ca]  has joined #ubuntu
-[00:43] <limer> pusling: ok, execute dpkg -i ?
-[00:43] <pedlar> yup
-[00:43] <crimsun> toxicfume: you can install it manually using sudo dpkg -i
-[00:43] <Johnnyfav> can you logon to http sites through terminal?
-[00:43] <pedlar> kent, and just did it again
-[00:43] <pusling> limer: something like that. yes
-[00:44] <toxicfume> crimsun: oh okay
-[00:44] <pusling> shinu: force-unload cdrom-filetype-modules and try kill again
-[00:44] <delire> spanglesontoast i can't remember if "linux-headers-$(uname -r)" is right however. i run debian here
-[00:44] <toxicfume> crimsun: okay, looks like it's done, what do i do next?
-[00:44] <delire> spanglesontoast we have different package names for this material
-[00:45] <spanglesontoast> ah
-[00:45] <IIIEars> !marillat
-[00:45] <ubotu> add deb ftp://ftp.nerim.net/debian-marillat/ stable main to your sources.list. Change stable to testing or unstable according to the distribution you are using. "deb ftp://ftp.nerim.net/debian-marillat/ stable main".
-[00:45] <crimsun> toxicfume: what was the output from it installing? Paste to pastebin
-[00:45] <delire> spanglesontoast you need these files to compile against. they contain information needed by the ATI driver compilation process
-=== Groov [~bombertes@p54A39F20.dip0.t-ipconnect.de]  has joined #ubuntu
-[00:45] <mrchicago> !marillat
-=== Niriven|Brb [~None@pcp0010154012pcs.coatsv01.pa.comcast.net]  has joined #ubuntu
-[00:45] <spanglesontoast> ah
-=== Niriven|Brb [~None@pcp0010154012pcs.coatsv01.pa.comcast.net]  has left #ubuntu []
-[00:46] <psychonate> OK, I think the problem may be a memory leak from Xorg, as in https://bugzilla.ubuntu.com/show_bug.cgi?id=10663 .
-[00:46] <spanglesontoast> I'm just wondering why there isn't an already made .deb
-[00:46] <spanglesontoast> for ati?
-[00:46] <benplaut> spangles: do you live in kentucky?
-[00:46] <delire> spanglesontoast compilation of anything is always involved in any platform
-[00:46] <pusling> IIIEars: it might be dangerous, because it sometimes is diffeent versions of mplayer than in multiverse (and other package-depends)
-[00:46] <delire> spanglesontoast there is, xorg-fglrx-*
-[00:46] <spanglesontoast> benplaut no I live in uk surrey godalming
-[00:46] <IIIEars> pusling yes it sure is. - ubotu doesn't know that
-[00:46] <delire> spanglesontoast apt-cache search fglrx
-=== discman is now known as discman|away
-[00:47] <disasm> heh heh heh, i install the ati binary 3d accel driver for xorg, and it works fine, but now prboom is in a itty bitty window thats barely see-able, back to google...
-[00:47] <spanglesontoast> yea I know but I was advised to use the one from the ati site
-[00:47] <benplaut> spangles: never mind... my sister (who lives in kentucky) has someone named spanglesontoast in her IM address book :)
-[00:47] <delire> spanglesontoast that's what i advise
-[00:47] <spanglesontoast> benplaut how old is she?
-[00:47] <delire> benplaut 3 degrees of separation in the linux community ;)
-[00:47] <spanglesontoast> oh
-[00:47] <benplaut> 16
-[00:47] <spanglesontoast> snap
-[00:47] <spanglesontoast> :D
-[00:47] <shinu> pusling: you do mean modprode -r -f modulename right?
-=== apollo2011 [~ksut@69.177.116.221.adsl.snet.net]  has joined #ubuntu
-[00:48] <psychonate> OK, no responses in the last half hour. I may as well mute myself.
-[00:48] <ompaul> delire, more like 2.756. :)
-[00:48] <pusling> shinu: yes
-[00:48] <shinu> pusling: it just says module is in use ;.;
-[00:48] <crimsun> psychonate: with what issue?
-[00:48] <spanglesontoast> weird world eh benplaut
-[00:48] <psychonate> crimsun, I think it might be a memory leak issue with X.
-[00:49] <psychonate> At least one person in #linuxhelp tried to help me.
-[00:49] <spanglesontoast> theres two source packages
-[00:49] <delire> ompaul hmm, yes i think that is closer to experience
-[00:49] <apollo2011> I have (K)ubuntu system with both KDE and Gnome installed. I use KDE by default.  However, I just noticed that the Switch User option is suddenly missing from my K Menu.
-[00:49] <pusling> shinu: perhaps you should also unload modules depending on <module_you_try_to_remove>
-[00:49] <shinu> uh...
-[00:49] <shinu> alright...
-[00:49] <shinu> ill try that
-[00:49] <psychonate> crimsun, I pasted a link to a bugzilla entry that may be similar
-[00:49] <delire> psychonate no, i haven't had this experience
-[00:49] <shinu> pusling: but if i reload them later my cdrom will be working fine again right?
-[00:50] <pusling> shinu: yes. and after unloading them, you might be able to kill mount
-[00:50] <shinu> yup
-[00:50] <ompaul> delire, defines I kind of know X
-[00:50] <shinu> ok ill try that
-[00:50] <psychonate> Well, could someone at least tell me if my memory/swap usage looks normal?
-[00:50] <ompaul> I think I have just lost three years of archives
-=== mattlacey [~matt@exten-halls-247.soton.ac.uk]  has joined #ubuntu
-[00:50] <delire> ompaul tentatively relativistic association - the bulk of human relationships
-[00:50] <spanglesontoast> brb going to have a shower while the linux-source downloads
-[00:51] <psychonate> I don't personally know what "normal" should look like.
-[00:51] <ompaul> delire, now there is a truism
-[00:51] <crimsun> psychonate: I'm much more prone to believe that an application or a set of applications are simply not releasing memory properly back to the X server
-=== ompaul goes in search of the strange bits and bytes
-[00:52] <delire> ompaul ouch. let's hope you're not running a journaled fs ;)
-[00:52] <ompaul> delire, like I would not do that ...
-[00:53] <psychonate> crimsun, I don't doubt the possibility., and your guess is probably better than mine, but if I close all the apps running in X, it looks like the problem still stands until I restart the X server. I don't know if that helps you at all.
-[00:53] <delire> ompaul hehe. recovery with reiserfs and ext2 is reasonably easy compared to that of ext3
-[00:53] <Shiggity> Peace all!
-=== pedlar [~pedlar@dvb73.resnet.neu.edu]  has joined #ubuntu
-=== Groov [~bombertes@p54A39F20.dip0.t-ipconnect.de]  has left #ubuntu []
-[00:53] <crimsun> psychonate: closing those apps won't help if the apps don't release memory properly...
-[00:53] <ompaul> delire: time for  `sudo su - `
-[00:53] <delire> ompaul hmm
-[00:54] <delire> psychonate have you tried seeing what happens if you start X and then leave it with no applications running at all?
-[00:54] <crimsun> psychonate: in fact, that really points to certain applications, since if the fault lay with the X server, restarting the X server _still_ wouldn't reclaim that memory
-[00:54] <pedlar> since it looks like i won't have luck finding the gstreamer0.8-lame plugin, anybody know of a cd ripper that uses mencoder?
+[02:07] <sinope[crashed]> kbrooks, ah, i understand
+[02:07] <celcik> benplaut: iwconfig shows eth0 and one other one but none are ath0
+[02:07] <Dvondrake> do i have to reformat my drive in any way to have both windows and ubuntu on?
+[02:07] <_Church_of_Foamy> whoa! it's even backing up my mp3 cd lol
+[02:07] <crimsun> toxicfume: && sudo rm -rf /lib/modules/$(uname -r)/kernel/drivers/net/wireless/ipw2200/
+[02:07] <_Church_of_Foamy> neat
+[02:07] <kbrooks> Dvondrake: no
+[02:07] <Chislon> CiRkiT, hi
+[02:08] <CiRkiT> for some reason when i try to edit my .fluxbox/menu file with an application i have here i save the file the way i modified it...but when i look in the menu it doesnt even show what i just modified
+[02:08] <Dvondrake> so theres no chance of any data loss at all, right?
+[02:08] <adam> bye
+=== adam [~adam@lns-p19-8-idf-82-249-13-57.adsl.proxad.net]  has left #ubuntu ["Leaving"]
+[02:08] <benplaut> well, i'm off to use KDE for a while
+[02:08] <benplaut> brb
+[02:08] <LinuxJones> Dvondrake, you just need to free up some space on your system's hard drive if there isn't any available right now
+[02:08] <CiRkiT> does ubuntu prohibit you from editing certain files? lol
+[02:08] <kbrooks> _Church_of_Foamy: mount points are flexible
+[02:08] <sinope[crashed]> i can use a different WM right?
+[02:08] <celcik> benplaut: if i try to get rid of the other wireless card would that help ?
+[02:08] <ggeecko> is dashboard similar to beagle??
+[02:08] <Dvondrake> ok, thanks
+[02:08] <sinope[crashed]> anything that's in the Debian apt system?
+[02:08] <kbrooks> sinope[crashed] : everything
+[02:08] <GammaRay> _Church_of_Foamy: oh.. you might want to use the -x option to cp unless you want to backup mounted floppies and cds also.
+[02:08] <sinope[crashed]> great!! :)
+[02:08] <kbrooks> sinope[crashed] : tuxracer, you name it
+[02:08] <LinuxJones> CiRkiT, yeah :)
+[02:08] <sinope[crashed]> kbrooks, i was thinking more like TeX and ion3
+[02:09] <Dvondrake> (i'm not saying i will, but..) is it easy to uninstall ubuntu and go back to windows?
+[02:09] <sinope[crashed]> kbrooks, but tuxracer is fun too
+[02:09] <_Church_of_Foamy> well i was gonna rip the mp3's off of it anyway
+[02:09] <CiRkiT> LinuxJones, it doesnt let you?
+[02:09] <CiRkiT> why is that...thats kinda dumb
+[02:09] <toxicfume> crimsun: done, and then?
+=== eMac [~r00t@host86-128-124-233.range86-128.btcentralplus.com]  has joined #ubuntu
+[02:09] <kbrooks> Dvondrake: yes
+[02:09] <LinuxJones> CiRkiT, you can but you need to know the magic password
+[02:09] <crimsun> toxicfume: sudo depmod -ae
+[02:09] <Dvondrake> ok...
+[02:09] <Dvondrake> now
+[02:09] <sinope[crashed]> become root
+[02:09] <CiRkiT> LinuxJones, ?
+[02:09] <Dvondrake> just a very general question :P
+[02:09] <sinope[crashed]> CiRkiT, man su
+[02:09] <kbrooks> Dvondrake: ask
+=== mattlacey [~matt@exten-halls-247.soton.ac.uk]  has left #ubuntu []
+[02:09] <toxicfume> crimsun: okay
+[02:10] <CiRkiT> sheesh
+[02:10] <CiRkiT> thats nuts lol
+[02:10] <Dvondrake> there isnt any way at all that i can lose any data on my hd, as it is now.
+[02:10] <LinuxJones> CiRkiT, you have to have root permissions to access system level stuff like services and config files and the like.
+[02:10] <Dvondrake> i just want to make sure
+[02:10] <sinope[crashed]> ummm
+[02:10] <Dvondrake> i'm kinda paranoid of that >.<
+[02:10] <kbrooks> Dvondrake: there is!
+[02:10] <toxicfume> crimsun: and then?
+[02:10] <sinope[crashed]> i have a feeling this distro might be a little low-level for me
+[02:10] <CiRkiT> LinuxJones, but i do have root permissions when i do it
+[02:10] <sinope[crashed]> is it as powerful as debian?
+[02:10] <nalioth> Dvondrake: you pushing the power button can void your system of data
+=== alerim [~alerim@voltaire-103-1-85.net1.nerim.net]  has joined #ubuntu
+[02:10] <nalioth> Dvondrake: with windoze or anything
+[02:10] <kbrooks> partition  resizes can be botched!
+[02:11] <Dvondrake> :o
+[02:11] <crimsun> toxicfume: now make sure you don't have any ieee80211* or ipw2200* modules loaded
+=== andersbr [~dad@205.163.1.20]  has joined #ubuntu
+=== Derreck [~derreck@69-162-63-128.stcgpa.adelphia.net]  has joined #ubuntu
+[02:11] <sinope[crashed]> i understand ubuntu is basically a streamlined debian
+[02:11] <sinope[crashed]> but is it limited from debian?
+[02:11] <LinuxJones> CiRkiT, open gnome-terminal and type sudo -s (enter your user password) and you should have a root terminal...be carefull of what you do in there it can take your system down very easily :)
+[02:11] <kbrooks> Dvondrake: BACKUP YOUR DATA
+[02:11] <Dvondrake> haha, yeah
+[02:11] <kbrooks> sinope[crashed] : no
+[02:11] <sinope[crashed]> i mean, is there anything i can do easily in debian that i can't do easily in ubuntu?
+[02:11] <kbrooks> sinope[crashed] : no.
+[02:11] <ggeecko> does anyone here syncs with the treo 650
+[02:11] <Dvondrake> so ubuntu is totally safe, and even a newb can install it with no problems, right?
+[02:11] <LinuxJones> sinope[crashed] , it basically is Debian
+[02:11] <toxicfume> crimsun: yes they aren't loaded
+[02:12] <CiRkiT> i was doing sudo -i LinuxJones ...i thought that was for root as well
+[02:12] <crimsun> toxicfume: ok, now sudo modprobe ipw2200
+[02:12] <sinope[crashed]> kbrooks, LinuxJones thanks guys. :) you have answered all my questions
+[02:12] <kbrooks> Dvondrake: if you BACKUP, yes
+[02:12] <sinope[crashed]> if all goes well i'll be back in af ew hours, running ubuntu
+[02:12] <LinuxJones> sinope[crashed] , get working on that install :)
+[02:12] <sinope[crashed]> :)
+[02:12] <sevets> How do I see all of my drives?
+=== sinope[crashed]  will miss slackware :(
+[02:12] <Dvondrake> hmm... is there any chance of it messing up windows?
+[02:12] <kbrooks> sinope[crashed] : ubuntu > slack
+[02:12] <nalioth> Dvondrake: ubuntu is the most user friendly distro i've used (and i've been using linux for 5 years)
+[02:12] <toxicfume> crimsun: still getting errors :/
+[02:13] <Dvondrake> ok
+[02:13] <kbrooks> Dvondrake: no. YOU can easily
+[02:13] <Dvondrake> lol
+[02:13] <sinope[crashed]> kbrooks, how's that?
+[02:13] <CiRkiT> sudo -s still did me no good
+[02:13] <LinuxJones> CiRkiT, either is fine
+[02:13] <CiRkiT> gr r@ ubuntu
+[02:13] <Dvondrake> well, you guys have convinced me (even more) to get ubuntu :P
+[02:13] <sinope[crashed]> the thing i'm really looking forward to is being able to use apt-get
+[02:13] <kbrooks> sinope[crashed] : huh?
+[02:13] <Dvondrake> thanks!
+[02:13] <kbrooks> sinope[crashed] : apt-cache etc
+[02:13] <sinope[crashed]> <kbrooks> sinope[crashed] : ubuntu > slack
+[02:13] <nalioth> Dvondrake: with a standard install, not really, but ANYTHING can happen (thats why kbrooks sez BACKUP your data)
+[02:13] <sinope[crashed]> ah.
+[02:13] <kbrooks> sinope[crashed] : synaptic too
+[02:13] <Dvondrake> ok
+=== umass66 [~chatzilla@pool-68-163-158-66.bos.east.verizon.net]  has joined #ubuntu
+=== japoeder [~jonathan@cpe-069-132-186-187.carolina.res.rr.com]  has left #ubuntu []
+[02:14] <umass66> hi to all
+[02:14] <toxicfume> crimsun: is it okay if we continue tomorrow? it's already 7 in the morning here :|
+[02:14] <Dvondrake> but there arent any known bugs or glitches that have happened to some ubuntu users before while installing, right?
+[02:14] <kbrooks> sinope[crashed] : synaptic is a graphical user interface to apt
+[02:14] <Dvondrake> i just want to make sure since this is a new computer and i dont want to screw it up, plus i've never used linux before
+[02:14] <nalioth> Dvondrake: each users hardware is different
+[02:14] <crimsun> toxicfume: what sort? Use pastebin
+[02:15] <kbrooks> Dvondrake: there can be. hint: hardware
+[02:15] <crimsun> toxicfume: sure
+[02:15] <sinope[crashed]> uh oh.
+[02:15] <nalioth> Dvondrake: if your system is TOTALLY supported, ther eshould be no problems (backup what you want to keep)
+[02:15] <kbrooks> sinope[crashed] : HARDWARE
+=== toxicfume1 [~augmentor@58.10.65.120]  has joined #ubuntu
+[02:15] <sinope[crashed]> i think the ubuntu iso is about to fill up my knoppix ramdisk
+[02:15] <Dvondrake> ok
+[02:15] <sinope[crashed]> kbrooks, huh?
+[02:15] <sinope[crashed]> what about hardware
+[02:15] <Dvondrake> well, i just bought it about a month ago, so it should be :P
+[02:15] <kbrooks> sinope[crashed] : misunderstood
+[02:15] <Dvondrake> thanks, and you'll see my on ubuntu soon :P
+[02:15] <Dvondrake> ... me*
+[02:15] <kbrooks> sinope[crashed] : er, rboot to windows
+[02:16] <kbrooks> sinope[crashed] : do you HAVE it?
+[02:16] <sinope[crashed]> omg
+[02:16] <crimsun> toxicfume1: it's fine if we continue later
+[02:16] <sinope[crashed]> kbrooks, what!?
+[02:16] <sinope[crashed]> kbrooks, i never used windows
+[02:16] <kbrooks> sinope[crashed] : never?
+[02:16] <Dvondrake> 0.0
+[02:16] <kbrooks> ever?
+[02:16] <Dvondrake> wha
+[02:16] <kbrooks> EVER?
+[02:16] <sinope[crashed]> well years ago
+=== Pop_pa_FrEaK [~patrick@CPE000ae6c702bb-CM000e5ce665ba.cpe.net.cable.rogers.com]  has joined #ubuntu
+[02:16] <sinope[crashed]> but not in a long time
+[02:16] <Dvondrake> i'm just going to leave this window open in case i think of anything i want to ask :P
+[02:17] <kbrooks> sinope[crashed] : well, you need a OS or partition to put that ISO on
+[02:17] <Mez> mez@apathy:~$ artsdsp audacity
+[02:17] <Mez> /home/mez/.kde/share/config/gtkrc:37: error: unexpected identifier `gtk-alternative-button-order', expected keyword - e.g. `style'
+[02:17] <Mez> Segmentation fault
+[02:17] <sinope[crashed]> kbrooks, why would i want windows?
+[02:17] <Mez> any ideas anyone
+=== Do-It-Now [~Now@cable-62-205-120-65.upc.chello.be]  has joined #ubuntu
+[02:17] <sinope[crashed]> kbrooks, i'll burn it to a cd.
+[02:17] <toxicfume1> crimsun, http://pastebin.com/295215 <-- there's the error, anyways i gtg see ya later..thanks for all the help :)
+[02:17] <sinope[crashed]> kbrooks, knoppix has k3b
+[02:17] <kbrooks> sinope[crashed] : i KNOW
+[02:17] <sinope[crashed]> kbrooks, NOOB :D
+[02:17] <kbrooks> sinope[crashed] : DUDE! rude!
+[02:17] <sinope[crashed]> </joke>
+=== hoovernj [hoovernj@ip24-255-116-57.dc.dc.cox.net]  has joined #ubuntu
+[02:17] <sinope[crashed]> <hug />
+=== hoovernj [hoovernj@ip24-255-116-57.dc.dc.cox.net]  has left #ubuntu ["Leaving"]
+[02:18] <kbrooks> sinope[crashed] : ty.........
+[02:18] <kbrooks> :P
+[02:18] <Dvondrake> lol
+[02:18] <sinope[crashed]> :P
+[02:18] <Mez> sinope - shouldnt it be something liek
+[02:18] <Mez> <hug person="kbrooks" />
+[02:18] <Mez> or
+[02:18] <kbrooks> LOL
+[02:18] <Mez> <hug>kbrooks</hug>
+[02:18] <Mez> tyhough to be fair
+[02:19] <Mez> neither are valid
+[02:19] <kbrooks> Mez: XML  Syntax ERROR!
+[02:19] <Mez> you havent specified a DTD
+=== locomorto [~locomorto@c220-237-185-233.eburwd5.vic.optusnet.com.au]  has joined #ubuntu
+=== benplaut [~ben@cpe-66-8-184-56.hawaii.res.rr.com]  has joined #ubuntu
+[02:19] <kbrooks> dtds > *
+[02:19] <Mez> or opening / closing tags
+[02:19] <locomorto> hey, has anyone here got a mx510 side buttons working properly?
+[02:19] <Mez> mmmm
+[02:19] <Mez> mx510
+[02:19] <Mez> hehe :d I like MX 510s
+[02:19] <kbrooks> Mez: that <... /> is OK
+[02:20] <Mez> dont know hw to make them worek
+[02:20] <Mez> butn they'#re shineh
+[02:20] <Mez> not as shineh as a diamondback thoguh
+[02:20] <locomorto> i got all the buttons doing something, but the back and forward button are the scroll wheel and vice versa
+[02:20] <Mez> kbrooks, I'm messing about :D
+[02:20] <locomorto> im using imwheel btw
+[02:21] <locomorto> woot i found a good site
+[02:21] <locomorto> http://pstudios.ath.cx/linhowtos/mx510.php
+[02:21] <kbrooks> lol
+[02:21] <kbrooks> well.
+[02:21] <kbrooks> ill install GNOME
+[02:21] <kbrooks> or should I for a server?
+[02:23] <Dvondrake> oh
+[02:23] <Dvondrake> forgot one question
+[02:23] <dnys> nalioth: i broke one of my mac minis : (
+[02:24] <locomorto> how did you do that?
+[02:24] <Dvondrake> i'd need to create a partition in order to install ubuntu on a windows machine, still keeping windows intact and working 100% properly, right?
+=== Tritis [~Tritis@ool-4355b2bb.dyn.optonline.net]  has joined #ubuntu
+[02:24] <kbrooks> Dvondrake: uh-uh
+=== spanglesontoast [~spangles@eddland.plus.com]  has joined #ubuntu
+[02:25] <dnys> locomorto: a 35lb dumbell rolled off my bed and right onto the mac mini i had open
+[02:25] <Dvondrake> ermm... is that a no uh-uh or a yeah uh-uh
+[02:25] <Dvondrake> cause i've heard both -.-
+=== illicit [~illicit@pcp0010487593pcs.essex01.md.comcast.net]  has joined #ubuntu
+[02:25] <JDahl> Dvondrake, you need to shrink your windows partition, and then create new linux partitions on the free space
+[02:26] <Dvondrake> lol ok
+[02:26] <illicit> Can anyone tell me real quit what other IMing clients are availible besides Gaim?
+[02:26] <Dvondrake> and the ubuntu installer can make and size the partitions for me, right?
+[02:26] <illicit> quick*
+[02:26] <dnys> illicit: nAIM
+[02:26] <illicit> Thanks
+[02:27] <dnys> illicit: its a term aim client
+[02:27] <illicit> Dvondrake: No, you need something else like, partition magic to shrink the already partitioned partition
+[02:27] <dnys> illicit: why do you need to use something other than gaim?
+[02:27] <illicit> dnys: i don't like the giant ass windows :-P
+=== exwindozeuser [~exwindows@65.173.12.45]  has joined #ubuntu
+[02:27] <JDahl> cant ubuntu shrink partitions? I thought Hoary could....
+=== i386 [~james@133-94-185-210.rev.techex.net.au]  has joined #ubuntu
+[02:27] <dnys> dnys: windows can be resized : )
+[02:28] <i386> just hacking around here a little
+[02:28] <dnys> illicit: i mean
+[02:28] <illicit> Jdahl: i just installed hoary, and i dont think you can
+[02:28] <dnys> im a fuckin tard
+=== blew [~blew@stjhnf01bb8-142162166197.nl.aliant.net]  has joined #ubuntu
+=== Pop_pa_FrEaK [~patrick@CPE000ae6c702bb-CM000e5ce665ba.cpe.net.cable.rogers.com]  has joined #ubuntu
+[02:28] <i386> I need to upgrade my version of libc on hoary to the one in breezy - im i looking at breakage?
+=== thorsten [~thorsten@ACB44C50.ipt.aol.com]  has joined #ubuntu
+[02:29] <JDahl> illicit, I've never tried it, but I thought parted was supposed to do that
+[02:29] <illicit> i386: your upgrading libraries to an unstable OS?
+[02:29] <i386> illicit, dude, im not freaking dumb
+[02:29] <thorsten> h
+[02:29] <illicit> JDahl: it can create new partitions but not shrink em
+[02:29] <dnys> thoreauputic: do you use breezy?
+[02:29] <i386> and I understand that there is a risk that my system will die
+[02:29] <illicit> i386: i didnt say you were i was asking a question lol
+[02:29] <i386> illicit, oh :P
+[02:29] <thoreauputic> dnys: no - i'm not a masochist *grin*
+[02:29] <nalioth> breezy can cause system failure, yes
+[02:30] <illicit> :-D
+[02:30] <dnys> thoreauputic: i didnt think so : D
+=== dnys is now known as synd
+[02:30] <i386> nalioth, you dont say :P
+=== wal [~wal@202.46.143.9]  has joined #ubuntu
+[02:30] <illicit> ahaha
+[02:30] <illicit> i386: don't be so sarcastic, haha
+[02:30] <synd> god forsaken NickServ
+[02:30] <Dvondrake> oh?
+[02:31] <i386> illicit, i cant help it
+[02:31] <i386> :P
+[02:31] <Dvondrake> i thought ubuntu installer could make partitions
+[02:31] <Pop_pa_FrEaK> hey thoreauputic you ever get an error activating XKB configuration window popup on startup ?
+[02:31] <illicit> Dvondrake: I just installed it twice, you can but you cannot resize partitions
+[02:31] <thoreauputic> Pop_pa_FrEaK: never done it...
+[02:32] <Pop_pa_FrEaK> hmmm trying to figure out how to fix it
+[02:32] <illicit> Dvondrake: When you install windows, it takes the entire partition soo if you have a 20 gig hdd, it probably uses 19.5 of it fro Windows
+[02:32] <Dvondrake> oh
+[02:32] <illicit> the rest goes to the primary part. (boot record)
+[02:32] <spanglesontoast> Q:      What do Winnie the Pooh and John the Baptist have in common?
+[02:32] <spanglesontoast> A:      The same middle name.
+[02:32] <spanglesontoast> haha lol
+=== atholas [~atholas@222-153-127-183.jetstream.xtra.co.nz]  has joined #ubuntu
+[02:33] <illicit> lol
+[02:33] <illicit> spanglesontoast: that was the funniest thing ive seen all day
+[02:33] <spanglesontoast> don't worry you will pass away very quickly
+=== synd [~phillip@h87.43.55.139.ip.alltel.net]  has joined #ubuntu
+[02:33] <Dvondrake> but what i mean is, how would i make the partitions work so part of my hd is windows and part is ubuntu? would the ubuntu installer do that for me? (sorry if im kinda being a newb, im new to partitions and linux)
+[02:33] <synd> wtf
+[02:33] <synd> can you not connect to multiple servers with xchat
+[02:34] <illicit> Dvondrake: Okay, ill try to explain.
+[02:34] <Razor-X> o_O
+[02:34] <illicit> synd: yes you can
+=== metzen [~metzen@pool-68-237-250-64.ny325.east.verizon.net]  has joined #ubuntu
+=== xinud [~xinud@195-144-090-002.dyn.adsl.xs4all.be]  has joined #ubuntu
+[02:34] <Razor-X> today's featured article on Wikipedia is Windows XP!!!!!!!
+[02:34] <synd> illicit: ah, just figured it out : )
+[02:34] <illicit> Dvondrake: In order to resize a partition you need a program called Partition Magic, i would post it for you but im afraid my isp will send me another letter lol
+[02:35] <illicit> Dvondrake: How big is your current Hard Drive?
+=== max [~max@62-101-126-228.fastres.net]  has joined #ubuntu
+[02:35] <illicit> synd: Lol good job :-D
+[02:35] <Dvondrake> 200 gig
+[02:35] <spanglesontoast> hehe got another
+[02:35] <spanglesontoast> Q:      What lies on the bottom of the ocean and twitches?
+[02:35] <Dvondrake> illicit: 200 gig*
+[02:35] <Dvondrake> lol
+=== benplaut [~ben@cpe-66-8-184-56.hawaii.res.rr.com]  has joined #ubuntu
+[02:35] <spanglesontoast> A:      A nervous wreck.
+[02:35] <spanglesontoast> hahaha hehe
+[02:36] <wal> anyone got mame working well with ubuntu?
+[02:36] <illicit> Dvondrake: Alright, how much time do you plan to be spending on Ubuntu?
+[02:36] <Dvondrake> hmm...
+[02:36] <illicit> Dvondrake: is it just for learning, or do you know enough to keep it?
+[02:36] <dell500> i've got 3d acceleration working for my 9600xt card, it was working fine, but now since the comp has been on it's really sluggish
+[02:36] <illicit> Dvondrake: PM me
+[02:36] <Dvondrake> ok
