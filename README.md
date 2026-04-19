@@ -23,6 +23,14 @@ A BERT-based CrossEncoder with handcrafted features for IRC message linking and 
 └── check_dependencies.py
 ```
 
+## AI Context & Documentation
+
+This project uses a strict three-file system in the `context/` directory to manage AI context and prevent documentation rot. **Do not mix their responsibilities.**
+
+- **[`instructions.md`](context/INSTRUCTIONS.md)**: Stable behavioral rules for AI agents.
+- **[`context.md`](context/CONTEXT.md)**: Stable project knowledge, research background, and technical invariants.
+- **[`progress.md`](context/PROGRESS.md)**: Dynamic working state, recent completions, and next steps.
+
 ## Setup
 
 1. Create and activate virtual environment:

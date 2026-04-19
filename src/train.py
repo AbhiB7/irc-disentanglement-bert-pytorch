@@ -115,6 +115,13 @@ def parse_args():
 
     # Checkpointing
     parser.add_argument(
+        "--patience",
+        type=int,
+        default=3,
+        help="Number of epochs to wait for improvement before early stopping (0 to disable)",
+    )
+
+    parser.add_argument(
         "--output-dir",
         type=str,
         default="checkpoints",
@@ -593,6 +600,7 @@ def main():
 
         best_f1 = 0.0
         best_epoch = 0
+        no_improve_count = 0
         training_start_time = datetime.now()
 
         for epoch in range(start_epoch, args.epochs + 1):
@@ -624,6 +632,7 @@ def main():
                 if metrics["f1"] > best_f1:
                     best_f1 = metrics["f1"]
                     best_epoch = epoch
+                    no_improve_count = 0
                     logger.info(f"  New best F1! Saving best model...")
                     save_checkpoint(
                         model,
@@ -634,6 +643,19 @@ def main():
                         metrics,
                         output_dir / "best",
                     )
+                else:
+                    no_improve_count += 1
+                    logger.info(f"  No improvement for {no_improve_count} epochs")
+
+                # Early stopping check
+                if args.patience > 0 and no_improve_count >= args.patience:
+                    logger.info(f"  Early stopping triggered after {epoch} epochs!")
+                    # Save final checkpoint before stopping
+                    metrics = {"f1": best_f1}
+                    save_checkpoint(
+                        model, optimizer, scheduler, epoch, args, metrics, output_dir
+                    )
+                    break
 
             # Save checkpoint
             if epoch % args.save_every == 0:
