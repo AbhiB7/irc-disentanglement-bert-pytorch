@@ -144,6 +144,19 @@ def parse_args():
         help="Device to use (cuda/cpu)",
     )
 
+    parser.add_argument(
+        "--num-workers",
+        type=int,
+        default=0,
+        help="Number of worker threads for data loading",
+    )
+
+    parser.add_argument(
+        "--fp16",
+        action="store_true",
+        help="Use mixed precision training (FP16)",
+    )
+
     # Threshold for prediction
     parser.add_argument(
         "--threshold", type=float, default=0.3, help="Threshold for binary prediction"
@@ -209,7 +222,11 @@ def create_dataloaders(args, tokenizer):
         logger.info(f"  Dev dataset created: {len(dev_dataset)} pairs")
 
         dev_loader = DataLoader(
-            dev_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0
+            dev_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
+            pin_memory=(args.device == "cuda"),
         )
 
         return None, dev_loader
@@ -247,17 +264,25 @@ def create_dataloaders(args, tokenizer):
         logger.info(f"  Dev dataset created: {len(dev_dataset)} pairs")
 
         train_loader = DataLoader(
-            train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0
+            train_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
+            num_workers=args.num_workers,
+            pin_memory=(args.device == "cuda"),
         )
 
         dev_loader = DataLoader(
-            dev_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0
+            dev_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
+            pin_memory=(args.device == "cuda"),
         )
 
         return train_loader, dev_loader
 
 
-def evaluate(model, dataloader, device, threshold=0.5):
+def evaluate(model, dataloader, device, threshold=0.5, fp16=False):
     """Evaluate model on a dataset"""
     model.eval()
 
@@ -287,13 +312,14 @@ def evaluate(model, dataloader, device, threshold=0.5):
                 token_type_ids = token_type_ids.to(device)
 
             # Forward pass
-            outputs = model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                token_type_ids=token_type_ids,
-                features=features,
-                labels=labels,
-            )
+            with torch.cuda.amp.autocast(enabled=fp16):
+                outputs = model(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    token_type_ids=token_type_ids,
+                    features=features,
+                    labels=labels,
+                )
 
             # Get predictions
             probs = outputs["probs"]
@@ -362,7 +388,7 @@ def evaluate(model, dataloader, device, threshold=0.5):
     }
 
 
-def train_epoch(model, train_loader, optimizer, scheduler, device, epoch):
+def train_epoch(model, train_loader, optimizer, scheduler, device, epoch, fp16=False, scaler=None):
     """Train for one epoch"""
     model.train()
 
@@ -387,15 +413,16 @@ def train_epoch(model, train_loader, optimizer, scheduler, device, epoch):
             token_type_ids = token_type_ids.to(device)
 
         # Forward pass
-        outputs = model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
-            features=features,
-            labels=labels,
-        )
+        with torch.cuda.amp.autocast(enabled=fp16):
+            outputs = model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                token_type_ids=token_type_ids,
+                features=features,
+                labels=labels,
+            )
 
-        loss = outputs["loss"]
+            loss = outputs["loss"]
         probs = outputs["probs"]
 
         # SMART LOGGING: Track model behavior on rare positive samples and general trends.
@@ -422,8 +449,14 @@ def train_epoch(model, train_loader, optimizer, scheduler, device, epoch):
 
         # Backward pass
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        if scaler:
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            loss.backward()
+            optimizer.step()
+
         if scheduler is not None:
             scheduler.step()
 
@@ -609,6 +642,9 @@ def main():
         optimizer = None
         scheduler = None
 
+    # Mixed precision scaler
+    scaler = torch.cuda.amp.GradScaler(enabled=args.fp16) if args.fp16 else None
+
     # Resume from checkpoint if specified
     start_epoch = 1
     if args.resume_from:
@@ -635,14 +671,23 @@ def main():
             # Train
             if train_loader:
                 train_loss = train_epoch(
-                    model, train_loader, optimizer, scheduler, device, epoch
+                    model,
+                    train_loader,
+                    optimizer,
+                    scheduler,
+                    device,
+                    epoch,
+                    fp16=args.fp16,
+                    scaler=scaler,
                 )
                 logger.info(f"Train Loss: {train_loss:.4f}")
 
             # Evaluate
             if dev_loader and epoch % args.eval_every == 0:
                 logger.info("Evaluating on dev set...")
-                metrics = evaluate(model, dev_loader, device, args.threshold)
+                metrics = evaluate(
+                    model, dev_loader, device, args.threshold, fp16=args.fp16
+                )
 
                 logger.info(f"Dev Loss: {metrics['loss']:.4f}")
                 logger.info(f"Dev Accuracy: {metrics['accuracy']:.4f}")
@@ -699,7 +744,9 @@ def main():
         logger.info("=" * 80)
 
         if dev_loader:
-            metrics = evaluate(model, dev_loader, device, args.threshold)
+            metrics = evaluate(
+                model, dev_loader, device, args.threshold, fp16=args.fp16
+            )
 
             logger.info("Test Results:")
             logger.info(f"Loss: {metrics['loss']:.4f}")

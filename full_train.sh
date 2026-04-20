@@ -13,7 +13,9 @@ echo "=========================================="
 mkdir -p checkpoints/vast_overnight
 
 # Training parameters:
-# --batch-size 32: Safe for 11GB VRAM with BERT-base
+# --batch-size 64: Optimized for RTX 3060 (12GB) with FP16
+# --num-workers 4: Parallel data loading to saturate GPU
+# --fp16: Mixed precision for 2x speedup
 # --epochs 10: Sufficient for 15-hour window (likely 2-4 full epochs)
 # --patience 3: Early stopping to save time if model converges early
 # --max-dist 30: User-specified distance window
@@ -23,7 +25,9 @@ mkdir -p checkpoints/vast_overnight
 
 python src/train.py \
     --mode train \
-    --batch-size 32 \
+    --batch-size 64 \
+    --num-workers 4 \
+    --fp16 \
     --epochs 10 \
     --learning-rate 5e-5 \
     --max-length 128 \
