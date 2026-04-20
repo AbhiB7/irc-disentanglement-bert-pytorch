@@ -388,7 +388,9 @@ def evaluate(model, dataloader, device, threshold=0.5, fp16=False):
     }
 
 
-def train_epoch(model, train_loader, optimizer, scheduler, device, epoch, fp16=False, scaler=None):
+def train_epoch(
+    model, train_loader, optimizer, scheduler, device, epoch, fp16=False, scaler=None
+):
     """Train for one epoch"""
     model.train()
 
@@ -472,8 +474,18 @@ def train_epoch(model, train_loader, optimizer, scheduler, device, epoch, fp16=F
             elapsed = (datetime.now() - start_time).total_seconds()
             batches_per_sec = (batch_idx + 1) / elapsed if elapsed > 0 else 0
             avg_loss_so_far = total_loss / num_batches
+            
+            # Memory logging
+            mem_msg = ""
+            if torch.cuda.is_available():
+                allocated = torch.cuda.memory_allocated(device) / (1024**2)
+                reserved = torch.cuda.memory_reserved(device) / (1024**2)
+                max_allocated = torch.cuda.max_memory_allocated(device) / (1024**2)
+                mem_msg = f", GPU Mem: {allocated:.0f}/{reserved:.0f}MB (max: {max_allocated:.0f}MB)"
+            
             logger.info(
-                f"  Epoch {epoch} progress: {batch_idx + 1}/{len(train_loader)} batches ({batches_per_sec:.2f} batches/s, avg_loss={avg_loss_so_far:.4f})"
+                f"  Epoch {epoch} progress: {batch_idx + 1}/{len(train_loader)} batches "
+                f"({batches_per_sec:.2f} batches/s, avg_loss={avg_loss_so_far:.4f}{mem_msg})"
             )
 
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
@@ -786,4 +798,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        if 'logger' in globals():
+            logger.exception("Fatal error during training:")
+        else:
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)

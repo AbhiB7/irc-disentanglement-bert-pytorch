@@ -386,14 +386,16 @@ class IRCDisentanglementDataset(Dataset):
                     max_length=self.max_length,
                     return_tensors="pt",
                 )
-                
+
                 # Remove batch dimension and move to CPU to save VRAM (keep in RAM)
                 encoded_item = {
                     "input_ids": encoding["input_ids"].squeeze(0),
                     "attention_mask": encoding["attention_mask"].squeeze(0),
                 }
                 if "token_type_ids" in encoding:
-                    encoded_item["token_type_ids"] = encoding["token_type_ids"].squeeze(0)
+                    encoded_item["token_type_ids"] = encoding["token_type_ids"].squeeze(
+                        0
+                    )
 
                 # Store
                 self.pairs.append((encoded_item, label, features))
