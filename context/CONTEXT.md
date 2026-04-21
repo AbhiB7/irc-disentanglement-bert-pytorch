@@ -89,9 +89,16 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Early Stopping**: Implemented via `--patience` (default 3) to monitor Dev F1.
 
 ### Multi-Stage Testing Plan
-- **Test 1 (5 min)**: Stability and logic check. Uses `dev-only` mode with limited pairs (`--test-end 5000`). Verifies OOM logging and positive sample handling.
-- **Test 2 (1 hour)**: Mid-range stability run. Expanded data range to verify convergence trends.
+- **Test 1 (5 min)**: Stability and logic check. Uses `train` mode on the **Tiny Dataset** (`data/tiny`). Verifies OOM logging, NaN detection, and positive sample handling (guaranteed links).
+- **Test 2 (1 hour)**: Mid-range stability run. Uses full dataset with expanded window to verify convergence trends.
 - **Test 3 (3 hours)**: Stress test. Full dev set or significant portion of train set to verify long-term stability and checkpointing.
+
+## 5. Robustness & Diagnostics
+- **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.
+- **Numerical Safety**: NaN/Inf loss detection triggers batch skipping to prevent weight corruption.
+- **Smart Logging**: Automatic logging of any batch containing a positive sample (`label=1`) to monitor minority class behavior.
+- **Data Starvation Prevention**: Test runs must use message offsets (e.g., 300+ or 1000+) or the `tiny` dataset to avoid the link-less "join/quit" noise at the start of IRC logs.
+- **Atomic Checkpointing**: Checkpoints are saved to `.tmp` files and renamed to avoid Windows file-locking conflicts (Error 1224).
 
 ---
 

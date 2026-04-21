@@ -8,17 +8,19 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
+- 🔄 **Test 1 (Iteration 3)**: Switching to `data/tiny` dataset to resolve "Data Starvation" (0 positive samples in training).
+- ✅ **Robustness**: OOM recovery and NaN detection implemented and verified.
 - ✅ **Model Fix**: Resolved "all-zero" prediction issue via hyperparameter tuning.
 - ✅ **Early Stopping**: Implemented and verified in `train.py`.
 - ✅ **Documentation**: Refactored into three distinct files (`instructions.md`, `context.md`, `progress.md`).
 - ✅ **Environment**: Python 3.13 compatibility confirmed on Windows.
 - ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
-- 🔄 **Next Major Milestone**: Execute Test 1 (5-min stability run) on RTX 5070.
 
 ## Recent Completions (2026-04-21)
 - **OOM Logging**: Implemented comprehensive CUDA OOM catching and system diagnostic logging in `train.py`.
 - **Numerical Stability**: Added NaN/Inf loss detection and batch skipping.
 - **Test 1 Setup**: Rewrote `train_gpu_5070.sh` for a 5-minute stability and logic check.
+- **Label Fix**: Decoupled `skip_labels` from data limiting to allow real metrics on small subsets.
 
 ## Recent Completions (2026-04-19)
 - **Model Fix**: Resolved "all-zero" prediction issue by reducing `pos_weight` (14.0 -> 5.0), increasing learning rate (2e-5 -> 5e-5), and lowering threshold (0.5 -> 0.3).

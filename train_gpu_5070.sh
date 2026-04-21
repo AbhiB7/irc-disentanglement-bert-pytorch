@@ -5,19 +5,19 @@
 echo "=========================================="
 echo "IRC Disentanglement - TEST 1 (5 MIN)"
 echo "Target: Stability, OOM Logging, Positive Bias"
+echo "Dataset: Tiny (Guaranteed Links)"
 echo "=========================================="
 
 # Ensure output directory exists
 mkdir -p checkpoints/test_1
 
 # REASONING FOR TEST 1:
-# 1. --mode train:
+# 1. --mode train: 
 #    Exercises the full pipeline (forward + backward pass) to test OOM/NaN logging.
 #
-# 2. --test-start 0 --test-end 5000:
-#    Limits the number of pairs to ensure the run completes in ~5 minutes.
-#    Starting at 0 ensures we include the beginning of the dialogue where 
-#    initial connections are established.
+# 2. --data-dir data/tiny:
+#    Uses the pre-created tiny dataset (300 msgs starting at index 1000).
+#    This guarantees positive samples (links) are present in training.
 #
 # 3. --batch-size 16:
 #    Lower batch size to test the new OOM logging and ensure stability.
@@ -27,7 +27,7 @@ mkdir -p checkpoints/test_1
 
 python src/train.py \
     --mode train \
-    --data-dir data \
+    --data-dir data/tiny \
     --batch-size 16 \
     --num-workers 0 \
     --fp16 \
@@ -41,9 +41,7 @@ python src/train.py \
     --eval-every 1 \
     --save-every 1 \
     --output-dir checkpoints/test_1 \
-    --device cuda \
-    --test-start 0 \
-    --test-end 5000
+    --device cuda
 
 echo ""
 echo "=========================================="
