@@ -246,8 +246,8 @@ class IRCDisentanglementDataset(Dataset):
         tokenizer,
         max_dist: int = 30,
         max_length: int = 128,
-        is_test: bool = False,
-        test_start: int = 1000,
+        skip_labels: bool = False,
+        test_start: int = 0,
         test_end: int = 1000000,
     ):
         """
@@ -257,15 +257,15 @@ class IRCDisentanglementDataset(Dataset):
             tokenizer: BERT tokenizer
             max_dist: Maximum distance to consider for linking (default 30)
             max_length: Maximum token length for BERT
-            is_test: If True, generate pairs for all messages (no gold labels)
-            test_start/end: For test mode, which messages to process
+            skip_labels: If True, do not use gold labels (for blind test)
+            test_start/end: Which messages to process in each file
         """
         assert len(ascii_files) == len(annotation_files), "File lists must match"
 
         self.tokenizer = tokenizer
         self.max_dist = max_dist
         self.max_length = max_length
-        self.is_test = is_test
+        self.skip_labels = skip_labels
         self.test_start = test_start
         self.test_end = test_end
 
@@ -280,7 +280,7 @@ class IRCDisentanglementDataset(Dataset):
             f"Initializing IRCDisentanglementDataset with {len(ascii_files)} files"
         )
         logger.info(
-            f"  max_dist={max_dist}, max_length={max_length}, is_test={is_test}"
+            f"  max_dist={max_dist}, max_length={max_length}, skip_labels={skip_labels}"
         )
         logger.info(f"  test_start={test_start}, test_end={test_end}")
 
@@ -304,15 +304,15 @@ class IRCDisentanglementDataset(Dataset):
                 f"  File {idx+1}/{len(ascii_files)}: {conv.name} - {len(conv.messages)} messages, {len(self.pairs)} total pairs so far"
             )
 
-            # Early exit if we've reached test_end pairs (for test mode)
-            if self.is_test and len(self.pairs) >= self.test_end:
+            # Early exit if we've reached test_end pairs (if limiting)
+            if self.test_end < 1000000 and len(self.pairs) >= self.test_end:
                 logger.info(
                     f"  Reached test_end limit ({self.test_end} pairs), stopping early"
                 )
                 break
 
-        # Truncate pairs to test_end if specified (for test mode)
-        if self.is_test and self.test_end < len(self.pairs):
+        # Truncate pairs to test_end if specified
+        if self.test_end < 1000000 and self.test_end < len(self.pairs):
             logger.info(
                 f"Truncating pairs from {len(self.pairs)} to {self.test_end} (test_end limit)"
             )
@@ -330,12 +330,13 @@ class IRCDisentanglementDataset(Dataset):
         gold_links = conv.gold_links
 
         # Determine which messages to process
-        if self.is_test:
+        # If test_end is small, we limit messages per file to speed up loading
+        if self.test_end < 1000000:
             start_idx = self.test_start
             end_idx = min(self.test_end, len(messages))
             process_indices = range(start_idx, end_idx)
             logger.info(
-                f"  Creating pairs for {conv.name}: messages {start_idx} to {end_idx} (test mode)"
+                f"  Creating pairs for {conv.name}: messages {start_idx} to {end_idx} (limited)"
             )
         else:
             process_indices = range(len(messages))
@@ -368,8 +369,8 @@ class IRCDisentanglementDataset(Dataset):
                 # Label: 1 if j is a gold parent of i, 0 otherwise
                 label = 1.0 if (i in gold_links and j in gold_links[i]) else 0.0
 
-                # For test mode, we don't have gold labels
-                if self.is_test:
+                # For blind test mode, we don't have gold labels
+                if self.skip_labels:
                     label = -1.0  # Placeholder
 
                 # Compute features

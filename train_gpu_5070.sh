@@ -11,8 +11,8 @@ echo "=========================================="
 mkdir -p checkpoints/test_1
 
 # REASONING FOR TEST 1:
-# 1. --mode dev-only: 
-#    Uses a single dev file to keep data loading fast and focused.
+# 1. --mode train:
+#    Exercises the full pipeline (forward + backward pass) to test OOM/NaN logging.
 #
 # 2. --test-start 0 --test-end 5000:
 #    Limits the number of pairs to ensure the run completes in ~5 minutes.
@@ -26,7 +26,7 @@ mkdir -p checkpoints/test_1
 #    Single pass is enough for a logic check.
 
 python src/train.py \
-    --mode dev-only \
+    --mode train \
     --data-dir data \
     --batch-size 16 \
     --num-workers 0 \
@@ -49,4 +49,5 @@ echo ""
 echo "=========================================="
 echo "Test 1 complete!"
 echo "Check logs for OOM reports and positive sample stats."
+echo "Note: Test 2 (1hr) and Test 3 (3hr) are planned for next stages."
 echo "=========================================="

@@ -211,9 +211,8 @@ def create_dataloaders(args, tokenizer):
         logger.info(f"Creating dev-only dataloader with 1 file: {dev_ascii[0]}")
         logger.info(f"  test_start={args.test_start}, test_end={args.test_end}")
 
-        # Determine if we should use test mode (is_test=True) based on test_start/test_end
-        # If test_end is less than default (1000000), user wants limited pairs
-        is_test_mode = args.test_end < 1000000 or args.test_start > 0
+        # Determine if we should skip labels (blind test)
+        skip_labels = args.mode == "test"
 
         dev_dataset = IRCDisentanglementDataset(
             ascii_files=dev_ascii,
@@ -221,7 +220,7 @@ def create_dataloaders(args, tokenizer):
             tokenizer=tokenizer,
             max_dist=args.max_dist,
             max_length=args.max_length,
-            is_test=is_test_mode,
+            skip_labels=skip_labels,
             test_start=args.test_start,
             test_end=args.test_end,
         )
@@ -253,12 +252,17 @@ def create_dataloaders(args, tokenizer):
             raise ValueError(f"No dev files found in {args.data_dir}")
 
         logger.info(f"Loading {len(train_ascii)} train files...")
+        # For Test 1, we want to limit the training set size as well
+        # But we never skip labels during training
         train_dataset = IRCDisentanglementDataset(
             ascii_files=train_ascii,
             annotation_files=train_ann,
             tokenizer=tokenizer,
             max_dist=args.max_dist,
             max_length=args.max_length,
+            skip_labels=False,
+            test_start=args.test_start,
+            test_end=args.test_end,
         )
 
         logger.info(f"  Train dataset created: {len(train_dataset)} pairs")
