@@ -1,50 +1,52 @@
 #!/bin/bash
-# Training script optimized for RTX 5070 (12GB VRAM) and 32GB RAM
-# Hardware: RTX 5070, Xeon E5-2696, 32GB RAM
+# Test 1: 5-Minute Stability & Logic Check
+# Hardware: RTX 5070 (12GB), 32GB RAM
 
 echo "=========================================="
-echo "IRC Disentanglement - RTX 5070 Run"
-echo "Target Hardware: RTX 5070 (12GB), 32GB RAM"
+echo "IRC Disentanglement - TEST 1 (5 MIN)"
+echo "Target: Stability, OOM Logging, Positive Bias"
 echo "=========================================="
 
 # Ensure output directory exists
-mkdir -p checkpoints/gpu_5070
+mkdir -p checkpoints/test_1
 
-# REASONING FOR PARAMETERS:
-# 1. --batch-size 32: 
-#    The previous run used 64, which likely caused a GPU Out-of-Memory (OOM) error on 12GB VRAM.
-#    32 is a safer balance for BERT-base to ensure stability while maintaining throughput.
+# REASONING FOR TEST 1:
+# 1. --mode dev-only: 
+#    Uses a single dev file to keep data loading fast and focused.
 #
-# 2. --num-workers 2:
-#    The dataset contains ~5.8 million pairs. PyTorch workers can consume significant System RAM.
-#    Reducing from 4 to 2 helps prevent the OS from killing the process due to System RAM exhaustion (32GB limit).
+# 2. --test-start 0 --test-end 5000:
+#    Limits the number of pairs to ensure the run completes in ~5 minutes.
+#    Starting at 0 ensures we include the beginning of the dialogue where 
+#    initial connections are established.
 #
-# 3. --fp16:
-#    Uses Mixed Precision training. This is critical for the RTX 5070 to utilize Tensor Cores,
-#    providing ~2x speedup and reducing VRAM footprint.
+# 3. --batch-size 16:
+#    Lower batch size to test the new OOM logging and ensure stability.
 #
-# 4. --warmup-steps 1000:
-#    Helps stabilize the initial gradients given the very large number of training pairs.
+# 4. --epochs 1:
+#    Single pass is enough for a logic check.
 
 python src/train.py \
-    --mode train \
-    --batch-size 32 \
-    --num-workers 2 \
+    --mode dev-only \
+    --data-dir data \
+    --batch-size 16 \
+    --num-workers 0 \
     --fp16 \
-    --epochs 5 \
+    --epochs 1 \
     --learning-rate 5e-5 \
     --max-length 128 \
     --max-dist 30 \
-    --warmup-steps 1000 \
-    --patience 3 \
+    --warmup-steps 10 \
+    --patience 0 \
     --threshold 0.3 \
     --eval-every 1 \
     --save-every 1 \
-    --output-dir checkpoints/gpu_5070 \
-    --device cuda
+    --output-dir checkpoints/test_1 \
+    --device cuda \
+    --test-start 0 \
+    --test-end 5000
 
 echo ""
 echo "=========================================="
-echo "Training complete!"
-echo "Checkpoints saved to: checkpoints/gpu_5070"
+echo "Test 1 complete!"
+echo "Check logs for OOM reports and positive sample stats."
 echo "=========================================="

@@ -88,6 +88,11 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Threshold**: 0.3 (Lowered from 0.5 to improve recall on rare positive samples).
 - **Early Stopping**: Implemented via `--patience` (default 3) to monitor Dev F1.
 
+### Multi-Stage Testing Plan
+- **Test 1 (5 min)**: Stability and logic check. Uses `dev-only` mode with limited pairs (`--test-end 5000`). Verifies OOM logging and positive sample handling.
+- **Test 2 (1 hour)**: Mid-range stability run. Expanded data range to verify convergence trends.
+- **Test 3 (3 hours)**: Stress test. Full dev set or significant portion of train set to verify long-term stability and checkpointing.
+
 ---
 
 ## 5. Technical Reference

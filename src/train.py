@@ -11,6 +11,8 @@ import sys
 import time
 import json
 import logging
+import psutil
+import platform
 from typing import Dict, List, Tuple, Optional
 from pathlib import Path
 from datetime import datetime
@@ -193,7 +195,12 @@ def create_dataloaders(args, tokenizer):
 
     if args.mode == "dev-only":
         # Use only dev set
-        dev_ascii, dev_ann = load_dataset_files(args.data_dir, "dev")
+        try:
+            dev_ascii, dev_ann = load_dataset_files(args.data_dir, "dev")
+        except Exception as e:
+            logger.error(f"Failed to load dev dataset files from {args.data_dir}: {e}")
+            raise e
+
         if not dev_ascii:
             raise ValueError(f"No dev files found in {args.data_dir}")
 
@@ -233,8 +240,12 @@ def create_dataloaders(args, tokenizer):
 
     else:
         # Load train and dev sets
-        train_ascii, train_ann = load_dataset_files(args.data_dir, "train")
-        dev_ascii, dev_ann = load_dataset_files(args.data_dir, "dev")
+        try:
+            train_ascii, train_ann = load_dataset_files(args.data_dir, "train")
+            dev_ascii, dev_ann = load_dataset_files(args.data_dir, "dev")
+        except Exception as e:
+            logger.error(f"Failed to load dataset files from {args.data_dir}: {e}")
+            raise e
 
         if not train_ascii:
             raise ValueError(f"No train files found in {args.data_dir}")
@@ -300,40 +311,52 @@ def evaluate(model, dataloader, device, threshold=0.5, fp16=False):
         for batch_idx, batch in enumerate(
             tqdm(dataloader, desc="Evaluating", leave=False)
         ):
-            # Move batch to device
-            input_ids = batch["input_ids"].to(device)
-            attention_mask = batch["attention_mask"].to(device)
-            features = batch["features"].to(device)
-            labels = batch["labels"].to(device)
+            try:
+                # Move batch to device
+                input_ids = batch["input_ids"].to(device)
+                attention_mask = batch["attention_mask"].to(device)
+                features = batch["features"].to(device)
+                labels = batch["labels"].to(device)
 
-            # Handle token_type_ids if present
-            token_type_ids = batch.get("token_type_ids", None)
-            if token_type_ids is not None:
-                token_type_ids = token_type_ids.to(device)
+                # Handle token_type_ids if present
+                token_type_ids = batch.get("token_type_ids", None)
+                if token_type_ids is not None:
+                    token_type_ids = token_type_ids.to(device)
 
-            # Forward pass
-            with torch.cuda.amp.autocast(enabled=fp16):
-                outputs = model(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    token_type_ids=token_type_ids,
-                    features=features,
-                    labels=labels,
-                )
+                # Forward pass
+                with torch.cuda.amp.autocast(enabled=fp16):
+                    outputs = model(
+                        input_ids=input_ids,
+                        attention_mask=attention_mask,
+                        token_type_ids=token_type_ids,
+                        features=features,
+                        labels=labels,
+                    )
 
-            # Get predictions
-            probs = outputs["probs"]
-            predictions = (probs >= threshold).long()
+                # Get predictions
+                probs = outputs["probs"]
+                predictions = (probs >= threshold).long()
 
-            # Store results
-            all_predictions.extend(predictions.cpu().numpy())
-            all_labels.extend(labels.cpu().numpy())
-            all_probs.extend(probs.cpu().numpy())
+                # Store results
+                all_predictions.extend(predictions.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
+                all_probs.extend(probs.cpu().numpy())
 
-            # Accumulate loss
-            if "loss" in outputs:
-                total_loss += outputs["loss"].item()
-                num_batches += 1
+                # Accumulate loss
+                if "loss" in outputs:
+                    total_loss += outputs["loss"].item()
+                    num_batches += 1
+            except RuntimeError as e:
+                if "out of memory" in str(e).lower():
+                    logger.error(f"  Eval Batch {batch_idx + 1}: CUDA Out of Memory (OOM) during evaluation!")
+                    if torch.cuda.is_available():
+                        allocated = torch.cuda.memory_allocated(device) / (1024**2)
+                        reserved = torch.cuda.memory_reserved(device) / (1024**2)
+                        logger.error(f"  Memory at OOM: {allocated:.0f}/{reserved:.0f}MB")
+                    torch.cuda.empty_cache()
+                    continue
+                else:
+                    raise e
 
             # Log progress every 10 batches
             if (batch_idx + 1) % 10 == 0:
@@ -403,29 +426,56 @@ def train_epoch(
     progress_bar = tqdm(train_loader, desc=f"Epoch {epoch}", leave=True)
 
     for batch_idx, batch in enumerate(progress_bar):
-        # Move batch to device
-        input_ids = batch["input_ids"].to(device)
-        attention_mask = batch["attention_mask"].to(device)
-        features = batch["features"].to(device)
-        labels = batch["labels"].to(device)
+        try:
+            # Move batch to device
+            input_ids = batch["input_ids"].to(device)
+            attention_mask = batch["attention_mask"].to(device)
+            features = batch["features"].to(device)
+            labels = batch["labels"].to(device)
 
-        # Handle token_type_ids if present
-        token_type_ids = batch.get("token_type_ids", None)
-        if token_type_ids is not None:
-            token_type_ids = token_type_ids.to(device)
+            # Handle token_type_ids if present
+            token_type_ids = batch.get("token_type_ids", None)
+            if token_type_ids is not None:
+                token_type_ids = token_type_ids.to(device)
 
-        # Forward pass
-        with torch.cuda.amp.autocast(enabled=fp16):
-            outputs = model(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                token_type_ids=token_type_ids,
-                features=features,
-                labels=labels,
-            )
+            # Forward pass
+            with torch.cuda.amp.autocast(enabled=fp16):
+                outputs = model(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    token_type_ids=token_type_ids,
+                    features=features,
+                    labels=labels,
+                )
 
-            loss = outputs["loss"]
-        probs = outputs["probs"]
+                loss = outputs["loss"]
+
+            # Check for NaN/Inf loss
+            if torch.isnan(loss) or torch.isinf(loss):
+                logger.error(
+                    f"  Batch {batch_idx + 1}: NaN or Inf loss detected! Skipping batch."
+                )
+                continue
+
+            probs = outputs["probs"]
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                logger.error(
+                    f"  Batch {batch_idx + 1}: CUDA Out of Memory (OOM) during forward pass!"
+                )
+                if torch.cuda.is_available():
+                    allocated = torch.cuda.memory_allocated(device) / (1024**2)
+                    reserved = torch.cuda.memory_reserved(device) / (1024**2)
+                    logger.error(f"  Memory at OOM: {allocated:.0f}/{reserved:.0f}MB")
+
+                # Clear cache and skip batch
+                for p in model.parameters():
+                    if p.grad is not None:
+                        del p.grad
+                torch.cuda.empty_cache()
+                continue
+            else:
+                raise e
 
         # SMART LOGGING: Track model behavior on rare positive samples and general trends.
         # 1. Log every batch that contains a positive sample (label=1) to see how the model handles replies.
@@ -450,14 +500,31 @@ def train_epoch(
             logger.info(log_msg)
 
         # Backward pass
-        optimizer.zero_grad()
-        if scaler:
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-        else:
-            loss.backward()
-            optimizer.step()
+        try:
+            optimizer.zero_grad()
+            if scaler:
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                loss.backward()
+                optimizer.step()
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                logger.error(
+                    f"  Batch {batch_idx + 1}: CUDA Out of Memory (OOM) during backward pass!"
+                )
+                if torch.cuda.is_available():
+                    allocated = torch.cuda.memory_allocated(device) / (1024**2)
+                    reserved = torch.cuda.memory_reserved(device) / (1024**2)
+                    logger.error(f"  Memory at OOM: {allocated:.0f}/{reserved:.0f}MB")
+
+                # Clear cache and skip batch
+                optimizer.zero_grad()
+                torch.cuda.empty_cache()
+                continue
+            else:
+                raise e
 
         if scheduler is not None:
             scheduler.step()
@@ -474,7 +541,7 @@ def train_epoch(
             elapsed = (datetime.now() - start_time).total_seconds()
             batches_per_sec = (batch_idx + 1) / elapsed if elapsed > 0 else 0
             avg_loss_so_far = total_loss / num_batches
-            
+
             # Memory logging
             mem_msg = ""
             if torch.cuda.is_available():
@@ -482,7 +549,7 @@ def train_epoch(
                 reserved = torch.cuda.memory_reserved(device) / (1024**2)
                 max_allocated = torch.cuda.max_memory_allocated(device) / (1024**2)
                 mem_msg = f", GPU Mem: {allocated:.0f}/{reserved:.0f}MB (max: {max_allocated:.0f}MB)"
-            
+
             logger.info(
                 f"  Epoch {epoch} progress: {batch_idx + 1}/{len(train_loader)} batches "
                 f"({batches_per_sec:.2f} batches/s, avg_loss={avg_loss_so_far:.4f}{mem_msg})"
@@ -523,13 +590,21 @@ def save_checkpoint(model, optimizer, scheduler, epoch, args, metrics, checkpoin
     temp_path = checkpoint_dir / f"checkpoint_epoch_{epoch}.pt.tmp"
     try:
         torch.save(checkpoint, temp_path)
+        if checkpoint_path.exists():
+            checkpoint_path.unlink()
         temp_path.rename(checkpoint_path)  # Atomic on most systems
     except Exception as e:
         # Fallback: save directly if rename fails
-        logger.warning(f"Temporary file rename failed, saving directly: {e}")
+        logger.error(f"Checkpoint save failed (temp rename): {e}")
         if temp_path.exists():
-            temp_path.unlink()
-        torch.save(checkpoint, checkpoint_path)
+            try:
+                temp_path.unlink()
+            except:
+                pass
+        try:
+            torch.save(checkpoint, checkpoint_path)
+        except Exception as e2:
+            logger.error(f"CRITICAL: Direct checkpoint save also failed: {e2}")
 
     # Also save best model
     if "f1" in metrics:
@@ -568,6 +643,30 @@ def load_checkpoint(
     return epoch, metrics
 
 
+def log_system_info():
+    """Log system diagnostics (CPU, RAM, GPU)"""
+    logger.info("--- System Diagnostics ---")
+    logger.info(f"OS: {platform.system()} {platform.release()}")
+    logger.info(f"Python: {platform.python_version()}")
+
+    # RAM
+    virtual_mem = psutil.virtual_memory()
+    logger.info(
+        f"RAM: {virtual_mem.total / (1024**3):.2f} GB total, {virtual_mem.available / (1024**3):.2f} GB available"
+    )
+
+    # GPU
+    if torch.cuda.is_available():
+        for i in range(torch.cuda.device_count()):
+            props = torch.cuda.get_device_properties(i)
+            logger.info(f"GPU {i}: {props.name}")
+            logger.info(f"  Total Memory: {props.total_memory / (1024**2):.0f} MB")
+            logger.info(f"  Compute Capability: {props.major}.{props.minor}")
+    else:
+        logger.info("GPU: No CUDA-capable device found.")
+    logger.info("--------------------------")
+
+
 def main():
     """Main training function"""
     args = parse_args()
@@ -584,6 +683,7 @@ def main():
     logger.info("=" * 80)
     logger.info("IRC Conversation Disentanglement Training")
     logger.info("=" * 80)
+    log_system_info()
     logger.info(f"Mode: {args.mode}")
     logger.info(f"Device: {args.device}")
     logger.info(f"Model: {args.model_name}")
@@ -801,7 +901,14 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        if 'logger' in globals():
+        if "logger" in globals():
+            if "out of memory" in str(e).lower():
+                logger.error("FATAL: CUDA Out of Memory (OOM) at top level!")
+                if torch.cuda.is_available():
+                    allocated = torch.cuda.memory_allocated() / (1024**2)
+                    reserved = torch.cuda.memory_reserved() / (1024**2)
+                    logger.error(f"Final Memory State: {allocated:.0f}/{reserved:.0f}MB")
+            
             logger.exception("Fatal error during training:")
         else:
             import traceback

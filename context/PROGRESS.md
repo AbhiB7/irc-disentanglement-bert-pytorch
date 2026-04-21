@@ -13,7 +13,12 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Documentation**: Refactored into three distinct files (`instructions.md`, `context.md`, `progress.md`).
 - ✅ **Environment**: Python 3.13 compatibility confirmed on Windows.
 - ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
-- 🔄 **Next Major Milestone**: Execute full training run on GPU (Vast.ai).
+- 🔄 **Next Major Milestone**: Execute Test 1 (5-min stability run) on RTX 5070.
+
+## Recent Completions (2026-04-21)
+- **OOM Logging**: Implemented comprehensive CUDA OOM catching and system diagnostic logging in `train.py`.
+- **Numerical Stability**: Added NaN/Inf loss detection and batch skipping.
+- **Test 1 Setup**: Rewrote `train_gpu_5070.sh` for a 5-minute stability and logic check.
 
 ## Recent Completions (2026-04-19)
 - **Model Fix**: Resolved "all-zero" prediction issue by reducing `pos_weight` (14.0 -> 5.0), increasing learning rate (2e-5 -> 5e-5), and lowering threshold (0.5 -> 0.3).
@@ -33,8 +38,11 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - [x] Update `progress.md` with current state.
 
 ## Next Steps
-1. **GPU Training**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti (15-hour overnight run).
-2. **Inference**: Run the trained model on all 10 dev files.
+1. **Test 1 (Immediate)**: Run `train_gpu_5070.sh` (5 mins). Verify OOM logging and positive sample statistics.
+2. **Test 2 (Prospective)**: 1-hour stability run with expanded data range.
+3. **Test 3 (Prospective)**: 3-hour stress test on full dev set or partial train set.
+4. **GPU Training**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti (15-hour overnight run).
+5. **Inference**: Run the trained model on all 10 dev files.
 3. **Evaluation**: Use `graph-eval.py` to generate final link-level F1 metrics.
 4. **Comparison**: Compare BERT results against the Study 1 DyNet baseline.
 
