@@ -6,17 +6,17 @@
 echo "=========================================="
 echo "IRC Disentanglement - TEST 2 (3 HOURS)"
 echo "Target: Multi-file stability & Convergence"
-echo "Dataset: Full (Limited to 500 msgs/file)"
+echo "Dataset: Conservative (~50K pairs, ~0.5%)"
 echo "=========================================="
 
 # Ensure output directory exists
 mkdir -p checkpoints/test_2
 
 # REASONING FOR TEST 2:
-# 1. --test-end 500:
-#    Limits each of the ~158 files to 500 messages.
-#    Total pairs: ~158 * 500 * 30 = ~2.3M pairs.
-#    Estimated time: ~3 hours at 200 pairs/sec.
+# 1. --test-end 50000:
+#    Limits TOTAL pairs to 50K (~0.5% of full dataset).
+#    Conservative RAM usage while ensuring positive examples.
+#    Previous run with --test-end 500 caused data starvation (zero positive examples).
 #
 # 2. --epochs 3:
 #    Standard BERT fine-tuning depth.
@@ -34,7 +34,8 @@ python src/train.py \
     --num-workers 4 \
     --fp16 \
     --epochs 3 \
-    --test-end 500 \
+    --test-start 300 \
+    --test-end 50000 \
     --learning-rate 5e-5 \
     --max-length 128 \
     --max-dist 30 \

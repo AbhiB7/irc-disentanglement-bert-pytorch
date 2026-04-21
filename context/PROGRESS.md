@@ -15,6 +15,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Documentation**: Refactored into three distinct files (`instructions.md`, `context.md`, `progress.md`).
 - ✅ **Environment**: Python 3.13 compatibility confirmed on Windows.
 - ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
+- ⚠️ **Test 2 FAILED**: `--test-end 500` caused data starvation (only 500 total pairs, zero positive examples). Fixed by increasing to 500K pairs.
 
 ## Recent Completions (2026-04-21)
 - **Test 1 Success**: Verified model logic on `data/tiny`. The model now predicts positive links correctly (Recall: 92.3%, F1: 0.48) instead of all zeros.
@@ -22,6 +23,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - **Numerical Stability**: Added NaN/Inf loss detection and batch skipping.
 - **Test 1 Setup**: Rewrote `train_gpu_5070.sh` for a 5-minute stability and logic check.
 - **Label Fix**: Decoupled `skip_labels` from data limiting to allow real metrics on small subsets.
+- **Test 2 Diagnosis**: Identified that `--test-end 500` limits TOTAL pairs to 500 (not per file), causing data starvation and all-zero predictions. Fixed by increasing to 500K pairs.
 
 ## Recent Completions (2026-04-19)
 - **Model Fix**: Resolved "all-zero" prediction issue by reducing `pos_weight` (14.0 -> 5.0), increasing learning rate (2e-5 -> 5e-5), and lowering threshold (0.5 -> 0.3).
@@ -41,7 +43,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - [x] Update `progress.md` with current state.
 
 ## Next Steps
-1. **Test 2 (Immediate)**: 3-hour stability run using `train_test_2.sh`. Uses first 500 messages of every training file to verify multi-file stability and convergence trends on Vast.ai RTX 5070.
+1. **Test 2 (Immediate)**: 3-hour stability run using `train_test_2.sh`. Uses ~500K pairs (~5% of dataset) to verify multi-file stability and convergence trends on Vast.ai RTX 5070.
 2. **Test 3 (Prospective)**: Stress test on full dev set or significant portion of train set.
 4. **GPU Training**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti (15-hour overnight run).
 5. **Inference**: Run the trained model on all 10 dev files.
