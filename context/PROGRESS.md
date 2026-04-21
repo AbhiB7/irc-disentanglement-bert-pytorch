@@ -8,7 +8,7 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- 🔄 **Test 1 (Iteration 3)**: Switching to `data/tiny` dataset to resolve "Data Starvation" (0 positive samples in training).
+- ✅ **Test 1 (Iteration 3)**: Successfully ran on `data/tiny`. Resolved "all-zero" prediction issue. Achieved **0.48 F1** and **92.3% Recall** on tiny dev set.
 - ✅ **Robustness**: OOM recovery and NaN detection implemented and verified.
 - ✅ **Model Fix**: Resolved "all-zero" prediction issue via hyperparameter tuning.
 - ✅ **Early Stopping**: Implemented and verified in `train.py`.
@@ -17,6 +17,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
 
 ## Recent Completions (2026-04-21)
+- **Test 1 Success**: Verified model logic on `data/tiny`. The model now predicts positive links correctly (Recall: 92.3%, F1: 0.48) instead of all zeros.
 - **OOM Logging**: Implemented comprehensive CUDA OOM catching and system diagnostic logging in `train.py`.
 - **Numerical Stability**: Added NaN/Inf loss detection and batch skipping.
 - **Test 1 Setup**: Rewrote `train_gpu_5070.sh` for a 5-minute stability and logic check.
@@ -40,9 +41,8 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - [x] Update `progress.md` with current state.
 
 ## Next Steps
-1. **Test 1 (Immediate)**: Run `train_gpu_5070.sh` (5 mins). Verify OOM logging and positive sample statistics.
-2. **Test 2 (Prospective)**: 1-hour stability run with expanded data range.
-3. **Test 3 (Prospective)**: 3-hour stress test on full dev set or partial train set.
+1. **Test 2 (Immediate)**: 3-hour stability run using `train_test_2.sh`. Uses first 500 messages of every training file to verify multi-file stability and convergence trends on Vast.ai RTX 5070.
+2. **Test 3 (Prospective)**: Stress test on full dev set or significant portion of train set.
 4. **GPU Training**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti (15-hour overnight run).
 5. **Inference**: Run the trained model on all 10 dev files.
 3. **Evaluation**: Use `graph-eval.py` to generate final link-level F1 metrics.
