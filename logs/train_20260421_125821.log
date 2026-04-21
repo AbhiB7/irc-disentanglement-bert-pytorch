@@ -1,0 +1,121 @@
+2026-04-21 12:58:21,167 - __main__ - INFO - ================================================================================
+2026-04-21 12:58:21,168 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-04-21 12:58:21,168 - __main__ - INFO - ================================================================================
+2026-04-21 12:58:21,168 - __main__ - INFO - --- System Diagnostics ---
+2026-04-21 12:58:21,168 - __main__ - INFO - OS: Linux 6.8.0-107-generic
+2026-04-21 12:58:21,168 - __main__ - INFO - Python: 3.12.13
+2026-04-21 12:58:21,168 - __main__ - INFO - RAM: 125.75 GB total, 108.04 GB available
+2026-04-21 12:58:21,199 - __main__ - INFO - GPU 0: NVIDIA GeForce RTX 5070
+2026-04-21 12:58:21,199 - __main__ - INFO -   Total Memory: 11772 MB
+2026-04-21 12:58:21,199 - __main__ - INFO -   Compute Capability: 12.0
+2026-04-21 12:58:21,199 - __main__ - INFO - --------------------------
+2026-04-21 12:58:21,199 - __main__ - INFO - Mode: dev-only
+2026-04-21 12:58:21,199 - __main__ - INFO - Device: cuda
+2026-04-21 12:58:21,199 - __main__ - INFO - Model: bert-base-uncased
+2026-04-21 12:58:21,199 - __main__ - INFO - Batch size: 16
+2026-04-21 12:58:21,199 - __main__ - INFO - Learning rate: 5e-05
+2026-04-21 12:58:21,199 - __main__ - INFO - Epochs: 1
+2026-04-21 12:58:21,199 - __main__ - INFO - Max dist: 30
+2026-04-21 12:58:21,199 - __main__ - INFO - Max length: 128
+2026-04-21 12:58:21,199 - __main__ - INFO - Output dir: checkpoints/test_1
+2026-04-21 12:58:21,200 - __main__ - INFO - Using device: cuda
+2026-04-21 12:58:21,200 - __main__ - INFO - Loading tokenizer: bert-base-uncased
+2026-04-21 12:58:22,488 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-21 12:58:22,754 - httpx - INFO - HTTP Request: GET https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-21 12:58:22,754 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-21 12:58:23,073 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-21 12:58:23,329 - httpx - INFO - HTTP Request: GET https://huggingface.co/bert-base-uncased/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-21 12:58:23,584 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-21 12:58:24,094 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-21 12:58:24,355 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-21 12:58:24,610 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-21 12:58:24,865 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/vocab.txt "HTTP/1.1 200 OK"
+2026-04-21 12:58:25,595 - httpx - INFO - HTTP Request: GET https://huggingface.co/bert-base-uncased/resolve/main/vocab.txt "HTTP/1.1 200 OK"
+2026-04-21 12:58:25,884 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/tokenizer.json "HTTP/1.1 200 OK"
+2026-04-21 12:58:26,149 - httpx - INFO - HTTP Request: GET https://huggingface.co/bert-base-uncased/resolve/main/tokenizer.json "HTTP/1.1 200 OK"
+2026-04-21 12:58:26,417 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-04-21 12:58:26,674 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-04-21 12:58:26,931 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-04-21 12:58:27,077 - __main__ - INFO - Tokenizer loaded: BertTokenizer
+2026-04-21 12:58:27,077 - __main__ - INFO - Creating dataloaders...
+2026-04-21 12:58:27,078 - __main__ - INFO - Creating dev-only dataloader with 1 file: data/dev/2004-11-15_03.ascii.txt
+2026-04-21 12:58:27,078 - __main__ - INFO -   test_start=0, test_end=5000
+2026-04-21 12:58:27,078 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-04-21 12:58:27,078 - data_loader - INFO -   max_dist=30, max_length=128, is_test=True
+2026-04-21 12:58:27,078 - data_loader - INFO -   test_start=0, test_end=5000
+2026-04-21 12:58:27,079 - data_loader - INFO - Loading conversation from data/dev/2004-11-15_03.ascii.txt
+2026-04-21 12:58:27,080 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-21 12:58:27,085 - data_loader - INFO -   Parsed 1250 messages, found 76 unique users
+2026-04-21 12:58:27,297 - data_loader - INFO -   Loaded 189 gold links from annotation file
+2026-04-21 12:58:27,297 - data_loader - INFO -   Conversation '2004-11-15_03' loaded in 0.22s
+2026-04-21 12:58:27,297 - data_loader - INFO -   Creating pairs for 2004-11-15_03: messages 0 to 1250 (test mode)
+2026-04-21 12:58:42,670 - data_loader - INFO -   Created 32072 pairs for 2004-11-15_03
+2026-04-21 12:58:42,670 - data_loader - INFO -   File 1/1: 2004-11-15_03 - 1250 messages, 32072 total pairs so far
+2026-04-21 12:58:42,670 - data_loader - INFO -   Reached test_end limit (5000 pairs), stopping early
+2026-04-21 12:58:42,671 - data_loader - INFO - Truncating pairs from 32072 to 5000 (test_end limit)
+2026-04-21 12:58:42,831 - data_loader - INFO - Dataset initialization complete: 5000 pairs from 1 conversations in 15.75s
+2026-04-21 12:58:42,831 - __main__ - INFO -   Dev dataset created: 5000 pairs
+2026-04-21 12:58:42,831 - __main__ - INFO -   Dev dataset: 5000 pairs
+2026-04-21 12:58:42,831 - __main__ - INFO - Creating model...
+2026-04-21 12:58:44,653 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-21 12:58:45,340 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/model.safetensors "HTTP/1.1 302 Found"
+2026-04-21 12:58:45,605 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/xet-read-token/86b5e0934494bd15c9632b12f734a8a67f723594 "HTTP/1.1 200 OK"
+2026-04-21 12:59:04,325 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-21 12:59:04,681 - __main__ - INFO -   Parameters: 109,483,013 trainable, 109,483,013 total
+2026-04-21 12:59:04,681 - __main__ - INFO -   BERT hidden size: 768
+2026-04-21 12:59:04,681 - __main__ - INFO -   Combined size: 772
+2026-04-21 12:59:04,682 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
+2026-04-21 12:59:04,682 - __main__ - INFO - Starting training from epoch 1...
+2026-04-21 12:59:04,682 - __main__ - INFO - ================================================================================
+2026-04-21 12:59:04,682 - __main__ - INFO - Epoch 1/1
+2026-04-21 12:59:04,682 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-04-21 12:59:04,683 - __main__ - INFO - Evaluating on dev set...
+2026-04-21 12:59:04,684 - __main__ - INFO - Starting evaluation on 5000 pairs
+2026-04-21 12:59:05,599 - __main__ - INFO -   Evaluation progress: 10/313 batches (10.93 batches/s)
+2026-04-21 12:59:05,811 - __main__ - INFO -   Evaluation progress: 20/313 batches (17.74 batches/s)
+2026-04-21 12:59:06,029 - __main__ - INFO -   Evaluation progress: 30/313 batches (22.30 batches/s)
+2026-04-21 12:59:06,241 - __main__ - INFO -   Evaluation progress: 40/313 batches (25.69 batches/s)
+2026-04-21 12:59:06,424 - __main__ - INFO -   Evaluation progress: 50/313 batches (28.73 batches/s)
+2026-04-21 12:59:06,598 - __main__ - INFO -   Evaluation progress: 60/313 batches (31.35 batches/s)
+2026-04-21 12:59:06,776 - __main__ - INFO -   Evaluation progress: 70/313 batches (33.46 batches/s)
+2026-04-21 12:59:06,953 - __main__ - INFO -   Evaluation progress: 80/313 batches (35.25 batches/s)
+2026-04-21 12:59:07,130 - __main__ - INFO -   Evaluation progress: 90/313 batches (36.79 batches/s)
+2026-04-21 12:59:07,303 - __main__ - INFO -   Evaluation progress: 100/313 batches (38.19 batches/s)
+2026-04-21 12:59:07,479 - __main__ - INFO -   Evaluation progress: 110/313 batches (39.35 batches/s)
+2026-04-21 12:59:07,654 - __main__ - INFO -   Evaluation progress: 120/313 batches (40.41 batches/s)
+2026-04-21 12:59:07,832 - __main__ - INFO -   Evaluation progress: 130/313 batches (41.29 batches/s)
+2026-04-21 12:59:08,010 - __main__ - INFO -   Evaluation progress: 140/313 batches (42.09 batches/s)
+2026-04-21 12:59:08,187 - __main__ - INFO -   Evaluation progress: 150/313 batches (42.82 batches/s)
+2026-04-21 12:59:08,363 - __main__ - INFO -   Evaluation progress: 160/313 batches (43.49 batches/s)
+2026-04-21 12:59:08,541 - __main__ - INFO -   Evaluation progress: 170/313 batches (44.07 batches/s)
+2026-04-21 12:59:08,715 - __main__ - INFO -   Evaluation progress: 180/313 batches (44.65 batches/s)
+2026-04-21 12:59:08,895 - __main__ - INFO -   Evaluation progress: 190/313 batches (45.11 batches/s)
+2026-04-21 12:59:09,075 - __main__ - INFO -   Evaluation progress: 200/313 batches (45.55 batches/s)
+2026-04-21 12:59:09,252 - __main__ - INFO -   Evaluation progress: 210/313 batches (45.97 batches/s)
+2026-04-21 12:59:09,425 - __main__ - INFO -   Evaluation progress: 220/313 batches (46.40 batches/s)
+2026-04-21 12:59:09,605 - __main__ - INFO -   Evaluation progress: 230/313 batches (46.74 batches/s)
+2026-04-21 12:59:09,786 - __main__ - INFO -   Evaluation progress: 240/313 batches (47.04 batches/s)
+2026-04-21 12:59:09,973 - __main__ - INFO -   Evaluation progress: 250/313 batches (47.26 batches/s)
+2026-04-21 12:59:10,166 - __main__ - INFO -   Evaluation progress: 260/313 batches (47.42 batches/s)
+2026-04-21 12:59:10,350 - __main__ - INFO -   Evaluation progress: 270/313 batches (47.65 batches/s)
+2026-04-21 12:59:10,529 - __main__ - INFO -   Evaluation progress: 280/313 batches (47.90 batches/s)
+2026-04-21 12:59:10,711 - __main__ - INFO -   Evaluation progress: 290/313 batches (48.11 batches/s)
+2026-04-21 12:59:10,891 - __main__ - INFO -   Evaluation progress: 300/313 batches (48.33 batches/s)
+2026-04-21 12:59:11,073 - __main__ - INFO -   Evaluation progress: 310/313 batches (48.52 batches/s)
+2026-04-21 12:59:11,141 - __main__ - INFO - Evaluation complete in 6.46s
+2026-04-21 12:59:11,141 - __main__ - INFO -   Loss: 0.5946, Accuracy: 0.0000, Precision: 0.0000, Recall: 0.0000, F1: 0.0000
+2026-04-21 12:59:11,141 - __main__ - INFO -   TP: 0, FP: 5000, TN: 0, FN: 0
+2026-04-21 12:59:11,141 - __main__ - INFO - Dev Loss: 0.5946
+2026-04-21 12:59:11,141 - __main__ - INFO - Dev Accuracy: 0.0000
+2026-04-21 12:59:11,141 - __main__ - INFO - Dev Precision: 0.0000
+2026-04-21 12:59:11,141 - __main__ - INFO - Dev Recall: 0.0000
+2026-04-21 12:59:11,142 - __main__ - INFO - Dev F1: 0.0000
+2026-04-21 12:59:11,142 - __main__ - INFO -   TP: 0, FP: 5000, TN: 0, FN: 0
+2026-04-21 12:59:11,142 - __main__ - INFO -   No improvement for 1 epochs
+2026-04-21 12:59:12,069 - __main__ - INFO - Saved checkpoint to checkpoints/test_1/checkpoint_epoch_1.pt
+2026-04-21 12:59:12,070 - __main__ - INFO - Training complete in 7.39s!
+2026-04-21 12:59:12,070 - __main__ - INFO - Best F1: 0.0000 at epoch 0
+2026-04-21 12:59:12,070 - __main__ - INFO - ================================================================================
+2026-04-21 12:59:12,070 - __main__ - INFO - Done!
+2026-04-21 12:59:12,070 - __main__ - INFO - ================================================================================
+2026-04-21 12:59:12,070 - __main__ - INFO - Log file: /workspace/irc-disentanglement-bert-pytorch/logs/train_20260421_125821.log
