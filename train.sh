@@ -19,8 +19,13 @@ fi
 # Activate the environment
 conda activate ircbert
 
+# Use environment variables for output directories if provided (e.g. from Slurm)
+# Default to repo-local if not set
+LOG_DIR=${LOG_DIR:-"logs"}
+CHECKPOINT_DIR=${CHECKPOINT_DIR:-"checkpoints"}
+
 # Create output directories if they don't exist
-mkdir -p logs checkpoints
+mkdir -p "$LOG_DIR" "$CHECKPOINT_DIR"
 
 # Run the main training Python script
 # Entry point: src/train.py
@@ -39,5 +44,5 @@ python src/train.py \
     --threshold 0.3 \
     --eval-every 1 \
     --save-every 1 \
-    --output-dir checkpoints \
+    --output-dir "$CHECKPOINT_DIR" \
     --device cuda

@@ -30,8 +30,14 @@ from data_loader import IRCDisentanglementDataset, load_dataset_files
 from model import CrossEncoderWithFeatures, create_model, count_parameters
 
 # Configure logging
-LOG_DIR = Path(__file__).parent.parent / "logs"
-LOG_DIR.mkdir(exist_ok=True)
+# Honor LOG_DIR environment variable if set, otherwise default to repo-local logs/
+LOG_DIR_PATH = os.environ.get("LOG_DIR")
+if LOG_DIR_PATH:
+    LOG_DIR = Path(LOG_DIR_PATH)
+else:
+    LOG_DIR = Path(__file__).parent.parent / "logs"
+
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / f"train_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
 logging.basicConfig(

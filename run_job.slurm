@@ -14,8 +14,13 @@
 export SINGULARITY_CACHEDIR=/scratch/user/$USER
 export SINGULARITY_TMPDIR=/scratch/user/$USER
 
+# Bunya storage layout: relocate heavy outputs to /scratch
+export RUN_ROOT=/scratch/user/$USER/ircbert_runs
+export LOG_DIR=$RUN_ROOT/logs
+export CHECKPOINT_DIR=$RUN_ROOT/checkpoints
+
 # Create directories
-mkdir -p logs checkpoints
+mkdir -p $LOG_DIR $CHECKPOINT_DIR
 
 # Run setup (idempotent)
 bash setup.sh
