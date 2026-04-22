@@ -15,7 +15,13 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Documentation**: Refactored into three distinct files (`instructions.md`, `context.md`, `progress.md`).
 - ✅ **Environment**: Python 3.13 compatibility confirmed on Windows.
 - ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
-- ⚠️ **Test 2 FAILED**: `--test-end 500` caused data starvation (only 500 total pairs, zero positive examples). Fixed by increasing to 500K pairs.
+- ✅ **Test 2 Success**: 3-hour stability run completed. Achieved **0.1454 F1** and **57.36% Recall** on dev set. Pipeline is stable on RTX 5070.
+
+## Recent Completions (2026-04-22)
+- **Test 2 Success**: Completed stability run on RTX 5070.
+    - **Metrics**: F1: 0.1454, Recall: 57.36%, Precision: 8.33%.
+    - **Stability**: No OOMs or NaNs. GPU memory usage was low (~1.7GB).
+    - **Finding**: Model is successfully identifying links but over-predicting (high FP count), likely due to the small training slice (50k pairs).
 
 ## Recent Completions (2026-04-21)
 - **Test 1 Success**: Verified model logic on `data/tiny`. The model now predicts positive links correctly (Recall: 92.3%, F1: 0.48) instead of all zeros.
@@ -43,8 +49,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - [x] Update `progress.md` with current state.
 
 ## Next Steps
-1. **Test 2 (Immediate)**: 3-hour stability run using `train_test_2.sh`. Uses ~500K pairs (~5% of dataset) to verify multi-file stability and convergence trends on Vast.ai RTX 5070.
-2. **Test 3 (Prospective)**: Stress test on full dev set or significant portion of train set.
+1. **Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`. Uses **1 Million pairs** and `batch-size=64` to improve Precision and verify long-term convergence on RTX 5070.
 4. **GPU Training**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti (15-hour overnight run).
 5. **Inference**: Run the trained model on all 10 dev files.
 3. **Evaluation**: Use `graph-eval.py` to generate final link-level F1 metrics.

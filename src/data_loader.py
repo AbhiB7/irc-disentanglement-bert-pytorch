@@ -248,7 +248,8 @@ class IRCDisentanglementDataset(Dataset):
         max_length: int = 128,
         skip_labels: bool = False,
         test_start: int = 0,
-        test_end: int = 1000000,
+        test_end: int = 1000000000, # Default to 1 Billion (effectively no limit).
+                                    # Note: Previous limit of 1M was too low for full dataset.
     ):
         """
         Args:
@@ -305,14 +306,15 @@ class IRCDisentanglementDataset(Dataset):
             )
 
             # Early exit if we've reached test_end pairs (if limiting)
-            if self.test_end < 1000000 and len(self.pairs) >= self.test_end:
+            # Check against test_end limit (now supports values > 1M)
+            if self.test_end < 1000000000 and len(self.pairs) >= self.test_end:
                 logger.info(
                     f"  Reached test_end limit ({self.test_end} pairs), stopping early"
                 )
                 break
 
         # Truncate pairs to test_end if specified
-        if self.test_end < 1000000 and self.test_end < len(self.pairs):
+        if self.test_end < 1000000000 and self.test_end < len(self.pairs):
             logger.info(
                 f"Truncating pairs from {len(self.pairs)} to {self.test_end} (test_end limit)"
             )
@@ -331,7 +333,8 @@ class IRCDisentanglementDataset(Dataset):
 
         # Determine which messages to process
         # If test_end is small, we limit messages per file to speed up loading
-        if self.test_end < 1000000:
+        # If limiting data, only process a subset of messages per file to speed up loading
+        if self.test_end < 1000000000:
             start_idx = self.test_start
             end_idx = min(self.test_end, len(messages))
             process_indices = range(start_idx, end_idx)

@@ -84,14 +84,14 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 ### Training Hyperparameters
 - **Learning Rate**: 5e-5 (Increased from 2e-5 to overcome majority-class bias).
 - **Epochs**: 3 (BERT typically converges in 2-4 epochs).
-- **Batch Size**: 32 (Safe for 24GB VRAM).
+- **Batch Size**: 64 (Optimized for RTX 5070 12GB; uses ~6-7GB VRAM).
 - **Threshold**: 0.3 (Lowered from 0.5 to improve recall on rare positive samples).
 - **Early Stopping**: Implemented via `--patience` (default 3) to monitor Dev F1.
 
 ### Multi-Stage Testing Plan
 - **Test 1 (5 min)**: Stability and logic check. Uses `train` mode on the **Tiny Dataset** (`data/tiny`). Verifies OOM logging, NaN detection, and positive sample handling (guaranteed links).
-- **Test 2 (1 hour)**: Mid-range stability run. Uses full dataset with expanded window to verify convergence trends.
-- **Test 3 (3 hours)**: Stress test. Full dev set or significant portion of train set to verify long-term stability and checkpointing.
+- **Test 2 (1 hour)**: Mid-range stability run. Verified pipeline on RTX 5070 with ~50K pairs.
+- **Test 3 (3-6 hours)**: Large-scale stability run. Uses **1 Million pairs** and **Batch Size 64** to refine Precision and verify long-term convergence.
 
 ## 5. Robustness & Diagnostics
 - **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.

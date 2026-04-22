@@ -82,12 +82,15 @@ def parse_args():
         "--max-dist",
         type=int,
         default=30,
-        help="Maximum distance to consider for linking",
+        help="Maximum distance to consider for linking (Reduced from 101 for local GPU feasibility)",
     )
 
     # Training hyperparameters
     parser.add_argument(
-        "--batch-size", type=int, default=16, help="Batch size for training"
+        "--batch-size",
+        type=int,
+        default=64,
+        help="Batch size for training (Optimized for RTX 5070 12GB)"
     )
 
     parser.add_argument(

@@ -16,21 +16,21 @@ mkdir -p checkpoints/test_2
 # 1. --test-end 50000:
 #    Limits TOTAL pairs to 50K (~0.5% of full dataset).
 #    Conservative RAM usage while ensuring positive examples.
-#    Previous run with --test-end 500 caused data starvation (zero positive examples).
 #
-# 2. --epochs 3:
+# 2. --batch-size 64:
+#    Increased from 16 to 64 after Test 2 telemetry showed low VRAM usage (~2.7GB).
+#    This significantly accelerates training on the RTX 5070.
+#
+# 3. --epochs 3:
 #    Standard BERT fine-tuning depth.
 #
-# 3. --patience 3:
+# 4. --patience 3:
 #    Prevents over-training if the model converges early.
-#
-# 4. --save-every 1 / --eval-every 1:
-#    Frequent enough to capture progress but not so frequent to slow down training.
 
 python src/train.py \
     --mode train \
     --data-dir data \
-    --batch-size 16 \
+    --batch-size 64 \
     --num-workers 4 \
     --fp16 \
     --epochs 3 \

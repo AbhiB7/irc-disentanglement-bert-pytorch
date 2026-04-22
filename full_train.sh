@@ -13,14 +13,14 @@ echo "=========================================="
 mkdir -p checkpoints/vast_overnight
 
 # Training parameters:
-# --batch-size 64: Optimized for RTX 3060 (12GB) with FP16
-# --num-workers 4: Parallel data loading to saturate GPU
-# --fp16: Mixed precision for 2x speedup
-# --epochs 10: Sufficient for 15-hour window (likely 2-4 full epochs)
-# --patience 3: Early stopping to save time if model converges early
-# --max-dist 30: User-specified distance window
-# --learning-rate 5e-5: Stable rate for BERT fine-tuning
-# --warmup-steps 1000: Increased for the larger pair count (approx 2M pairs/epoch)
+# --batch-size 64: Verified stable on RTX 5070 (12GB) with ~7GB VRAM usage.
+# --num-workers 4: Parallel data loading to saturate GPU.
+# --fp16: Mixed precision for 2x speedup.
+# --epochs 10: Sufficient for 15-hour window (likely 2-4 full epochs).
+# --patience 3: Early stopping to save time if model converges early.
+# --max-dist 30: User-specified distance window (Reduced from 101).
+# --learning-rate 5e-5: Stable rate for BERT fine-tuning.
+# --warmup-steps 1000: Increased for the larger pair count (approx 6.6M pairs/epoch).
 # --threshold 0.3: Optimized for recall on imbalanced links
 
 python src/train.py \

@@ -52,7 +52,7 @@ This project uses a strict three-file system in the `context/` directory to mana
 ### Training
 
 ```bash
-python src/train.py --epochs 10 --batch_size 16 --learning-rate 5e-5
+python src/train.py --epochs 3 --batch_size 64 --learning-rate 5e-5
 ```
 
 ### Testing
