@@ -26,7 +26,7 @@ mkdir -p "$LOG_DIR" "$CHECKPOINT_DIR"
 python src/train.py \
     --mode train \
     --batch-size 128 \
-    --num-workers 8 \
+    --num-workers 4 \
     --fp16 \
     --epochs 3 \
     --learning-rate 5e-5 \
