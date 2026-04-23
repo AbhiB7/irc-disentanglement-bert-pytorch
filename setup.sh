@@ -4,17 +4,10 @@
 # This script is idempotent and safe to run multiple times.
 
 # Load Conda module
-module load Miniforge3 || module load Miniconda3
+module load miniconda3/23.9.0-0
 
 # Source Conda shell init using environment variable path
-if [ -n "$EBROOTMINIFORGE" ]; then
-    source "$EBROOTMINIFORGE/etc/profile.d/conda.sh"
-elif [ -n "$EBROOTMINICONDA" ]; then
-    source "$EBROOTMINICONDA/etc/profile.d/conda.sh"
-else
-    echo "Error: Conda module root environment variable not found."
-    exit 1
-fi
+source "$EBROOTMINICONDA3/etc/profile.d/conda.sh"
 
 # Check if conda environment 'ircbert' exists
 if conda info --envs | grep -q "ircbert"; then

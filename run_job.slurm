@@ -14,6 +14,8 @@
 
 mkdir -p logs
 
+set -e
+
 # Bunya requirement for Singularity/Apptainer even if not used directly
 export SINGULARITY_CACHEDIR=/scratch/user/$USER
 export SINGULARITY_TMPDIR=/scratch/user/$USER

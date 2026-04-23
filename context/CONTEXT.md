@@ -119,9 +119,10 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Cluster**: UQ Bunya HPC (SLURM scheduler)
 - **GPU**: NVIDIA A100 40GB (full job uses H100)
 - **Required SLURM directives**: `--qos=gpu` and `--account=a_hcc` for all GPU jobs on `gpu_cuda` partition
+- **Conda Module**: `miniconda3/23.9.0-0` (via `$EBROOTMINICONDA3`)
 - **Smoke Test**: [`smoke_test.slurm`](../smoke_test.slurm) — minimal end-to-end test (30 min, 500 pairs)
 - **Full Training**: [`run_job.slurm`](../run_job.slurm) — 8-hour training job
-- **Conda Environment**: `ircbert` (loaded via `Miniforge3` module with environment variable paths)
+- **Error handling**: `set -e` in SLURM scripts aborts on any command failure
 - **Output directories**: All heavy outputs relocated to `/scratch/user/$USER/ircbert_runs`
 
 ---

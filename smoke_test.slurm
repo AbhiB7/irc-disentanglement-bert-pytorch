@@ -12,6 +12,8 @@
 #SBATCH --qos=gpu
 #SBATCH --account=a_hcc
 
+set -e
+
 # Bunya requirement for Singularity/Apptainer even if not used directly
 export SINGULARITY_CACHEDIR=/scratch/user/$USER
 export SINGULARITY_TMPDIR=/scratch/user/$USER
@@ -28,15 +30,10 @@ mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 bash setup.sh
 
 # Load Conda module and activate environment
-module load Miniforge3 || module load Miniconda3
+module load miniconda3/23.9.0-0
 
-if [ -n "$EBROOTMINIFORGE" ]; then
-    source "$EBROOTMINIFORGE/etc/profile.d/conda.sh"
-elif [ -n "$EBROOTMINICONDA3" ]; then
-    source "$EBROOTMINICONDA3/etc/profile.d/conda.sh"
-elif [ -n "$EBROOTMINICONDA" ]; then
-    source "$EBROOTMINICONDA/etc/profile.d/conda.sh"
-fi
+# Source Conda shell init using environment variable path
+source "$EBROOTMINICONDA3/etc/profile.d/conda.sh"
 
 conda activate ircbert
 

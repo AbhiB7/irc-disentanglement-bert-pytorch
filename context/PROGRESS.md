@@ -18,6 +18,8 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Test 2 Success**: 3-hour stability run completed. Achieved **0.1454 F1** and **57.36% Recall** on dev set. Pipeline is stable on RTX 5070.
 - ✅ **Bunya Smoke Test**: Created [`smoke_test.slurm`](../smoke_test.slurm) for UQ Bunya HPC (A100) verification.
 - ✅ **Bunya Compliance Fix**: Added `--qos=gpu`, `--account=a_hcc`, and `mkdir -p logs` to both SLURM files.
+- ✅ **Conda Module Fix**: Updated all HPC files to use `miniconda3/23.9.0-0` and `$EBROOTMINICONDA3` (removed Miniforge3/Miniconda3 fallbacks).
+- ✅ **Error Handling**: Added `set -e` to `run_job.slurm` and `smoke_test.slurm`.
 
 ## Recent Completions (2026-04-22)
 - **Test 2 Success**: Completed stability run on RTX 5070.
