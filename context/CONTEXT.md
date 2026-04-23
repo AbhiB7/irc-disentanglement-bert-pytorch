@@ -115,6 +115,13 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Linux/Remote**: Run [`setup.sh`](../setup.sh).
 - **Verification**: Run `python src/train.py --help` (Note: slow load time is normal due to PyTorch/Transformers initialization).
 
+### HPC Setup (UQ Bunya)
+- **Cluster**: UQ Bunya HPC (SLURM scheduler)
+- **GPU**: NVIDIA A100 40GB
+- **Smoke Test**: [`smoke_test.slurm`](../smoke_test.slurm) — minimal end-to-end test before full training run
+- **Full Training**: [`run_job.slurm`](../run_job.slurm) — 8-hour training job
+- **Conda Environment**: `ircbert` (loaded via `Miniforge3` module with environment variable paths)
+
 ---
 
 ## 6. Key References
