@@ -67,8 +67,8 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ### Pair Generation & Class Imbalance
 - **Window**: `MAX_DIST` (default 30). Reduced from 101 to optimize for local 4070 GPU memory/speed.
-- **Imbalance**: Handled via `pos_weight` in `BCEWithLogitsLoss`.
-- **Solution**: Use `pos_weight=5.0` in `BCEWithLogitsLoss` (reduced from 14.0 to prevent gradient instability).
+- **Imbalance**: Handled via dynamic `pos_weight` in `BCEWithLogitsLoss`.
+- **Solution**: Compute `pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=300.0)` per batch to adapt to actual label distribution.
 
 ---
 
@@ -85,7 +85,7 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Learning Rate**: 5e-5 (Increased from 2e-5 to overcome majority-class bias).
 - **Epochs**: 3 (BERT typically converges in 2-4 epochs).
 - **Batch Size**: 64 (Optimized for RTX 5070 12GB; uses ~6-7GB VRAM).
-- **Threshold**: 0.3 (Lowered from 0.5 to improve recall on rare positive samples).
+- **Threshold**: 0.1 (Lowered from 0.3 to handle 748:1 class imbalance where sigmoid outputs are calibrated low).
 - **Early Stopping**: Implemented via `--patience` (default 3) to monitor Dev F1.
 
 ### Multi-Stage Testing Plan

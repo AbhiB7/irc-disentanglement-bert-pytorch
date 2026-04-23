@@ -28,13 +28,13 @@ python src/train.py \
     --batch-size 128 \
     --num-workers 8 \
     --fp16 \
-    --epochs 10 \
+    --epochs 3 \
     --learning-rate 5e-5 \
     --max-length 128 \
     --max-dist 30 \
     --warmup-steps 1000 \
     --patience 3 \
-    --threshold 0.3 \
+    --threshold 0.1 \
     --eval-every 1 \
     --save-every 1 \
     --output-dir "$CHECKPOINT_DIR" \

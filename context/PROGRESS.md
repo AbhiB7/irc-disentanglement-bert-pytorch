@@ -21,6 +21,12 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Conda Module Fix**: Updated all HPC files to use `miniconda3/23.9.0-0` and `$EBROOTMINICONDA3` (removed Miniforge3/Miniconda3 fallbacks).
 - ✅ **Error Handling**: Added `set -e` to `run_job.slurm` and `smoke_test.slurm`.
 
+## Recent Completions (2026-04-23)
+- **All-Zero Prediction Fix (Iteration 4)**: Implemented three targeted fixes for all-zero prediction collapse:
+    - **Fix 1**: Dynamic `pos_weight` in [`src/model.py`](src/model.py:148) — computes `(num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=300.0)` per batch instead of hardcoded 5.0.
+    - **Fix 2**: Reduced epochs in [`train.sh`](train.sh:31) from 10 to 3 — ensures LR decay completes within actual training window.
+    - **Fix 3**: Lowered threshold in [`train.sh`](train.sh:37) from 0.3 to 0.1 — handles 748:1 class imbalance where sigmoid outputs are calibrated low.
+
 ## Recent Completions (2026-04-22)
 - **Test 2 Success**: Completed stability run on RTX 5070.
     - **Metrics**: F1: 0.1454, Recall: 57.36%, Precision: 8.33%.
