@@ -22,10 +22,16 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Error Handling**: Added `set -e` to `run_job.slurm` and `smoke_test.slurm`.
 
 ## Recent Completions (2026-04-23)
+- **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
+
+## Recent Completions (2026-04-23) - Previous
 - **All-Zero Prediction Fix (Iteration 4)**: Implemented three targeted fixes for all-zero prediction collapse:
     - **Fix 1**: Dynamic `pos_weight` in [`src/model.py`](src/model.py:148) — computes `(num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=300.0)` per batch instead of hardcoded 5.0.
     - **Fix 2**: Reduced epochs in [`train.sh`](train.sh:31) from 10 to 3 — ensures LR decay completes within actual training window.
     - **Fix 3**: Lowered threshold in [`train.sh`](train.sh:37) from 0.3 to 0.1 — handles 748:1 class imbalance where sigmoid outputs are calibrated low.
+
+## Next Steps
+- **Step 2**: Threshold optimization after re-training with new pos_weight cap
 
 ## Recent Completions (2026-04-22)
 - **Test 2 Success**: Completed stability run on RTX 5070.

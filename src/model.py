@@ -148,10 +148,11 @@ class CrossEncoderWithFeatures(nn.Module):
         # Compute loss if labels provided
         if labels is not None:
             # Dynamic pos_weight based on actual batch label distribution
-            # Clamp prevents explosion on batches with zero positives and caps at 300
+            # Clamp prevents explosion on batches with zero positives
+            # Cap raised to 1500 to handle ~746:1 imbalance (was 300, insufficient)
             num_neg = (labels == 0).sum().float()
             num_pos = (labels == 1).sum().float()
-            pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=300.0)
+            pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=1500.0)
             loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight.to(logits.device))
             loss = loss_fn(logits, labels)
             outputs['loss'] = loss
