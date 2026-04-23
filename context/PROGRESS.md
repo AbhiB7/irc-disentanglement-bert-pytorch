@@ -17,6 +17,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
 - ✅ **Test 2 Success**: 3-hour stability run completed. Achieved **0.1454 F1** and **57.36% Recall** on dev set. Pipeline is stable on RTX 5070.
 - ✅ **Bunya Smoke Test**: Created [`smoke_test.slurm`](../smoke_test.slurm) for UQ Bunya HPC (A100) verification.
+- ✅ **Bunya Compliance Fix**: Added `--qos=gpu`, `--account=a_hcc`, and `mkdir -p logs` to both SLURM files.
 
 ## Recent Completions (2026-04-22)
 - **Test 2 Success**: Completed stability run on RTX 5070.

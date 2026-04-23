@@ -9,6 +9,8 @@
 #SBATCH --time=00:30:00
 #SBATCH --output=logs/%j_smoke.out
 #SBATCH --error=logs/%j_smoke.err
+#SBATCH --qos=gpu
+#SBATCH --account=a_hcc
 
 # Bunya requirement for Singularity/Apptainer even if not used directly
 export SINGULARITY_CACHEDIR=/scratch/user/$USER
