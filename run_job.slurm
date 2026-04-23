@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ircbert_train
 #SBATCH --partition=gpu_cuda
-#SBATCH --gres=gpu:a100:1
+#SBATCH --gres=gpu:h100:1
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=8
