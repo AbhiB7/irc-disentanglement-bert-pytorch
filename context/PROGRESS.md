@@ -24,6 +24,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Lazy Tokenization Fix**: Implemented on-the-fly tokenization in `data_loader.py` to eliminate OOM. Now stores raw text pairs instead of pre-tokenized tensors. Tokenization happens in `__getitem__` instead of `__init__`. Reduces per-worker memory from ~1.5GB to ~200MB (~85% reduction).
 - 📋 **Supervisor Meeting**: Created `research/supervisor_meeting_20260424.md` with discussion points for 2026-04-24 meeting.
 - ✅ **Threshold Fix**: Changed default threshold from 0.3 to 0.5 in `src/train.py`. Removed `--threshold` flags from all training scripts. This fixes the "predict everything as positive" failure mode (Recall=100%, Precision=0.69%, F1=0.0137).
+- ✅ **Evaluation Script**: Created [`src/evaluate.py`](src/evaluate.py) for checkpoint evaluation with threshold sweep support. Usage: `python src/evaluate.py --checkpoint <path> [--threshold 0.5] [--sweep-thresholds]`
 
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
