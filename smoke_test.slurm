@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ircbert_smoke
 #SBATCH --partition=gpu_cuda
-#SBATCH --gres=gpu:a100:1
+#SBATCH --gres=gpu:1              # any GPU, not locked to a100
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4
@@ -11,7 +11,6 @@
 #SBATCH --error=logs/%j_smoke.err
 #SBATCH --qos=gpu
 #SBATCH --account=a_hcc
-
 set -e
 
 # Bunya requirement for Singularity/Apptainer even if not used directly
