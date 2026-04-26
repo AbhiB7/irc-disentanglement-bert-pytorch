@@ -37,7 +37,6 @@ python src/train.py \
     --max-dist 30 \
     --warmup-steps 10 \
     --patience 0 \
-    --threshold 0.3 \
     --eval-every 1 \
     --save-every 1 \
     --output-dir checkpoints/test_1 \

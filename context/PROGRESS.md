@@ -23,6 +23,7 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ⚠️ **Bunya OOM Crash**: Training crashed at ~30% through epoch 1 with CUDA OOM on H100 (run 23927666). Root cause: 4 DataLoader workers each fork a copy of the pre-tokenized dataset (~10GB × 4 = 40GB overhead) + model/gradients/optimizer (~35GB) exceeds 80GB H100.
 - ✅ **Lazy Tokenization Fix**: Implemented on-the-fly tokenization in `data_loader.py` to eliminate OOM. Now stores raw text pairs instead of pre-tokenized tensors. Tokenization happens in `__getitem__` instead of `__init__`. Reduces per-worker memory from ~1.5GB to ~200MB (~85% reduction).
 - 📋 **Supervisor Meeting**: Created `research/supervisor_meeting_20260424.md` with discussion points for 2026-04-24 meeting.
+- ✅ **Threshold Fix**: Changed default threshold from 0.3 to 0.5 in `src/train.py`. Removed `--threshold` flags from all training scripts. This fixes the "predict everything as positive" failure mode (Recall=100%, Precision=0.69%, F1=0.0137).
 
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
@@ -33,8 +34,15 @@ This file tracks the dynamic working state, recent completions, and immediate ne
     - **Fix 2**: Reduced epochs in [`train.sh`](train.sh:31) from 10 to 3 — ensures LR decay completes within actual training window.
     - **Fix 3**: Lowered threshold in [`train.sh`](train.sh:37) from 0.3 to 0.1 — handles 748:1 class imbalance where sigmoid outputs are calibrated low.
 
+## Recent Completions (2026-04-26)
+- **Full Data Training (Run 24009010)**: Completed 3-epoch training on full dataset (~5.8M pairs).
+    - **Metrics**: F1: 0.0137, Recall: 100%, Precision: 0.69%, Accuracy: 80.77%
+    - **Problem**: Model predicted ALL pairs as positive (threshold=0.3 too low for probability calibration)
+    - **Root Cause**: Probability range [0.0007, 0.7632] meant ~45% of samples exceeded threshold=0.3
+    - **Fix**: Changed default threshold to 0.5 in `src/train.py:173`, removed explicit --threshold from all scripts
+
 ## Next Steps
-- **Step 2**: Threshold optimization after re-training with new pos_weight cap
+- **Step 2**: Retrain with threshold=0.5 (expected F1 improvement from 0.0137 to ~0.10-0.15)
 
 ## Recent Completions (2026-04-22)
 - **Test 2 Success**: Completed stability run on RTX 5070.

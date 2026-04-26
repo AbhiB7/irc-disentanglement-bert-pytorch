@@ -170,7 +170,7 @@ def parse_args():
 
     # Threshold for prediction
     parser.add_argument(
-        "--threshold", type=float, default=0.3, help="Threshold for binary prediction"
+        "--threshold", type=float, default=0.5, help="Threshold for binary prediction"
     )
 
     # Test mode options

@@ -34,7 +34,6 @@ python src/train.py \
     --max-dist 30 \
     --warmup-steps 1000 \
     --patience 3 \
-    --threshold 0.1 \
     --eval-every 1 \
     --save-every 1 \
     --test-end 1000000000 \
