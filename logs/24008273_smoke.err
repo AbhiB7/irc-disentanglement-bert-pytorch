@@ -1,0 +1,402 @@
+2026-04-26 14:04:09,208 - __main__ - INFO - ================================================================================
+2026-04-26 14:04:09,210 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-04-26 14:04:09,210 - __main__ - INFO - ================================================================================
+2026-04-26 14:04:09,210 - __main__ - INFO - --- System Diagnostics ---
+2026-04-26 14:04:09,210 - __main__ - INFO - OS: Linux 5.14.0-611.24.1.el9_7.x86_64
+2026-04-26 14:04:09,210 - __main__ - INFO - Python: 3.10.20
+2026-04-26 14:04:09,210 - __main__ - INFO - RAM: 754.91 GB total, 725.49 GB available
+2026-04-26 14:04:09,226 - __main__ - INFO - GPU 0: NVIDIA L40S
+2026-04-26 14:04:09,226 - __main__ - INFO -   Total Memory: 45460 MB
+2026-04-26 14:04:09,226 - __main__ - INFO -   Compute Capability: 8.9
+2026-04-26 14:04:09,226 - __main__ - INFO - --------------------------
+2026-04-26 14:04:09,226 - __main__ - INFO - Mode: train
+2026-04-26 14:04:09,226 - __main__ - INFO - Device: cuda
+2026-04-26 14:04:09,226 - __main__ - INFO - Model: bert-base-uncased
+2026-04-26 14:04:09,226 - __main__ - INFO - Batch size: 32
+2026-04-26 14:04:09,226 - __main__ - INFO - Learning rate: 5e-05
+2026-04-26 14:04:09,226 - __main__ - INFO - Epochs: 1
+2026-04-26 14:04:09,226 - __main__ - INFO - Max dist: 5
+2026-04-26 14:04:09,226 - __main__ - INFO - Max length: 128
+2026-04-26 14:04:09,226 - __main__ - INFO - Output dir: /scratch/user/s4901673/ircbert_runs/checkpoints
+2026-04-26 14:04:09,226 - __main__ - INFO - Using device: cuda
+2026-04-26 14:04:09,226 - __main__ - INFO - Loading tokenizer: bert-base-uncased
+2026-04-26 14:04:09,495 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-26 14:04:09,496 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-04-26 14:04:09,736 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-04-26 14:04:09,966 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-26 14:04:10,194 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-04-26 14:04:10,426 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 307 Temporary Redirect"
+2026-04-26 14:04:10,653 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/google-bert/bert-base-uncased/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-04-26 14:04:10,699 - __main__ - INFO - Tokenizer loaded: BertTokenizer
+2026-04-26 14:04:10,699 - __main__ - INFO - Creating dataloaders...
+2026-04-26 14:04:10,741 - __main__ - INFO - Loading 153 train files...
+2026-04-26 14:04:10,741 - data_loader - INFO - Initializing IRCDisentanglementDataset with 153 files
+2026-04-26 14:04:10,741 - data_loader - INFO -   max_dist=5, max_length=128, skip_labels=False
+2026-04-26 14:04:10,741 - data_loader - INFO -   test_start=0, test_end=500
+Loading conversations:   0%|          | 0/153 [00:00<?, ?it/s]2026-04-26 14:04:10,743 - data_loader - INFO - Loading conversation from data/train/2004-12-25.train-c.ascii.txt
+2026-04-26 14:04:10,744 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-04-26 14:04:10,747 - data_loader - INFO -   Parsed 1500 messages, found 94 unique users
+2026-04-26 14:04:10,894 - data_loader - INFO -   Loaded 382 gold links from annotation file
+2026-04-26 14:04:10,894 - data_loader - INFO -   Conversation '2004-12-25.train-c' loaded in 0.15s
+2026-04-26 14:04:10,894 - data_loader - INFO -   Creating pairs for 2004-12-25.train-c: messages 0 to 500 (limited)
+
+  Pairs for 2004-12-25.train-c:   0%|          | 0/500 [00:00<?, ?it/s][A
+                                                                       [A2026-04-26 14:04:10,902 - data_loader - INFO -   Created 2206 pairs for 2004-12-25.train-c
+2026-04-26 14:04:10,902 - data_loader - INFO -   File 1/153: 2004-12-25.train-c - 1500 messages, 2206 total pairs so far
+2026-04-26 14:04:10,902 - data_loader - INFO -   Reached test_end limit (500 pairs), stopping early
+Loading conversations:   0%|          | 0/153 [00:00<?, ?it/s]
+2026-04-26 14:04:10,902 - data_loader - INFO - Truncating pairs from 2206 to 500 (test_end limit)
+2026-04-26 14:04:10,903 - data_loader - INFO - Dataset initialization complete: 500 pairs from 1 conversations in 0.16s
+2026-04-26 14:04:10,903 - __main__ - INFO -   Train dataset created: 500 pairs
+2026-04-26 14:04:10,903 - __main__ - INFO - Loading 10 dev files...
+2026-04-26 14:04:10,903 - data_loader - INFO - Initializing IRCDisentanglementDataset with 10 files
+2026-04-26 14:04:10,903 - data_loader - INFO -   max_dist=5, max_length=128, skip_labels=False
+2026-04-26 14:04:10,903 - data_loader - INFO -   test_start=0, test_end=1000000000
+Loading conversations:   0%|          | 0/10 [00:00<?, ?it/s]2026-04-26 14:04:10,903 - data_loader - INFO - Loading conversation from data/dev/2004-11-15_03.ascii.txt
+2026-04-26 14:04:10,904 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:10,906 - data_loader - INFO -   Parsed 1250 messages, found 76 unique users
+2026-04-26 14:04:11,010 - data_loader - INFO -   Loaded 189 gold links from annotation file
+2026-04-26 14:04:11,010 - data_loader - INFO -   Conversation '2004-11-15_03' loaded in 0.11s
+2026-04-26 14:04:11,010 - data_loader - INFO -   Creating pairs for 2004-11-15_03: all 1250 messages
+
+  Pairs for 2004-11-15_03:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:11,028 - data_loader - INFO -   Created 5548 pairs for 2004-11-15_03
+2026-04-26 14:04:11,028 - data_loader - INFO -   File 1/10: 2004-11-15_03 - 1250 messages, 5548 total pairs so far
+Loading conversations:  10%|█         | 1/10 [00:00<00:01,  7.98it/s]2026-04-26 14:04:11,028 - data_loader - INFO - Loading conversation from data/dev/2005-06-27_12.ascii.txt
+2026-04-26 14:04:11,030 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:11,033 - data_loader - INFO -   Parsed 1250 messages, found 77 unique users
+2026-04-26 14:04:11,134 - data_loader - INFO -   Loaded 182 gold links from annotation file
+2026-04-26 14:04:11,134 - data_loader - INFO -   Conversation '2005-06-27_12' loaded in 0.11s
+2026-04-26 14:04:11,134 - data_loader - INFO -   Creating pairs for 2005-06-27_12: all 1250 messages
+
+  Pairs for 2005-06-27_12:   0%|          | 0/1250 [00:00<?, ?it/s][A
+  Pairs for 2005-06-27_12:  82%|████████▏ | 1021/1250 [00:00<00:00, 10208.89it/s][A
+                                                                                 [A2026-04-26 14:04:11,238 - data_loader - INFO -   Created 5308 pairs for 2005-06-27_12
+2026-04-26 14:04:11,238 - data_loader - INFO -   File 2/10: 2005-06-27_12 - 1250 messages, 10856 total pairs so far
+Loading conversations:  20%|██        | 2/10 [00:00<00:01,  5.71it/s]2026-04-26 14:04:11,238 - data_loader - INFO - Loading conversation from data/dev/2005-08-08_01.ascii.txt
+2026-04-26 14:04:11,240 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:11,243 - data_loader - INFO -   Parsed 1250 messages, found 95 unique users
+2026-04-26 14:04:11,377 - data_loader - INFO -   Loaded 186 gold links from annotation file
+2026-04-26 14:04:11,377 - data_loader - INFO -   Conversation '2005-08-08_01' loaded in 0.14s
+2026-04-26 14:04:11,377 - data_loader - INFO -   Creating pairs for 2005-08-08_01: all 1250 messages
+
+  Pairs for 2005-08-08_01:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:11,395 - data_loader - INFO -   Created 5378 pairs for 2005-08-08_01
+2026-04-26 14:04:11,396 - data_loader - INFO -   File 3/10: 2005-08-08_01 - 1250 messages, 16234 total pairs so far
+Loading conversations:  30%|███       | 3/10 [00:00<00:01,  5.99it/s]2026-04-26 14:04:11,396 - data_loader - INFO - Loading conversation from data/dev/2008-12-11_11.ascii.txt
+2026-04-26 14:04:11,397 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:11,400 - data_loader - INFO -   Parsed 1250 messages, found 142 unique users
+2026-04-26 14:04:11,650 - data_loader - INFO -   Loaded 172 gold links from annotation file
+2026-04-26 14:04:11,650 - data_loader - INFO -   Conversation '2008-12-11_11' loaded in 0.25s
+2026-04-26 14:04:11,650 - data_loader - INFO -   Creating pairs for 2008-12-11_11: all 1250 messages
+
+  Pairs for 2008-12-11_11:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:11,672 - data_loader - INFO -   Created 6164 pairs for 2008-12-11_11
+2026-04-26 14:04:11,672 - data_loader - INFO -   File 4/10: 2008-12-11_11 - 1250 messages, 22398 total pairs so far
+Loading conversations:  40%|████      | 4/10 [00:00<00:01,  4.76it/s]2026-04-26 14:04:11,672 - data_loader - INFO - Loading conversation from data/dev/2009-02-23_10.ascii.txt
+2026-04-26 14:04:11,673 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:11,676 - data_loader - INFO -   Parsed 1250 messages, found 111 unique users
+2026-04-26 14:04:11,865 - data_loader - INFO -   Loaded 186 gold links from annotation file
+2026-04-26 14:04:11,865 - data_loader - INFO -   Conversation '2009-02-23_10' loaded in 0.19s
+2026-04-26 14:04:11,865 - data_loader - INFO -   Creating pairs for 2009-02-23_10: all 1250 messages
+
+  Pairs for 2009-02-23_10:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:11,886 - data_loader - INFO -   Created 6117 pairs for 2009-02-23_10
+2026-04-26 14:04:11,887 - data_loader - INFO -   File 5/10: 2009-02-23_10 - 1250 messages, 28515 total pairs so far
+Loading conversations:  50%|█████     | 5/10 [00:00<00:01,  4.72it/s]2026-04-26 14:04:11,887 - data_loader - INFO - Loading conversation from data/dev/2009-03-03_10.ascii.txt
+2026-04-26 14:04:11,888 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:11,891 - data_loader - INFO -   Parsed 1250 messages, found 134 unique users
+2026-04-26 14:04:12,126 - data_loader - INFO -   Loaded 188 gold links from annotation file
+2026-04-26 14:04:12,126 - data_loader - INFO -   Conversation '2009-03-03_10' loaded in 0.24s
+2026-04-26 14:04:12,126 - data_loader - INFO -   Creating pairs for 2009-03-03_10: all 1250 messages
+
+  Pairs for 2009-03-03_10:   0%|          | 0/1250 [00:00<?, ?it/s][A
+  Pairs for 2009-03-03_10:  50%|████▉     | 621/1250 [00:00<00:00, 5872.59it/s][A
+                                                                               [A2026-04-26 14:04:12,243 - data_loader - INFO -   Created 6124 pairs for 2009-03-03_10
+2026-04-26 14:04:12,243 - data_loader - INFO -   File 6/10: 2009-03-03_10 - 1250 messages, 34639 total pairs so far
+Loading conversations:  60%|██████    | 6/10 [00:01<00:01,  3.83it/s]2026-04-26 14:04:12,243 - data_loader - INFO - Loading conversation from data/dev/2009-10-01_17.ascii.txt
+2026-04-26 14:04:12,245 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:12,248 - data_loader - INFO -   Parsed 1250 messages, found 166 unique users
+2026-04-26 14:04:12,541 - data_loader - INFO -   Loaded 171 gold links from annotation file
+2026-04-26 14:04:12,541 - data_loader - INFO -   Conversation '2009-10-01_17' loaded in 0.30s
+2026-04-26 14:04:12,542 - data_loader - INFO -   Creating pairs for 2009-10-01_17: all 1250 messages
+
+  Pairs for 2009-10-01_17:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:12,563 - data_loader - INFO -   Created 6084 pairs for 2009-10-01_17
+2026-04-26 14:04:12,563 - data_loader - INFO -   File 7/10: 2009-10-01_17 - 1250 messages, 40723 total pairs so far
+Loading conversations:  70%|███████   | 7/10 [00:01<00:00,  3.57it/s]2026-04-26 14:04:12,564 - data_loader - INFO - Loading conversation from data/dev/2011-05-29_19.ascii.txt
+2026-04-26 14:04:12,565 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:12,568 - data_loader - INFO -   Parsed 1250 messages, found 152 unique users
+2026-04-26 14:04:12,836 - data_loader - INFO -   Loaded 181 gold links from annotation file
+2026-04-26 14:04:12,836 - data_loader - INFO -   Conversation '2011-05-29_19' loaded in 0.27s
+2026-04-26 14:04:12,836 - data_loader - INFO -   Creating pairs for 2011-05-29_19: all 1250 messages
+
+  Pairs for 2011-05-29_19:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:12,858 - data_loader - INFO -   Created 6073 pairs for 2011-05-29_19
+2026-04-26 14:04:12,858 - data_loader - INFO -   File 8/10: 2011-05-29_19 - 1250 messages, 46796 total pairs so far
+Loading conversations:  80%|████████  | 8/10 [00:01<00:00,  3.51it/s]2026-04-26 14:04:12,858 - data_loader - INFO - Loading conversation from data/dev/2011-11-13_02.ascii.txt
+2026-04-26 14:04:12,860 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:12,863 - data_loader - INFO -   Parsed 1250 messages, found 164 unique users
+2026-04-26 14:04:13,160 - data_loader - INFO -   Loaded 165 gold links from annotation file
+2026-04-26 14:04:13,160 - data_loader - INFO -   Conversation '2011-11-13_02' loaded in 0.30s
+2026-04-26 14:04:13,160 - data_loader - INFO -   Creating pairs for 2011-11-13_02: all 1250 messages
+
+  Pairs for 2011-11-13_02:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:13,183 - data_loader - INFO -   Created 6102 pairs for 2011-11-13_02
+2026-04-26 14:04:13,183 - data_loader - INFO -   File 9/10: 2011-11-13_02 - 1250 messages, 52898 total pairs so far
+Loading conversations:  90%|█████████ | 9/10 [00:02<00:00,  3.36it/s]2026-04-26 14:04:13,183 - data_loader - INFO - Loading conversation from data/dev/2016-12-19_20.ascii.txt
+2026-04-26 14:04:13,184 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-04-26 14:04:13,187 - data_loader - INFO -   Parsed 1250 messages, found 165 unique users
+2026-04-26 14:04:13,478 - data_loader - INFO -   Loaded 176 gold links from annotation file
+2026-04-26 14:04:13,478 - data_loader - INFO -   Conversation '2016-12-19_20' loaded in 0.30s
+2026-04-26 14:04:13,478 - data_loader - INFO -   Creating pairs for 2016-12-19_20: all 1250 messages
+
+  Pairs for 2016-12-19_20:   0%|          | 0/1250 [00:00<?, ?it/s][A
+                                                                   [A2026-04-26 14:04:13,501 - data_loader - INFO -   Created 5964 pairs for 2016-12-19_20
+2026-04-26 14:04:13,501 - data_loader - INFO -   File 10/10: 2016-12-19_20 - 1250 messages, 58862 total pairs so far
+Loading conversations: 100%|██████████| 10/10 [00:02<00:00,  3.29it/s]Loading conversations: 100%|██████████| 10/10 [00:02<00:00,  3.85it/s]
+2026-04-26 14:04:13,501 - data_loader - INFO - Dataset initialization complete: 58862 pairs from 10 conversations in 2.60s
+2026-04-26 14:04:13,501 - __main__ - INFO -   Dev dataset created: 58862 pairs
+2026-04-26 14:04:13,501 - __main__ - INFO -   Train dataset: 500 pairs
+2026-04-26 14:04:13,501 - __main__ - INFO -   Dev dataset: 58862 pairs
+2026-04-26 14:04:13,501 - __main__ - INFO - Creating model...
+2026-04-26 14:04:13,745 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 2651.65it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: bert-base-uncased
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+2026-04-26 14:04:16,240 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/bert-base-uncased/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-04-26 14:04:16,978 - __main__ - INFO -   Parameters: 109,483,013 trainable, 109,483,013 total
+2026-04-26 14:04:16,978 - __main__ - INFO -   BERT hidden size: 768
+2026-04-26 14:04:16,978 - __main__ - INFO -   Combined size: 772
+2026-04-26 14:04:16,979 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
+2026-04-26 14:04:16,979 - __main__ - INFO - Created scheduler with 10 warmup steps, 16 total steps
+/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py:771: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=args.fp16) if args.fp16 else None
+2026-04-26 14:04:16,979 - __main__ - INFO - Starting training from epoch 1...
+2026-04-26 14:04:16,979 - __main__ - INFO - ================================================================================
+2026-04-26 14:04:16,979 - __main__ - INFO - Epoch 1/1
+2026-04-26 14:04:16,979 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-04-26 14:04:16,980 - __main__ - INFO - Starting epoch 1 with 16 batches
+Epoch 1:   0%|          | 0/16 [00:00<?, ?it/s]/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py:455: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=fp16):
+Epoch 1:   0%|          | 0/16 [00:01<?, ?it/s, loss=0.676]Epoch 1:   6%|▋         | 1/16 [00:01<00:15,  1.01s/it, loss=0.676]Epoch 1:   6%|▋         | 1/16 [00:01<00:15,  1.01s/it, loss=0.687]Epoch 1:   6%|▋         | 1/16 [00:01<00:15,  1.01s/it, loss=0.667]Epoch 1:   6%|▋         | 1/16 [00:01<00:15,  1.01s/it, loss=0.588]Epoch 1:  25%|██▌       | 4/16 [00:01<00:02,  4.35it/s, loss=0.588]Epoch 1:  25%|██▌       | 4/16 [00:01<00:02,  4.35it/s, loss=0.479]Epoch 1:  25%|██▌       | 4/16 [00:01<00:02,  4.35it/s, loss=0.393]Epoch 1:  25%|██▌       | 4/16 [00:01<00:02,  4.35it/s, loss=0.262]Epoch 1:  44%|████▍     | 7/16 [00:01<00:01,  7.80it/s, loss=0.262]Epoch 1:  44%|████▍     | 7/16 [00:01<00:01,  7.80it/s, loss=0.132]Epoch 1:  44%|████▍     | 7/16 [00:01<00:01,  7.80it/s, loss=0.0546]Epoch 1:  44%|████▍     | 7/16 [00:01<00:01,  7.80it/s, loss=0.0292]2026-04-26 14:04:18,375 - __main__ - INFO -   Epoch 1 progress: 10/16 batches (7.17 batches/s, avg_loss=0.3966, GPU Mem: 1724/3666MB (max: 3521MB))
+Epoch 1:  62%|██████▎   | 10/16 [00:01<00:00, 11.13it/s, loss=0.0292]Epoch 1:  62%|██████▎   | 10/16 [00:01<00:00, 11.13it/s, loss=0.0175]Epoch 1:  62%|██████▎   | 10/16 [00:01<00:00, 11.13it/s, loss=0.0112]Epoch 1:  62%|██████▎   | 10/16 [00:01<00:00, 11.13it/s, loss=0.00944]Epoch 1:  81%|████████▏ | 13/16 [00:01<00:00, 14.16it/s, loss=0.00944]Epoch 1:  81%|████████▏ | 13/16 [00:01<00:00, 14.16it/s, loss=0.00729]Epoch 1:  81%|████████▏ | 13/16 [00:01<00:00, 14.16it/s, loss=0.00731]Epoch 1:  81%|████████▏ | 13/16 [00:01<00:00, 14.16it/s, loss=0.00641]Epoch 1: 100%|██████████| 16/16 [00:01<00:00, 16.95it/s, loss=0.00641]Epoch 1: 100%|██████████| 16/16 [00:01<00:00,  9.73it/s, loss=0.00641]
+2026-04-26 14:04:18,625 - __main__ - INFO - Epoch 1 complete in 1.64s, avg_loss=0.2516
+2026-04-26 14:04:18,625 - __main__ - INFO - Train Loss: 0.2516
+2026-04-26 14:04:18,625 - __main__ - INFO - Evaluating on dev set...
+2026-04-26 14:04:18,626 - __main__ - INFO - Starting evaluation on 58862 pairs
+Evaluating:   0%|          | 0/1840 [00:00<?, ?it/s]/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py:340: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(enabled=fp16):
+Evaluating:   0%|          | 4/1840 [00:00<00:49, 37.33it/s]2026-04-26 14:04:18,790 - __main__ - INFO -   Evaluation progress: 10/1840 batches (60.83 batches/s)
+Evaluating:   1%|          | 15/1840 [00:00<00:23, 77.05it/s]2026-04-26 14:04:18,884 - __main__ - INFO -   Evaluation progress: 20/1840 batches (77.37 batches/s)
+Evaluating:   1%|▏         | 26/1840 [00:00<00:20, 90.39it/s]2026-04-26 14:04:18,978 - __main__ - INFO -   Evaluation progress: 30/1840 batches (85.14 batches/s)
+Evaluating:   2%|▏         | 37/1840 [00:00<00:18, 96.69it/s]2026-04-26 14:04:19,072 - __main__ - INFO -   Evaluation progress: 40/1840 batches (89.64 batches/s)
+Evaluating:   3%|▎         | 48/1840 [00:00<00:17, 100.05it/s]2026-04-26 14:04:19,167 - __main__ - INFO -   Evaluation progress: 50/1840 batches (92.45 batches/s)
+2026-04-26 14:04:19,251 - __main__ - INFO -   Evaluation progress: 60/1840 batches (96.01 batches/s)
+Evaluating:   3%|▎         | 60/1840 [00:00<00:16, 105.46it/s]2026-04-26 14:04:19,332 - __main__ - INFO -   Evaluation progress: 70/1840 batches (99.12 batches/s)
+Evaluating:   4%|▍         | 73/1840 [00:00<00:15, 111.23it/s]2026-04-26 14:04:19,416 - __main__ - INFO -   Evaluation progress: 80/1840 batches (101.21 batches/s)
+Evaluating:   5%|▍         | 85/1840 [00:00<00:15, 113.75it/s]2026-04-26 14:04:19,499 - __main__ - INFO -   Evaluation progress: 90/1840 batches (103.06 batches/s)
+Evaluating:   5%|▌         | 97/1840 [00:00<00:15, 114.46it/s]2026-04-26 14:04:19,585 - __main__ - INFO -   Evaluation progress: 100/1840 batches (104.22 batches/s)
+Evaluating:   6%|▌         | 109/1840 [00:01<00:15, 113.07it/s]2026-04-26 14:04:19,679 - __main__ - INFO -   Evaluation progress: 110/1840 batches (104.44 batches/s)
+2026-04-26 14:04:19,772 - __main__ - INFO -   Evaluation progress: 120/1840 batches (104.67 batches/s)
+Evaluating:   7%|▋         | 121/1840 [00:01<00:15, 111.07it/s]2026-04-26 14:04:19,866 - __main__ - INFO -   Evaluation progress: 130/1840 batches (104.81 batches/s)
+Evaluating:   7%|▋         | 133/1840 [00:01<00:15, 109.56it/s]2026-04-26 14:04:19,961 - __main__ - INFO -   Evaluation progress: 140/1840 batches (104.89 batches/s)
+Evaluating:   8%|▊         | 144/1840 [00:01<00:15, 108.44it/s]2026-04-26 14:04:20,055 - __main__ - INFO -   Evaluation progress: 150/1840 batches (104.94 batches/s)
+Evaluating:   8%|▊         | 155/1840 [00:01<00:15, 107.80it/s]2026-04-26 14:04:20,150 - __main__ - INFO -   Evaluation progress: 160/1840 batches (104.99 batches/s)
+Evaluating:   9%|▉         | 166/1840 [00:01<00:15, 107.44it/s]2026-04-26 14:04:20,244 - __main__ - INFO -   Evaluation progress: 170/1840 batches (105.08 batches/s)
+Evaluating:  10%|▉         | 177/1840 [00:01<00:15, 106.68it/s]2026-04-26 14:04:20,339 - __main__ - INFO -   Evaluation progress: 180/1840 batches (105.10 batches/s)
+Evaluating:  10%|█         | 188/1840 [00:01<00:15, 106.34it/s]2026-04-26 14:04:20,434 - __main__ - INFO -   Evaluation progress: 190/1840 batches (105.09 batches/s)
+Evaluating:  11%|█         | 199/1840 [00:01<00:15, 106.13it/s]2026-04-26 14:04:20,528 - __main__ - INFO -   Evaluation progress: 200/1840 batches (105.13 batches/s)
+2026-04-26 14:04:20,623 - __main__ - INFO -   Evaluation progress: 210/1840 batches (105.17 batches/s)
+Evaluating:  11%|█▏        | 210/1840 [00:01<00:15, 106.08it/s]2026-04-26 14:04:20,717 - __main__ - INFO -   Evaluation progress: 220/1840 batches (105.20 batches/s)
+Evaluating:  12%|█▏        | 221/1840 [00:02<00:15, 105.98it/s]2026-04-26 14:04:20,807 - __main__ - INFO -   Evaluation progress: 230/1840 batches (105.47 batches/s)
+Evaluating:  13%|█▎        | 233/1840 [00:02<00:14, 108.63it/s]2026-04-26 14:04:20,889 - __main__ - INFO -   Evaluation progress: 240/1840 batches (106.03 batches/s)
+Evaluating:  13%|█▎        | 245/1840 [00:02<00:14, 110.51it/s]2026-04-26 14:04:20,983 - __main__ - INFO -   Evaluation progress: 250/1840 batches (106.07 batches/s)
+Evaluating:  14%|█▍        | 257/1840 [00:02<00:14, 110.04it/s]2026-04-26 14:04:21,074 - __main__ - INFO -   Evaluation progress: 260/1840 batches (106.20 batches/s)
+Evaluating:  15%|█▍        | 269/1840 [00:02<00:14, 108.62it/s]2026-04-26 14:04:21,169 - __main__ - INFO -   Evaluation progress: 270/1840 batches (106.17 batches/s)
+2026-04-26 14:04:21,256 - __main__ - INFO -   Evaluation progress: 280/1840 batches (106.48 batches/s)
+Evaluating:  15%|█▌        | 281/1840 [00:02<00:14, 110.62it/s]2026-04-26 14:04:21,335 - __main__ - INFO -   Evaluation progress: 290/1840 batches (107.05 batches/s)
+Evaluating:  16%|█▌        | 294/1840 [00:02<00:13, 115.05it/s]2026-04-26 14:04:21,415 - __main__ - INFO -   Evaluation progress: 300/1840 batches (107.58 batches/s)
+Evaluating:  17%|█▋        | 307/1840 [00:02<00:12, 118.16it/s]2026-04-26 14:04:21,495 - __main__ - INFO -   Evaluation progress: 310/1840 batches (108.05 batches/s)
+2026-04-26 14:04:21,575 - __main__ - INFO -   Evaluation progress: 320/1840 batches (108.49 batches/s)
+Evaluating:  17%|█▋        | 320/1840 [00:02<00:12, 119.80it/s]2026-04-26 14:04:21,669 - __main__ - INFO -   Evaluation progress: 330/1840 batches (108.45 batches/s)
+Evaluating:  18%|█▊        | 332/1840 [00:03<00:13, 115.83it/s]2026-04-26 14:04:21,762 - __main__ - INFO -   Evaluation progress: 340/1840 batches (108.41 batches/s)
+Evaluating:  19%|█▊        | 344/1840 [00:03<00:13, 113.22it/s]2026-04-26 14:04:21,856 - __main__ - INFO -   Evaluation progress: 350/1840 batches (108.36 batches/s)
+Evaluating:  19%|█▉        | 356/1840 [00:03<00:13, 111.24it/s]2026-04-26 14:04:21,950 - __main__ - INFO -   Evaluation progress: 360/1840 batches (108.31 batches/s)
+Evaluating:  20%|██        | 368/1840 [00:03<00:13, 110.14it/s]2026-04-26 14:04:22,040 - __main__ - INFO -   Evaluation progress: 370/1840 batches (108.38 batches/s)
+2026-04-26 14:04:22,122 - __main__ - INFO -   Evaluation progress: 380/1840 batches (108.71 batches/s)
+Evaluating:  21%|██        | 381/1840 [00:03<00:12, 113.59it/s]2026-04-26 14:04:22,202 - __main__ - INFO -   Evaluation progress: 390/1840 batches (109.04 batches/s)
+Evaluating:  21%|██▏       | 394/1840 [00:03<00:12, 115.99it/s]2026-04-26 14:04:22,293 - __main__ - INFO -   Evaluation progress: 400/1840 batches (109.08 batches/s)
+Evaluating:  22%|██▏       | 406/1840 [00:03<00:12, 113.17it/s]2026-04-26 14:04:22,387 - __main__ - INFO -   Evaluation progress: 410/1840 batches (109.03 batches/s)
+Evaluating:  23%|██▎       | 418/1840 [00:03<00:12, 111.73it/s]2026-04-26 14:04:22,477 - __main__ - INFO -   Evaluation progress: 420/1840 batches (109.07 batches/s)
+2026-04-26 14:04:22,559 - __main__ - INFO -   Evaluation progress: 430/1840 batches (109.33 batches/s)
+Evaluating:  23%|██▎       | 431/1840 [00:03<00:12, 114.50it/s]2026-04-26 14:04:22,642 - __main__ - INFO -   Evaluation progress: 440/1840 batches (109.55 batches/s)
+Evaluating:  24%|██▍       | 443/1840 [00:04<00:12, 114.93it/s]2026-04-26 14:04:22,736 - __main__ - INFO -   Evaluation progress: 450/1840 batches (109.49 batches/s)
+Evaluating:  25%|██▍       | 455/1840 [00:04<00:12, 112.63it/s]2026-04-26 14:04:22,830 - __main__ - INFO -   Evaluation progress: 460/1840 batches (109.43 batches/s)
+Evaluating:  25%|██▌       | 467/1840 [00:04<00:12, 110.77it/s]2026-04-26 14:04:22,923 - __main__ - INFO -   Evaluation progress: 470/1840 batches (109.37 batches/s)
+Evaluating:  26%|██▌       | 479/1840 [00:04<00:12, 110.62it/s]2026-04-26 14:04:23,014 - __main__ - INFO -   Evaluation progress: 480/1840 batches (109.40 batches/s)
+2026-04-26 14:04:23,108 - __main__ - INFO -   Evaluation progress: 490/1840 batches (109.33 batches/s)
+Evaluating:  27%|██▋       | 491/1840 [00:04<00:12, 109.14it/s]2026-04-26 14:04:23,201 - __main__ - INFO -   Evaluation progress: 500/1840 batches (109.28 batches/s)
+Evaluating:  27%|██▋       | 502/1840 [00:04<00:12, 108.47it/s]2026-04-26 14:04:23,295 - __main__ - INFO -   Evaluation progress: 510/1840 batches (109.23 batches/s)
+Evaluating:  28%|██▊       | 513/1840 [00:04<00:12, 108.00it/s]2026-04-26 14:04:23,383 - __main__ - INFO -   Evaluation progress: 520/1840 batches (109.30 batches/s)
+Evaluating:  29%|██▊       | 525/1840 [00:04<00:11, 110.10it/s]2026-04-26 14:04:23,468 - __main__ - INFO -   Evaluation progress: 530/1840 batches (109.46 batches/s)
+Evaluating:  29%|██▉       | 538/1840 [00:04<00:11, 114.19it/s]2026-04-26 14:04:23,548 - __main__ - INFO -   Evaluation progress: 540/1840 batches (109.70 batches/s)
+2026-04-26 14:04:23,629 - __main__ - INFO -   Evaluation progress: 550/1840 batches (109.92 batches/s)
+Evaluating:  30%|██▉       | 551/1840 [00:05<00:11, 116.77it/s]2026-04-26 14:04:23,711 - __main__ - INFO -   Evaluation progress: 560/1840 batches (110.12 batches/s)
+Evaluating:  31%|███       | 564/1840 [00:05<00:10, 118.67it/s]2026-04-26 14:04:23,794 - __main__ - INFO -   Evaluation progress: 570/1840 batches (110.29 batches/s)
+Evaluating:  31%|███▏      | 577/1840 [00:05<00:10, 119.75it/s]2026-04-26 14:04:23,877 - __main__ - INFO -   Evaluation progress: 580/1840 batches (110.46 batches/s)
+Evaluating:  32%|███▏      | 589/1840 [00:05<00:10, 116.44it/s]2026-04-26 14:04:23,970 - __main__ - INFO -   Evaluation progress: 590/1840 batches (110.41 batches/s)
+2026-04-26 14:04:24,060 - __main__ - INFO -   Evaluation progress: 600/1840 batches (110.41 batches/s)
+Evaluating:  33%|███▎      | 601/1840 [00:05<00:10, 114.82it/s]2026-04-26 14:04:24,141 - __main__ - INFO -   Evaluation progress: 610/1840 batches (110.60 batches/s)
+Evaluating:  33%|███▎      | 614/1840 [00:05<00:10, 116.86it/s]2026-04-26 14:04:24,225 - __main__ - INFO -   Evaluation progress: 620/1840 batches (110.74 batches/s)
+Evaluating:  34%|███▍      | 626/1840 [00:05<00:10, 117.42it/s]2026-04-26 14:04:24,313 - __main__ - INFO -   Evaluation progress: 630/1840 batches (110.79 batches/s)
+Evaluating:  35%|███▍      | 638/1840 [00:05<00:10, 114.18it/s]2026-04-26 14:04:24,407 - __main__ - INFO -   Evaluation progress: 640/1840 batches (110.70 batches/s)
+2026-04-26 14:04:24,497 - __main__ - INFO -   Evaluation progress: 650/1840 batches (110.72 batches/s)
+Evaluating:  35%|███▌      | 650/1840 [00:05<00:10, 113.07it/s]2026-04-26 14:04:24,587 - __main__ - INFO -   Evaluation progress: 660/1840 batches (110.71 batches/s)
+Evaluating:  36%|███▌      | 662/1840 [00:05<00:10, 112.02it/s]2026-04-26 14:04:24,682 - __main__ - INFO -   Evaluation progress: 670/1840 batches (110.64 batches/s)
+Evaluating:  37%|███▋      | 674/1840 [00:06<00:10, 110.23it/s]2026-04-26 14:04:24,768 - __main__ - INFO -   Evaluation progress: 680/1840 batches (110.72 batches/s)
+Evaluating:  37%|███▋      | 687/1840 [00:06<00:10, 113.30it/s]2026-04-26 14:04:24,852 - __main__ - INFO -   Evaluation progress: 690/1840 batches (110.83 batches/s)
+2026-04-26 14:04:24,932 - __main__ - INFO -   Evaluation progress: 700/1840 batches (111.00 batches/s)
+Evaluating:  38%|███▊      | 700/1840 [00:06<00:09, 116.29it/s]2026-04-26 14:04:25,021 - __main__ - INFO -   Evaluation progress: 710/1840 batches (111.02 batches/s)
+Evaluating:  39%|███▊      | 712/1840 [00:06<00:09, 114.68it/s]2026-04-26 14:04:25,116 - __main__ - INFO -   Evaluation progress: 720/1840 batches (110.94 batches/s)
+Evaluating:  39%|███▉      | 724/1840 [00:06<00:09, 113.61it/s]2026-04-26 14:04:25,200 - __main__ - INFO -   Evaluation progress: 730/1840 batches (111.04 batches/s)
+Evaluating:  40%|████      | 736/1840 [00:06<00:09, 112.99it/s]2026-04-26 14:04:25,292 - __main__ - INFO -   Evaluation progress: 740/1840 batches (111.00 batches/s)
+Evaluating:  41%|████      | 748/1840 [00:06<00:09, 113.23it/s]2026-04-26 14:04:25,378 - __main__ - INFO -   Evaluation progress: 750/1840 batches (111.08 batches/s)
+2026-04-26 14:04:25,460 - __main__ - INFO -   Evaluation progress: 760/1840 batches (111.21 batches/s)
+Evaluating:  41%|████▏     | 761/1840 [00:06<00:09, 115.92it/s]2026-04-26 14:04:25,548 - __main__ - INFO -   Evaluation progress: 770/1840 batches (111.23 batches/s)
+Evaluating:  42%|████▏     | 773/1840 [00:06<00:09, 114.13it/s]2026-04-26 14:04:25,642 - __main__ - INFO -   Evaluation progress: 780/1840 batches (111.18 batches/s)
+Evaluating:  43%|████▎     | 785/1840 [00:07<00:09, 112.05it/s]2026-04-26 14:04:25,734 - __main__ - INFO -   Evaluation progress: 790/1840 batches (111.13 batches/s)
+Evaluating:  43%|████▎     | 797/1840 [00:07<00:09, 110.63it/s]2026-04-26 14:04:25,829 - __main__ - INFO -   Evaluation progress: 800/1840 batches (111.07 batches/s)
+Evaluating:  44%|████▍     | 809/1840 [00:07<00:09, 109.73it/s]2026-04-26 14:04:25,922 - __main__ - INFO -   Evaluation progress: 810/1840 batches (111.02 batches/s)
+2026-04-26 14:04:26,014 - __main__ - INFO -   Evaluation progress: 820/1840 batches (111.00 batches/s)
+Evaluating:  45%|████▍     | 820/1840 [00:07<00:09, 109.19it/s]2026-04-26 14:04:26,107 - __main__ - INFO -   Evaluation progress: 830/1840 batches (110.94 batches/s)
+Evaluating:  45%|████▌     | 831/1840 [00:07<00:09, 108.55it/s]2026-04-26 14:04:26,201 - __main__ - INFO -   Evaluation progress: 840/1840 batches (110.90 batches/s)
+Evaluating:  46%|████▌     | 842/1840 [00:07<00:09, 108.08it/s]2026-04-26 14:04:26,295 - __main__ - INFO -   Evaluation progress: 850/1840 batches (110.84 batches/s)
+Evaluating:  46%|████▋     | 853/1840 [00:07<00:09, 107.66it/s]2026-04-26 14:04:26,408 - __main__ - INFO -   Evaluation progress: 860/1840 batches (110.51 batches/s)
+Evaluating:  47%|████▋     | 864/1840 [00:07<00:09, 101.53it/s]2026-04-26 14:04:26,496 - __main__ - INFO -   Evaluation progress: 870/1840 batches (110.55 batches/s)
+Evaluating:  48%|████▊     | 877/1840 [00:07<00:08, 107.27it/s]2026-04-26 14:04:26,579 - __main__ - INFO -   Evaluation progress: 880/1840 batches (110.64 batches/s)
+Evaluating:  48%|████▊     | 889/1840 [00:08<00:08, 109.07it/s]2026-04-26 14:04:26,669 - __main__ - INFO -   Evaluation progress: 890/1840 batches (110.66 batches/s)
+2026-04-26 14:04:26,758 - __main__ - INFO -   Evaluation progress: 900/1840 batches (110.67 batches/s)
+Evaluating:  49%|████▉     | 901/1840 [00:08<00:08, 109.33it/s]2026-04-26 14:04:26,852 - __main__ - INFO -   Evaluation progress: 910/1840 batches (110.62 batches/s)
+Evaluating:  50%|████▉     | 912/1840 [00:08<00:08, 108.73it/s]2026-04-26 14:04:26,943 - __main__ - INFO -   Evaluation progress: 920/1840 batches (110.62 batches/s)
+Evaluating:  50%|█████     | 923/1840 [00:08<00:08, 108.79it/s]2026-04-26 14:04:27,037 - __main__ - INFO -   Evaluation progress: 930/1840 batches (110.57 batches/s)
+Evaluating:  51%|█████     | 934/1840 [00:08<00:08, 108.09it/s]2026-04-26 14:04:27,131 - __main__ - INFO -   Evaluation progress: 940/1840 batches (110.52 batches/s)
+Evaluating:  51%|█████▏    | 945/1840 [00:08<00:08, 107.57it/s]2026-04-26 14:04:27,226 - __main__ - INFO -   Evaluation progress: 950/1840 batches (110.47 batches/s)
+Evaluating:  52%|█████▏    | 956/1840 [00:08<00:08, 107.15it/s]2026-04-26 14:04:27,320 - __main__ - INFO -   Evaluation progress: 960/1840 batches (110.42 batches/s)
+Evaluating:  53%|█████▎    | 967/1840 [00:08<00:08, 106.72it/s]2026-04-26 14:04:27,414 - __main__ - INFO -   Evaluation progress: 970/1840 batches (110.38 batches/s)
+Evaluating:  53%|█████▎    | 978/1840 [00:08<00:08, 106.38it/s]2026-04-26 14:04:27,509 - __main__ - INFO -   Evaluation progress: 980/1840 batches (110.32 batches/s)
+Evaluating:  54%|█████▍    | 989/1840 [00:08<00:08, 106.33it/s]2026-04-26 14:04:27,602 - __main__ - INFO -   Evaluation progress: 990/1840 batches (110.29 batches/s)
+2026-04-26 14:04:27,682 - __main__ - INFO -   Evaluation progress: 1000/1840 batches (110.42 batches/s)
+Evaluating:  54%|█████▍    | 1002/1840 [00:09<00:07, 111.76it/s]2026-04-26 14:04:27,769 - __main__ - INFO -   Evaluation progress: 1010/1840 batches (110.47 batches/s)
+Evaluating:  55%|█████▌    | 1014/1840 [00:09<00:07, 111.90it/s]2026-04-26 14:04:27,862 - __main__ - INFO -   Evaluation progress: 1020/1840 batches (110.44 batches/s)
+Evaluating:  56%|█████▌    | 1026/1840 [00:09<00:07, 109.38it/s]2026-04-26 14:04:27,958 - __main__ - INFO -   Evaluation progress: 1030/1840 batches (110.37 batches/s)
+Evaluating:  56%|█████▋    | 1037/1840 [00:09<00:07, 108.66it/s]2026-04-26 14:04:28,052 - __main__ - INFO -   Evaluation progress: 1040/1840 batches (110.33 batches/s)
+Evaluating:  57%|█████▋    | 1049/1840 [00:09<00:07, 109.19it/s]2026-04-26 14:04:28,142 - __main__ - INFO -   Evaluation progress: 1050/1840 batches (110.34 batches/s)
+2026-04-26 14:04:28,235 - __main__ - INFO -   Evaluation progress: 1060/1840 batches (110.32 batches/s)
+Evaluating:  58%|█████▊    | 1060/1840 [00:09<00:07, 108.65it/s]2026-04-26 14:04:28,329 - __main__ - INFO -   Evaluation progress: 1070/1840 batches (110.27 batches/s)
+Evaluating:  58%|█████▊    | 1071/1840 [00:09<00:07, 107.74it/s]2026-04-26 14:04:28,412 - __main__ - INFO -   Evaluation progress: 1080/1840 batches (110.36 batches/s)
+Evaluating:  59%|█████▉    | 1084/1840 [00:09<00:06, 111.69it/s]2026-04-26 14:04:28,504 - __main__ - INFO -   Evaluation progress: 1090/1840 batches (110.35 batches/s)
+Evaluating:  60%|█████▉    | 1096/1840 [00:09<00:06, 110.23it/s]2026-04-26 14:04:28,597 - __main__ - INFO -   Evaluation progress: 1100/1840 batches (110.32 batches/s)
+Evaluating:  60%|██████    | 1108/1840 [00:10<00:06, 109.11it/s]2026-04-26 14:04:28,690 - __main__ - INFO -   Evaluation progress: 1110/1840 batches (110.29 batches/s)
+Evaluating:  61%|██████    | 1119/1840 [00:10<00:06, 108.30it/s]2026-04-26 14:04:28,785 - __main__ - INFO -   Evaluation progress: 1120/1840 batches (110.24 batches/s)
+2026-04-26 14:04:28,876 - __main__ - INFO -   Evaluation progress: 1130/1840 batches (110.25 batches/s)
+Evaluating:  61%|██████▏   | 1130/1840 [00:10<00:06, 108.46it/s]2026-04-26 14:04:28,970 - __main__ - INFO -   Evaluation progress: 1140/1840 batches (110.21 batches/s)
+Evaluating:  62%|██████▏   | 1141/1840 [00:10<00:06, 107.70it/s]2026-04-26 14:04:29,065 - __main__ - INFO -   Evaluation progress: 1150/1840 batches (110.16 batches/s)
+Evaluating:  63%|██████▎   | 1152/1840 [00:10<00:06, 107.04it/s]2026-04-26 14:04:29,159 - __main__ - INFO -   Evaluation progress: 1160/1840 batches (110.13 batches/s)
+Evaluating:  63%|██████▎   | 1163/1840 [00:10<00:06, 106.92it/s]2026-04-26 14:04:29,253 - __main__ - INFO -   Evaluation progress: 1170/1840 batches (110.10 batches/s)
+Evaluating:  64%|██████▍   | 1174/1840 [00:10<00:06, 106.77it/s]2026-04-26 14:04:29,347 - __main__ - INFO -   Evaluation progress: 1180/1840 batches (110.07 batches/s)
+Evaluating:  64%|██████▍   | 1186/1840 [00:10<00:06, 108.41it/s]2026-04-26 14:04:29,429 - __main__ - INFO -   Evaluation progress: 1190/1840 batches (110.15 batches/s)
+Evaluating:  65%|██████▌   | 1199/1840 [00:10<00:05, 113.19it/s]2026-04-26 14:04:29,511 - __main__ - INFO -   Evaluation progress: 1200/1840 batches (110.24 batches/s)
+2026-04-26 14:04:29,603 - __main__ - INFO -   Evaluation progress: 1210/1840 batches (110.23 batches/s)
+Evaluating:  66%|██████▌   | 1211/1840 [00:10<00:05, 111.95it/s]2026-04-26 14:04:29,697 - __main__ - INFO -   Evaluation progress: 1220/1840 batches (110.20 batches/s)
+Evaluating:  66%|██████▋   | 1223/1840 [00:11<00:05, 110.11it/s]2026-04-26 14:04:29,789 - __main__ - INFO -   Evaluation progress: 1230/1840 batches (110.19 batches/s)
+Evaluating:  67%|██████▋   | 1235/1840 [00:11<00:05, 109.90it/s]2026-04-26 14:04:29,882 - __main__ - INFO -   Evaluation progress: 1240/1840 batches (110.16 batches/s)
+Evaluating:  68%|██████▊   | 1247/1840 [00:11<00:05, 110.73it/s]2026-04-26 14:04:29,966 - __main__ - INFO -   Evaluation progress: 1250/1840 batches (110.23 batches/s)
+Evaluating:  68%|██████▊   | 1259/1840 [00:11<00:05, 111.68it/s]2026-04-26 14:04:30,056 - __main__ - INFO -   Evaluation progress: 1260/1840 batches (110.23 batches/s)
+2026-04-26 14:04:30,148 - __main__ - INFO -   Evaluation progress: 1270/1840 batches (110.22 batches/s)
+Evaluating:  69%|██████▉   | 1271/1840 [00:11<00:05, 110.57it/s]2026-04-26 14:04:30,242 - __main__ - INFO -   Evaluation progress: 1280/1840 batches (110.20 batches/s)
+Evaluating:  70%|██████▉   | 1283/1840 [00:11<00:05, 109.50it/s]2026-04-26 14:04:30,331 - __main__ - INFO -   Evaluation progress: 1290/1840 batches (110.21 batches/s)
+Evaluating:  70%|███████   | 1295/1840 [00:11<00:04, 110.08it/s]2026-04-26 14:04:30,425 - __main__ - INFO -   Evaluation progress: 1300/1840 batches (110.18 batches/s)
+Evaluating:  71%|███████   | 1307/1840 [00:11<00:04, 110.53it/s]2026-04-26 14:04:30,512 - __main__ - INFO -   Evaluation progress: 1310/1840 batches (110.21 batches/s)
+Evaluating:  72%|███████▏  | 1319/1840 [00:11<00:04, 109.13it/s]2026-04-26 14:04:30,609 - __main__ - INFO -   Evaluation progress: 1320/1840 batches (110.15 batches/s)
+2026-04-26 14:04:30,703 - __main__ - INFO -   Evaluation progress: 1330/1840 batches (110.12 batches/s)
+Evaluating:  72%|███████▏  | 1330/1840 [00:12<00:04, 107.71it/s]2026-04-26 14:04:30,799 - __main__ - INFO -   Evaluation progress: 1340/1840 batches (110.08 batches/s)
+Evaluating:  73%|███████▎  | 1341/1840 [00:12<00:04, 106.95it/s]2026-04-26 14:04:30,890 - __main__ - INFO -   Evaluation progress: 1350/1840 batches (110.08 batches/s)
+Evaluating:  73%|███████▎  | 1352/1840 [00:12<00:04, 107.57it/s]2026-04-26 14:04:30,984 - __main__ - INFO -   Evaluation progress: 1360/1840 batches (110.05 batches/s)
+Evaluating:  74%|███████▍  | 1363/1840 [00:12<00:04, 107.60it/s]2026-04-26 14:04:31,076 - __main__ - INFO -   Evaluation progress: 1370/1840 batches (110.04 batches/s)
+Evaluating:  75%|███████▍  | 1374/1840 [00:12<00:04, 107.37it/s]2026-04-26 14:04:31,171 - __main__ - INFO -   Evaluation progress: 1380/1840 batches (110.01 batches/s)
+Evaluating:  75%|███████▌  | 1385/1840 [00:12<00:04, 106.59it/s]2026-04-26 14:04:31,267 - __main__ - INFO -   Evaluation progress: 1390/1840 batches (109.96 batches/s)
+Evaluating:  76%|███████▌  | 1396/1840 [00:12<00:04, 106.26it/s]2026-04-26 14:04:31,361 - __main__ - INFO -   Evaluation progress: 1400/1840 batches (109.93 batches/s)
+Evaluating:  76%|███████▋  | 1407/1840 [00:12<00:04, 106.13it/s]2026-04-26 14:04:31,457 - __main__ - INFO -   Evaluation progress: 1410/1840 batches (109.89 batches/s)
+Evaluating:  77%|███████▋  | 1418/1840 [00:12<00:03, 106.54it/s]2026-04-26 14:04:31,546 - __main__ - INFO -   Evaluation progress: 1420/1840 batches (109.91 batches/s)
+2026-04-26 14:04:31,634 - __main__ - INFO -   Evaluation progress: 1430/1840 batches (109.93 batches/s)
+Evaluating:  78%|███████▊  | 1430/1840 [00:13<00:03, 109.16it/s]2026-04-26 14:04:31,728 - __main__ - INFO -   Evaluation progress: 1440/1840 batches (109.91 batches/s)
+Evaluating:  78%|███████▊  | 1441/1840 [00:13<00:03, 108.26it/s]2026-04-26 14:04:31,822 - __main__ - INFO -   Evaluation progress: 1450/1840 batches (109.88 batches/s)
+Evaluating:  79%|███████▉  | 1452/1840 [00:13<00:03, 106.95it/s]2026-04-26 14:04:31,919 - __main__ - INFO -   Evaluation progress: 1460/1840 batches (109.83 batches/s)
+Evaluating:  80%|███████▉  | 1463/1840 [00:13<00:03, 106.57it/s]2026-04-26 14:04:32,014 - __main__ - INFO -   Evaluation progress: 1470/1840 batches (109.80 batches/s)
+Evaluating:  80%|████████  | 1474/1840 [00:13<00:03, 106.36it/s]2026-04-26 14:04:32,109 - __main__ - INFO -   Evaluation progress: 1480/1840 batches (109.77 batches/s)
+Evaluating:  81%|████████  | 1485/1840 [00:13<00:03, 106.08it/s]2026-04-26 14:04:32,200 - __main__ - INFO -   Evaluation progress: 1490/1840 batches (109.77 batches/s)
+Evaluating:  81%|████████▏ | 1496/1840 [00:13<00:03, 106.90it/s]2026-04-26 14:04:32,295 - __main__ - INFO -   Evaluation progress: 1500/1840 batches (109.74 batches/s)
+Evaluating:  82%|████████▏ | 1507/1840 [00:13<00:03, 106.66it/s]2026-04-26 14:04:32,389 - __main__ - INFO -   Evaluation progress: 1510/1840 batches (109.71 batches/s)
+Evaluating:  82%|████████▎ | 1518/1840 [00:13<00:03, 106.46it/s]2026-04-26 14:04:32,483 - __main__ - INFO -   Evaluation progress: 1520/1840 batches (109.69 batches/s)
+Evaluating:  83%|████████▎ | 1529/1840 [00:13<00:02, 106.32it/s]2026-04-26 14:04:32,577 - __main__ - INFO -   Evaluation progress: 1530/1840 batches (109.67 batches/s)
+2026-04-26 14:04:32,673 - __main__ - INFO -   Evaluation progress: 1540/1840 batches (109.63 batches/s)
+Evaluating:  84%|████████▎ | 1540/1840 [00:14<00:02, 105.80it/s]2026-04-26 14:04:32,766 - __main__ - INFO -   Evaluation progress: 1550/1840 batches (109.62 batches/s)
+Evaluating:  84%|████████▍ | 1551/1840 [00:14<00:02, 105.94it/s]2026-04-26 14:04:32,862 - __main__ - INFO -   Evaluation progress: 1560/1840 batches (109.58 batches/s)
+Evaluating:  85%|████████▍ | 1562/1840 [00:14<00:02, 105.85it/s]2026-04-26 14:04:32,956 - __main__ - INFO -   Evaluation progress: 1570/1840 batches (109.56 batches/s)
+Evaluating:  85%|████████▌ | 1573/1840 [00:14<00:02, 105.66it/s]2026-04-26 14:04:33,050 - __main__ - INFO -   Evaluation progress: 1580/1840 batches (109.54 batches/s)
+Evaluating:  86%|████████▌ | 1584/1840 [00:14<00:02, 106.01it/s]2026-04-26 14:04:33,144 - __main__ - INFO -   Evaluation progress: 1590/1840 batches (109.52 batches/s)
+Evaluating:  87%|████████▋ | 1595/1840 [00:14<00:02, 106.21it/s]2026-04-26 14:04:33,235 - __main__ - INFO -   Evaluation progress: 1600/1840 batches (109.52 batches/s)
+Evaluating:  87%|████████▋ | 1606/1840 [00:14<00:02, 106.77it/s]2026-04-26 14:04:33,331 - __main__ - INFO -   Evaluation progress: 1610/1840 batches (109.49 batches/s)
+Evaluating:  88%|████████▊ | 1617/1840 [00:14<00:02, 106.60it/s]2026-04-26 14:04:33,425 - __main__ - INFO -   Evaluation progress: 1620/1840 batches (109.47 batches/s)
+Evaluating:  88%|████████▊ | 1628/1840 [00:14<00:01, 106.79it/s]2026-04-26 14:04:33,518 - __main__ - INFO -   Evaluation progress: 1630/1840 batches (109.45 batches/s)
+Evaluating:  89%|████████▉ | 1639/1840 [00:14<00:01, 107.34it/s]2026-04-26 14:04:33,611 - __main__ - INFO -   Evaluation progress: 1640/1840 batches (109.44 batches/s)
+2026-04-26 14:04:33,706 - __main__ - INFO -   Evaluation progress: 1650/1840 batches (109.42 batches/s)
+Evaluating:  90%|████████▉ | 1650/1840 [00:15<00:01, 106.40it/s]2026-04-26 14:04:33,797 - __main__ - INFO -   Evaluation progress: 1660/1840 batches (109.42 batches/s)
+Evaluating:  90%|█████████ | 1662/1840 [00:15<00:01, 107.94it/s]2026-04-26 14:04:33,884 - __main__ - INFO -   Evaluation progress: 1670/1840 batches (109.45 batches/s)
+Evaluating:  91%|█████████ | 1674/1840 [00:15<00:01, 108.93it/s]2026-04-26 14:04:33,979 - __main__ - INFO -   Evaluation progress: 1680/1840 batches (109.42 batches/s)
+Evaluating:  92%|█████████▏| 1685/1840 [00:15<00:01, 107.98it/s]2026-04-26 14:04:34,073 - __main__ - INFO -   Evaluation progress: 1690/1840 batches (109.41 batches/s)
+Evaluating:  92%|█████████▏| 1696/1840 [00:15<00:01, 107.40it/s]2026-04-26 14:04:34,167 - __main__ - INFO -   Evaluation progress: 1700/1840 batches (109.39 batches/s)
+Evaluating:  93%|█████████▎| 1707/1840 [00:15<00:01, 107.18it/s]2026-04-26 14:04:34,262 - __main__ - INFO -   Evaluation progress: 1710/1840 batches (109.36 batches/s)
+Evaluating:  93%|█████████▎| 1719/1840 [00:15<00:01, 109.12it/s]2026-04-26 14:04:34,349 - __main__ - INFO -   Evaluation progress: 1720/1840 batches (109.39 batches/s)
+2026-04-26 14:04:34,433 - __main__ - INFO -   Evaluation progress: 1730/1840 batches (109.44 batches/s)
+Evaluating:  94%|█████████▍| 1731/1840 [00:15<00:00, 110.82it/s]2026-04-26 14:04:34,529 - __main__ - INFO -   Evaluation progress: 1740/1840 batches (109.41 batches/s)
+Evaluating:  95%|█████████▍| 1743/1840 [00:15<00:00, 108.99it/s]2026-04-26 14:04:34,623 - __main__ - INFO -   Evaluation progress: 1750/1840 batches (109.39 batches/s)
+Evaluating:  95%|█████████▌| 1754/1840 [00:16<00:00, 109.13it/s]2026-04-26 14:04:34,706 - __main__ - INFO -   Evaluation progress: 1760/1840 batches (109.45 batches/s)
+Evaluating:  96%|█████████▌| 1767/1840 [00:16<00:00, 112.95it/s]2026-04-26 14:04:34,791 - __main__ - INFO -   Evaluation progress: 1770/1840 batches (109.49 batches/s)
+Evaluating:  97%|█████████▋| 1779/1840 [00:16<00:00, 114.16it/s]2026-04-26 14:04:34,876 - __main__ - INFO -   Evaluation progress: 1780/1840 batches (109.54 batches/s)
+2026-04-26 14:04:34,967 - __main__ - INFO -   Evaluation progress: 1790/1840 batches (109.54 batches/s)
+Evaluating:  97%|█████████▋| 1791/1840 [00:16<00:00, 112.99it/s]2026-04-26 14:04:35,051 - __main__ - INFO -   Evaluation progress: 1800/1840 batches (109.59 batches/s)
+Evaluating:  98%|█████████▊| 1803/1840 [00:16<00:00, 114.66it/s]2026-04-26 14:04:35,143 - __main__ - INFO -   Evaluation progress: 1810/1840 batches (109.58 batches/s)
+Evaluating:  99%|█████████▊| 1815/1840 [00:16<00:00, 111.58it/s]2026-04-26 14:04:35,238 - __main__ - INFO -   Evaluation progress: 1820/1840 batches (109.56 batches/s)
+Evaluating:  99%|█████████▉| 1827/1840 [00:16<00:00, 110.62it/s]2026-04-26 14:04:35,326 - __main__ - INFO -   Evaluation progress: 1830/1840 batches (109.58 batches/s)
+Evaluating: 100%|█████████▉| 1839/1840 [00:16<00:00, 111.83it/s]2026-04-26 14:04:35,414 - __main__ - INFO -   Evaluation progress: 1840/1840 batches (109.60 batches/s)
+                                                                2026-04-26 14:04:35,488 - __main__ - INFO - Evaluation complete in 16.86s
+2026-04-26 14:04:35,488 - __main__ - INFO -   Loss: 0.7175, Accuracy: 0.9922, Precision: 0.0000, Recall: 0.0000, F1: 0.0000
+2026-04-26 14:04:35,488 - __main__ - INFO -   TP: 0, FP: 0, TN: 58400, FN: 462
+2026-04-26 14:04:35,488 - __main__ - INFO - Dev Loss: 0.7175
+2026-04-26 14:04:35,488 - __main__ - INFO - Dev Accuracy: 0.9922
+2026-04-26 14:04:35,488 - __main__ - INFO - Dev Precision: 0.0000
+2026-04-26 14:04:35,488 - __main__ - INFO - Dev Recall: 0.0000
+2026-04-26 14:04:35,488 - __main__ - INFO - Dev F1: 0.0000
+2026-04-26 14:04:35,488 - __main__ - INFO -   TP: 0, FP: 0, TN: 58400, FN: 462
+2026-04-26 14:04:35,488 - __main__ - INFO -   No improvement for 1 epochs
+2026-04-26 14:04:36,733 - __main__ - INFO - Saved checkpoint to /scratch/user/s4901673/ircbert_runs/checkpoints/checkpoint_epoch_1.pt
+2026-04-26 14:04:36,735 - __main__ - INFO - Training complete in 19.76s!
+2026-04-26 14:04:36,735 - __main__ - INFO - Best F1: 0.0000 at epoch 0
+2026-04-26 14:04:36,735 - __main__ - INFO - ================================================================================
+2026-04-26 14:04:36,736 - __main__ - INFO - Done!
+2026-04-26 14:04:36,736 - __main__ - INFO - ================================================================================
+2026-04-26 14:04:36,736 - __main__ - INFO - Log file: /scratch/user/s4901673/ircbert_runs/logs/train_20260426_140409.log
