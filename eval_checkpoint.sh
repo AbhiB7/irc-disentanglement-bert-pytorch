@@ -10,8 +10,13 @@ echo "=========================================="
 echo "Checkpoint: $CHECKPOINT"
 echo ""
 
-# Run setup (idempotent - loads conda environment)
+# Run setup first to ensure dependencies are installed
 bash setup.sh
+
+# Load Conda module and activate environment (needed because setup.sh runs in subshell)
+module load miniconda3/23.9.0-0
+source "$EBROOTMINICONDA3/etc/profile.d/conda.sh"
+conda activate ircbert
 
 # Run evaluation
 python src/evaluate.py --checkpoint "$CHECKPOINT"
