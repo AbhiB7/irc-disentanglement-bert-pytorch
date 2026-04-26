@@ -125,6 +125,9 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Error handling**: `set -e` in SLURM scripts aborts on any command failure
 - **Output directories**: All heavy outputs relocated to `/scratch/user/$USER/ircbert_runs`
 
+### Known Issues & Fixes
+- **OOM with num_workers>0**: Resolved via **lazy tokenization** in `data_loader.py`. Dataset now stores raw text pairs instead of pre-tokenized tensors. Tokenization happens in `__getitem__` on-the-fly, reducing per-worker memory from ~1.5GB to ~200MB (~85% reduction).
+
 ---
 
 ## 6. Key References

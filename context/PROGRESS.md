@@ -20,6 +20,9 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Bunya Compliance Fix**: Added `--qos=gpu`, `--account=a_hcc`, and `mkdir -p logs` to both SLURM files.
 - ✅ **Conda Module Fix**: Updated all HPC files to use `miniconda3/23.9.0-0` and `$EBROOTMINICONDA3` (removed Miniforge3/Miniconda3 fallbacks).
 - ✅ **Error Handling**: Added `set -e` to `run_job.slurm` and `smoke_test.slurm`.
+- ⚠️ **Bunya OOM Crash**: Training crashed at ~30% through epoch 1 with CUDA OOM on H100 (run 23927666). Root cause: 4 DataLoader workers each fork a copy of the pre-tokenized dataset (~10GB × 4 = 40GB overhead) + model/gradients/optimizer (~35GB) exceeds 80GB H100.
+- ✅ **Lazy Tokenization Fix**: Implemented on-the-fly tokenization in `data_loader.py` to eliminate OOM. Now stores raw text pairs instead of pre-tokenized tensors. Tokenization happens in `__getitem__` instead of `__init__`. Reduces per-worker memory from ~1.5GB to ~200MB (~85% reduction).
+- 📋 **Supervisor Meeting**: Created `research/supervisor_meeting_20260424.md` with discussion points for 2026-04-24 meeting.
 
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.

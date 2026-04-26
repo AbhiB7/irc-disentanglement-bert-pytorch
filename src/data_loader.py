@@ -275,7 +275,7 @@ class IRCDisentanglementDataset(Dataset):
         self.conversation_map = (
             []
         )  # Maps pair index to (conv_idx, msg_i_idx, msg_j_idx)
-        self.pairs = []  # List of (encoded_inputs, label, features)
+        self.pairs = []  # List of (text_pair, label, features) - raw text for lazy tokenization
 
         logger.info(
             f"Initializing IRCDisentanglementDataset with {len(ascii_files)} files"
@@ -366,7 +366,7 @@ class IRCDisentanglementDataset(Dataset):
                 if j != i and msg_j.is_system:
                     continue
 
-                # Create pair
+                # Create pair - store RAW text for lazy tokenization
                 text_pair = [msg_j.text, msg_i.text]  # [parent, child]
 
                 # Label: 1 if j is a gold parent of i, 0 otherwise
@@ -381,28 +381,8 @@ class IRCDisentanglementDataset(Dataset):
                     msg_j, msg_i, conv, max_dist=self.max_dist
                 )  # parent, child
 
-                # Pre-tokenize
-                encoding = self.tokenizer(
-                    text_pair[0],
-                    text_pair[1],
-                    truncation=True,
-                    padding="max_length",
-                    max_length=self.max_length,
-                    return_tensors="pt",
-                )
-
-                # Remove batch dimension and move to CPU to save VRAM (keep in RAM)
-                encoded_item = {
-                    "input_ids": encoding["input_ids"].squeeze(0),
-                    "attention_mask": encoding["attention_mask"].squeeze(0),
-                }
-                if "token_type_ids" in encoding:
-                    encoded_item["token_type_ids"] = encoding["token_type_ids"].squeeze(
-                        0
-                    )
-
-                # Store
-                self.pairs.append((encoded_item, label, features))
+                # Store raw text pair - tokenization happens in __getitem__ (lazy)
+                self.pairs.append((text_pair, label, features))
                 self.conversation_map.append((conv_idx, i, j))
 
         pairs_added = len(self.pairs) - pairs_before
@@ -412,12 +392,21 @@ class IRCDisentanglementDataset(Dataset):
         return len(self.pairs)
 
     def __getitem__(self, idx):
-        encoded_item, label, features = self.pairs[idx]
+        text_pair, label, features = self.pairs[idx]
 
-        # Convert to dict and add features
+        # Tokenize on-the-fly (lazy tokenization to save RAM)
+        encoding = self.tokenizer(
+            text_pair[0],  # parent text
+            text_pair[1],  # child text
+            truncation=True,
+            padding="max_length",
+            max_length=self.max_length,
+            return_tensors="pt",
+        )
+
         item = {
-            "input_ids": encoded_item["input_ids"],
-            "attention_mask": encoded_item["attention_mask"],
+            "input_ids": encoding["input_ids"].squeeze(0),
+            "attention_mask": encoding["attention_mask"].squeeze(0),
             "features": torch.tensor(features, dtype=torch.float32),
             "labels": (
                 torch.tensor(label, dtype=torch.float32)
@@ -426,8 +415,8 @@ class IRCDisentanglementDataset(Dataset):
             ),
         }
 
-        if "token_type_ids" in encoded_item:
-            item["token_type_ids"] = encoded_item["token_type_ids"]
+        if "token_type_ids" in encoding:
+            item["token_type_ids"] = encoding["token_type_ids"].squeeze(0)
 
         return item
 
