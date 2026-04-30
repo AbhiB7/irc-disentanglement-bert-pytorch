@@ -16,4 +16,5 @@ This is the new PyTorch BERT-based implementation of IRC conversation disentangl
 
 ## Verification
 - Data loader should match original format from rchive/jkummerfield-original/src/disentangle.py
-- Output format should be compatible with 	ools/evaluation/graph-eval.py
+- Output format should be compatible with 	ools/evaluation/graph-eval.py
+
