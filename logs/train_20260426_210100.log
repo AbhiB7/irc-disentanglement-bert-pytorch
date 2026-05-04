@@ -1,0 +1,2 @@
+2026-04-26 21:01:00,516 - __main__ - INFO - Using device: cpu
+2026-04-26 21:01:00,516 - __main__ - INFO - Loading checkpoint from /scratch/user/s4901673/ircbert_runs/checkpoints/best/checkpoint_epoch_3.pt

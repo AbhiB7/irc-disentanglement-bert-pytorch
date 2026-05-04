@@ -1,0 +1,86 @@
+2026-05-04 15:45:21,074 - __main__ - INFO - ================================================================================
+2026-05-04 15:45:21,074 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-05-04 15:45:21,074 - __main__ - INFO - ================================================================================
+2026-05-04 15:45:21,074 - __main__ - INFO - --- System Diagnostics ---
+2026-05-04 15:45:21,074 - __main__ - INFO - OS: Linux 5.14.0-611.24.1.el9_7.x86_64
+2026-05-04 15:45:21,074 - __main__ - INFO - Python: 3.10.20
+2026-05-04 15:45:21,074 - __main__ - INFO - RAM: 754.91 GB total, 603.86 GB available
+2026-05-04 15:45:21,091 - __main__ - INFO - GPU 0: NVIDIA L40S
+2026-05-04 15:45:21,092 - __main__ - INFO -   Total Memory: 45460 MB
+2026-05-04 15:45:21,092 - __main__ - INFO -   Compute Capability: 8.9
+2026-05-04 15:45:21,092 - __main__ - INFO - --------------------------
+2026-05-04 15:45:21,092 - __main__ - INFO - Mode: train
+2026-05-04 15:45:21,092 - __main__ - INFO - Device: cuda
+2026-05-04 15:45:21,092 - __main__ - INFO - Model: microsoft/deberta-v3-base
+2026-05-04 15:45:21,092 - __main__ - INFO - Batch size: 32
+2026-05-04 15:45:21,092 - __main__ - INFO - Learning rate: 5e-05
+2026-05-04 15:45:21,092 - __main__ - INFO - Epochs: 1
+2026-05-04 15:45:21,092 - __main__ - INFO - Max dist: 5
+2026-05-04 15:45:21,092 - __main__ - INFO - Max length: 128
+2026-05-04 15:45:21,092 - __main__ - INFO - Output dir: /scratch/user/s4901673/ircbert_runs/checkpoints
+2026-05-04 15:45:21,092 - __main__ - INFO - Using device: cuda
+2026-05-04 15:45:21,092 - __main__ - INFO - Loading tokenizer: microsoft/deberta-v3-base
+2026-05-04 15:45:21,348 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-04 15:45:21,349 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-04 15:45:21,355 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-04 15:45:21,365 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-04 15:45:21,600 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-04 15:45:21,607 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-04 15:45:21,614 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-04 15:45:21,847 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-04 15:45:22,093 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-04 15:45:22,328 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/spm.model "HTTP/1.1 302 Found"
+2026-05-04 15:45:22,571 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/xet-read-token/8ccc9b6f36199bec6961081d44eb72fb3f7353f3 "HTTP/1.1 200 OK"
+2026-05-04 15:45:24,022 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-04 15:45:24,265 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-04 15:45:24,497 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-04 15:45:24,724 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+[transformers] Could not extract SentencePiece model from /home/s4901673/.cache/huggingface/hub/models--microsoft--deberta-v3-base/snapshots/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/spm.model using sentencepiece library due to 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+. Falling back to TikToken extractor.
+2026-05-04 15:45:24,726 - __main__ - ERROR - Fatal error during training:
+Traceback (most recent call last):
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/tokenization_utils_tokenizers.py", line 217, in convert_to_native_format
+    extractor = SentencePieceExtractor(vocab_file)
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/convert_slow_tokenizer.py", line 152, in __init__
+    requires_backends(self, "sentencepiece")
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/utils/import_utils.py", line 2026, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/convert_slow_tokenizer.py", line 1920, in extract_vocab_merges_from_model
+    from tiktoken.load import load_tiktoken_bpe
+ModuleNotFoundError: No module named 'tiktoken'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py", line 1023, in <module>
+    main()
+  File "/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py", line 822, in main
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/models/auto/tokenization_auto.py", line 823, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/tokenization_utils_base.py", line 1740, in from_pretrained
+    return cls._from_pretrained(
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/tokenization_utils_base.py", line 1927, in _from_pretrained
+    init_kwargs = cls.convert_to_native_format(**init_kwargs)
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/tokenization_utils_tokenizers.py", line 283, in convert_to_native_format
+    local_kwargs["tokenizer_object"] = converter.converted()
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/convert_slow_tokenizer.py", line 1957, in converted
+    tokenizer = self.tokenizer()
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/convert_slow_tokenizer.py", line 1950, in tokenizer
+    vocab_scores, merges = self.extract_vocab_merges_from_model(self.vocab_file)
+  File "/home/s4901673/.conda/envs/ircbert/lib/python3.10/site-packages/transformers/convert_slow_tokenizer.py", line 1922, in extract_vocab_merges_from_model
+    raise ValueError(
+ValueError: `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.
