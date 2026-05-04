@@ -30,6 +30,7 @@ pip install torch --index-url https://download.pytorch.org/whl/cu121
 echo "Installing other dependencies..."
 pip install transformers datasets sentence-transformers accelerate
 pip install scikit-learn numpy pandas tqdm psutil
-pip install sentencepiece tiktoken
+pip install sentencepiece tiktoken protobuf huggingface_hub[cli]
+pip install tensorboard
 
 echo "Setup complete."
