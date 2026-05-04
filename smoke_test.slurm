@@ -39,6 +39,7 @@ conda activate ircbert
 # Run the training Python script with reduced smoke test parameters
 python src/train.py \
     --mode train \
+    --data-dir data/tiny \
     --batch-size 32 \
     --num-workers 2 \
     --fp16 \
