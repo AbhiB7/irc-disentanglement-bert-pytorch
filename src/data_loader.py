@@ -189,7 +189,7 @@ def compute_features(
     msg_i: IRCMessage,
     msg_j: IRCMessage,
     conversation: IRCConversation,
-    max_dist: int = 30,
+    max_dist: int = 50,
 ) -> List[float]:
     """
     Compute 4 handcrafted features as per project plan:
@@ -244,7 +244,7 @@ class IRCDisentanglementDataset(Dataset):
         ascii_files: List[str],
         annotation_files: List[str],
         tokenizer,
-        max_dist: int = 30,
+        max_dist: int = 50,
         max_length: int = 128,
         skip_labels: bool = False,
         test_start: int = 0,
@@ -256,7 +256,7 @@ class IRCDisentanglementDataset(Dataset):
             ascii_files: List of ASCII file paths
             annotation_files: List of annotation file paths (parallel to ascii_files)
             tokenizer: BERT tokenizer
-            max_dist: Maximum distance to consider for linking (default 30)
+            max_dist: Maximum distance to consider for linking (default 50)
             max_length: Maximum token length for BERT
             skip_labels: If True, do not use gold labels (for blind test)
             test_start/end: Which messages to process in each file

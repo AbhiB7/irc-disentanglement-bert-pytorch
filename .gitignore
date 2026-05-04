@@ -58,3 +58,6 @@ _includes/
 
 # HPC
 *.sif
+
+# API Keys
+research/openrouter_web_key.txt

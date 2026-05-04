@@ -28,7 +28,11 @@ Conversation disentanglement is the task of separating interleaved chat messages
 - **Pre-2019**: Handcrafted features (~35% F1).
 - **2019**: GloVe + FFNN (Kummerfeld et al. — Study 1 baseline).
 - **2021-2022**: Fine-tuned BERT/ALBERT/DeBERTa + handcrafted features (~72% F1).
+- **2022**: StructBERT (ACL 2022) — Speaker-masked MHSA + r-GCN for reference dependency → **52.6% F1** (vs 33.5% for plain BERT).
 - **2022**: Bi-Level Contrastive Learning (SOTA ~80%+ F1).
+- **2025**: ROCLING 2025 benchmark on Ubuntu IRC dataset:
+  - DeBERTa-v3-base: **0.7230** Link F1 (vs 0.7144 for BERT-base)
+  - ModernBERT-base: 0.7087 Link F1
 
 ---
 
@@ -67,8 +71,21 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ### Pair Generation & Class Imbalance
 - **Window**: `MAX_DIST` (default 30). Reduced from 101 to optimize for local 4070 GPU memory/speed.
+  - **Gap**: StructBERT and ROCLING 2025 use `kh=50`. At max_dist=30, the model cannot predict replies more than 30 messages back — this sets a hard ceiling on recall.
 - **Imbalance**: Handled via dynamic `pos_weight` in `BCEWithLogitsLoss`.
-- **Solution**: Compute `pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=300.0)` per batch to adapt to actual label distribution.
+- **Solution**: Compute `pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=1500.0)` per batch to adapt to actual label distribution.
+- **Gap**: SOTA methods reframe as **multiclass** (which candidate is the parent?) instead of binary, eliminating class imbalance entirely.
+
+### Structural Features (from StructBERT ACL 2022)
+- **Speaker-masked MHSA**: Attention is masked so tokens only attend within same-speaker utterances (M[i,j]=0 if same speaker, -∞ otherwise). Boosts F1 from 33.5 → 45.0.
+- **r-GCN (Reference Dependency)**: Graph where edges connect utterances containing @username mentions to all prior utterances by that user. Boosts F1 to 47.4.
+- **Combined**: Both together → 52.6 F1 (vs 33.5 for plain BERT).
+- **Current Implementation**: `msg.targets` set in `IRCMessage` already contains the reference dependency graph needed for r-GCN.
+
+### Multiclass vs. Binary Framing
+- **Current**: Binary classification "is pair (i, j) linked?" with BCE loss and pos_weight.
+- **SOTA**: Multiclass over window "which of C candidates is the parent of message i?" with cross-entropy loss.
+- **Benefits**: Eliminates class imbalance, produces probability distribution over candidates.
 
 ---
 
@@ -93,7 +110,22 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Test 2 (1 hour)**: Mid-range stability run. Verified pipeline on RTX 5070 with ~50K pairs.
 - **Test 3 (3-6 hours)**: Large-scale stability run. Uses **1 Million pairs** and **Batch Size 64** to refine Precision and verify long-term convergence.
 
-## 5. Robustness & Diagnostics
+## 5. Priority Improvement Roadmap (vs. SOTA)
+
+| Priority | Improvement | Effort | Expected Gain |
+|----------|-------------|--------|---------------|
+| 1 | **DeBERTa-v3-base backbone** | Change 1 string in `model.py` | ~+1% F1 |
+| 2 | **Increase max_dist to 50** | Change 1 default argument | Improves recall |
+| 3 | **Multiclass reframing** | Restructure loss in `model.py` | Eliminates pos_weight heuristic |
+| 4 | **Union-Find clustering + thread metrics** | New module needed | Required for VI/ARI in thesis |
+| 5 | **Speaker-masked MHSA** | Add structural module to `model.py` | ~+11 F1 points over BERT baseline |
+| 6 | **@mention r-GCN** | Use existing `msg.targets` | ~+5 F1 points |
+
+**Items 1–4** are straightforward given existing codebase. **Items 5–6** match what's already computed in `data_loader.py` — the `msg.targets` set in `IRCMessage` is already the reference dependency graph for r-GCN.
+
+**Summary**: Current architecture leaves ~14+ F1 points on the table vs. StructBERT (ACL 2022 SOTA). Biggest gains come from structural modules (speaker MHSA + reference r-GCN).
+
+## 6. Robustness & Diagnostics
 - **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.
 - **Numerical Safety**: NaN/Inf loss detection triggers batch skipping to prevent weight corruption.
 - **Smart Logging**: Automatic logging of any batch containing a positive sample (`label=1`) to monitor minority class behavior.
@@ -102,7 +134,13 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ---
 
-## 5. Technical Reference
+## 5. Clustering & Thread-Level Metrics
+- **Current**: Only link-level F1 is computed.
+- **Gap**: Actual task is conversation disentanglement (grouping messages into threads). Needs a **clustering step** after link prediction.
+- **Methods**: Union-Find (simple) or bipartite graph matching.
+- **Metrics Needed**: VI (Variational Inference), ARI (Adjusted Rand Index), MCF (Message Clustering F1) for thesis visualization component.
+
+## 6. Technical Reference
 
 ### Project Structure
 - `src/data_loader.py`: Handles file discovery, message parsing, and pair generation.
@@ -130,7 +168,9 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ---
 
-## 6. Key References
+## 8. Key References
 1. Kummerfeld et al. (2019). "A Large-Scale Corpus for Conversation Disentanglement." ACL 2019.
 2. Zhu et al. (2021). "BERT for Conversation Disentanglement." (Key feature comparison paper).
 3. Huang et al. (2022). "Bi-Level Contrastive Learning for Conversation Disentanglement."
+4. **StructBERT** (ACL 2022). "Structural Encoding for Conversation Disentanglement." [aclanthology.org/2022.acl-long.23.pdf](https://aclanthology.org/2022.acl-long.23.pdf)
+5. **ROCLING 2025**. "Benchmarking Transformer Models on Ubuntu IRC Dataset." [aclanthology.org/2025.rocling-main.31.pdf](https://aclanthology.org/2025.rocling-main.31.pdf)

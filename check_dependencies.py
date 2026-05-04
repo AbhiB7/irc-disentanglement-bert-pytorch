@@ -42,6 +42,7 @@ def main():
         ("scikit-learn", "sklearn"),
         ("pandas", "pandas"),
         ("tqdm", "tqdm"),
+        ("requests", "requests"),
     ]
     
     results = []

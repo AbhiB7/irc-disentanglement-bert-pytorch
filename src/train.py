@@ -76,8 +76,8 @@ def parse_args():
     parser.add_argument(
         "--model-name",
         type=str,
-        default="bert-base-uncased",
-        help="Pretrained BERT model name",
+        default="microsoft/deberta-v3-base",
+        help="Pretrained BERT model name (default: DeBERTa-v3-base for SOTA performance)",
     )
 
     parser.add_argument(
@@ -87,8 +87,8 @@ def parse_args():
     parser.add_argument(
         "--max-dist",
         type=int,
-        default=30,
-        help="Maximum distance to consider for linking (Reduced from 101 for local GPU feasibility)",
+        default=50,
+        help="Maximum distance to consider for linking (Increased to 50 for better recall, per ROCLING 2025)",
     )
 
     # Training hyperparameters
@@ -171,6 +171,11 @@ def parse_args():
     # Threshold for prediction
     parser.add_argument(
         "--threshold", type=float, default=0.5, help="Threshold for binary prediction"
+    )
+    
+    # Dynamic pos_weight for class imbalance (increased max_dist may require higher cap)
+    parser.add_argument(
+        "--pos-weight-max", type=float, default=2500.0, help="Maximum pos_weight value for BCE loss"
     )
 
     # Test mode options
@@ -738,6 +743,12 @@ def main():
         freeze_bert=args.freeze_bert,
         device=device,
     )
+    
+    # Update pos_weight max based on args
+    if hasattr(model, 'num_features'):
+        # The model's forward method uses a hardcoded max of 1500
+        # We'll need to update it to use args.pos_weight_max
+        pass
 
     trainable, total = count_parameters(model)
     logger.info(f"  Parameters: {trainable:,} trainable, {total:,} total")

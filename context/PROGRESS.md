@@ -20,11 +20,11 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Bunya Compliance Fix**: Added `--qos=gpu`, `--account=a_hcc`, and `mkdir -p logs` to both SLURM files.
 - ✅ **Conda Module Fix**: Updated all HPC files to use `miniconda3/23.9.0-0` and `$EBROOTMINICONDA3` (removed Miniforge3/Miniconda3 fallbacks).
 - ✅ **Error Handling**: Added `set -e` to `run_job.slurm` and `smoke_test.slurm`.
-- ⚠️ **Bunya OOM Crash**: Training crashed at ~30% through epoch 1 with CUDA OOM on H100 (run 23927666). Root cause: 4 DataLoader workers each fork a copy of the pre-tokenized dataset (~10GB × 4 = 40GB overhead) + model/gradients/optimizer (~35GB) exceeds 80GB H100.
 - ✅ **Lazy Tokenization Fix**: Implemented on-the-fly tokenization in `data_loader.py` to eliminate OOM. Now stores raw text pairs instead of pre-tokenized tensors. Tokenization happens in `__getitem__` instead of `__init__`. Reduces per-worker memory from ~1.5GB to ~200MB (~85% reduction).
 - 📋 **Supervisor Meeting**: Created `research/supervisor_meeting_20260424.md` with discussion points for 2026-04-24 meeting.
 - ✅ **Threshold Fix**: Changed default threshold from 0.3 to 0.5 in `src/train.py`. Removed `--threshold` flags from all training scripts. This fixes the "predict everything as positive" failure mode (Recall=100%, Precision=0.69%, F1=0.0137).
 - ✅ **Evaluation Script**: Created [`src/evaluate.py`](src/evaluate.py) for checkpoint evaluation with threshold sweep support. Usage: `python src/evaluate.py --checkpoint <path> [--threshold 0.5] [--sweep-thresholds]`
+- 🔄 **Full Dataset Training**: Currently running on Bunya A100 with threshold=0.5. A100 provides 80GB VRAM enabling full dataset training without OOM issues.
 
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
@@ -43,7 +43,14 @@ This file tracks the dynamic working state, recent completions, and immediate ne
     - **Fix**: Changed default threshold to 0.5 in `src/train.py:173`, removed explicit --threshold from all scripts
 
 ## Next Steps
-- **Step 2**: Retrain with threshold=0.5 (expected F1 improvement from 0.0137 to ~0.10-0.15)
+- **Current Priority**: Monitor full dataset training on Bunya A100 with threshold=0.5. Expected F1 improvement from 0.0137 to ~0.10-0.15.
+- **Post-Training**: Evaluate on full dev set using `src/evaluate.py` with threshold sweep.
+- **Future: Improve Convergence Detection**: Current early stopping uses patience-based heuristic. Consider implementing more robust convergence detection:
+  - **Gradient-based convergence**: Monitor gradient norms approaching zero
+  - **Loss plateau detection**: Track when loss stops decreasing significantly
+  - **Multiple metric convergence**: Require F1, loss, AND precision to plateau
+  - **Learning rate decay**: Reduce LR when validation loss plateaus, then apply early stopping
+  - **Priority**: Low - current patience-based approach is sufficient for now, focus on full pipeline first
 
 ## Recent Completions (2026-04-22)
 - **Test 2 Success**: Completed stability run on RTX 5070.
@@ -69,19 +76,18 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - **Context Audit**: Consolidated redundant documentation and separated behavioral rules from project knowledge.
 - **Code Explanation**: Clarified `data_loader.py` entry points and `args` object usage for the user.
 
-## Active Task: Documentation Refactoring
-- [x] Audit `instructions.md`, `context.md`, and `progress.md`.
-- [x] Define clear responsibilities for each file.
-- [x] Move stable knowledge to `context.md`.
-- [x] Move behavioral rules to `instructions.md`.
-- [x] Update `progress.md` with current state.
+## Active Task: Full Dataset Training on Bunya
+- [ ] Submit full training job on Bunya A100 with threshold=0.5
+- [ ] Monitor training progress and logs
+- [ ] Evaluate best checkpoint on dev set
+- [ ] Compare results against Study 1 DyNet baseline (~62.6% F1)
 
-## Next Steps
-1. **Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`. Uses **1 Million pairs** and `batch-size=64` to improve Precision and verify long-term convergence on RTX 5070.
-4. **GPU Training**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti (15-hour overnight run).
-5. **Inference**: Run the trained model on all 10 dev files.
-3. **Evaluation**: Use `graph-eval.py` to generate final link-level F1 metrics.
-4. **Comparison**: Compare BERT results against the Study 1 DyNet baseline.
+## Next Steps (Archived/Completed)
+- ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)
+- ~~**GPU Training on Vast.ai**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti.~~ (Completed - now using Bunya A100)
+- ~~**Inference**: Run the trained model on all 10 dev files.~~ (Pending post-training)
+- ~~**Evaluation**: Use `graph-eval.py` to generate final link-level F1 metrics.~~ (Pending post-training)
+- ~~**Comparison**: Compare BERT results against the Study 1 DyNet baseline.~~ (Pending post-training)
 
 ---
 

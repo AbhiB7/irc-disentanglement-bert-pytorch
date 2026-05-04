@@ -149,10 +149,10 @@ class CrossEncoderWithFeatures(nn.Module):
         if labels is not None:
             # Dynamic pos_weight based on actual batch label distribution
             # Clamp prevents explosion on batches with zero positives
-            # Cap raised to 1500 to handle ~746:1 imbalance (was 300, insufficient)
+            # Cap increased to 2500 to handle class imbalance with max_dist=50
             num_neg = (labels == 0).sum().float()
             num_pos = (labels == 1).sum().float()
-            pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=1500.0)
+            pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=2500.0)
             loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight.to(logits.device))
             loss = loss_fn(logits, labels)
             outputs['loss'] = loss
@@ -189,7 +189,7 @@ class CrossEncoderWithFeatures(nn.Module):
 
 
 def create_model(
-    model_name: str = "bert-base-uncased",
+    model_name: str = "microsoft/deberta-v3-base",
     num_features: int = 4,
     dropout: float = 0.1,
     freeze_bert: bool = False,
@@ -199,7 +199,7 @@ def create_model(
     Factory function to create and initialize model.
     
     Args:
-        model_name: Pretrained BERT model name
+        model_name: Pretrained BERT model name (default: DeBERTa-v3-base for SOTA performance)
         num_features: Number of handcrafted features
         dropout: Dropout probability
         freeze_bert: Whether to freeze BERT parameters
@@ -241,7 +241,7 @@ def test_model():
     
     # Create model
     model = create_model(
-        model_name="bert-base-uncased",
+        model_name="microsoft/deberta-v3-base",
         num_features=4,
         dropout=0.1,
         freeze_bert=False
