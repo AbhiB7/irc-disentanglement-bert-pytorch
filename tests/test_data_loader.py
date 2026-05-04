@@ -303,9 +303,9 @@ class TestIRCDataset(unittest.TestCase):
         self.assertGreater(item['input_ids'].shape[0], 0)   # C > 0
         self.assertEqual(item['labels'].dtype, torch.long)
         self.assertEqual(item['labels'].dim(), 0)           # scalar label
-        # features should be [C, 4] in multiclass mode
+        # features should be [C, 5] in multiclass mode
         self.assertEqual(item['features'].dim(), 2)
-        self.assertEqual(item['features'].shape[1], 4)      # 4 features per candidate
+        self.assertEqual(item['features'].shape[1], 5)      # 5 features per candidate
 
     def test_dataset_with_dataloader(self):
         """Test using dataset with PyTorch DataLoader"""
@@ -341,7 +341,7 @@ class TestIRCDataset(unittest.TestCase):
         # Check batch shapes (multiclass: [batch, C, seq_len])
         self.assertEqual(batch['input_ids'].dim(), 3)        # [batch, C, seq_len]
         self.assertEqual(batch['input_ids'].shape[0], 2)     # batch_size
-        self.assertEqual(batch['features'].shape[1], 4)      # 4 features
+        self.assertEqual(batch['features'].shape[1], 5)      # 5 features
 
 
 class TestLoadDatasetFiles(unittest.TestCase):

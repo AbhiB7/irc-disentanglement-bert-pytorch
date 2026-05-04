@@ -192,13 +192,14 @@ def compute_features(
     max_dist: int = 50,
 ) -> List[float]:
     """
-    Compute 4 handcrafted features as per project plan:
-    1. time_diff_min: Time difference in minutes (capped at 100)
+    Compute 5 handcrafted features as per project plan:
+    1. time_diff_min: Time difference in minutes (capped at -100)
     2. speaker_match: 1 if same speaker, 0 otherwise
     3. pos_dist: Position distance (j - i) normalized by max_dist
     4. word_jaccard: Jaccard similarity of word sets
+    5. directedness: 1 if child message mentions parent's speaker, 0 otherwise
 
-    Returns: List of 4 feature values
+    Returns: List of 5 feature values
     """
     MAX_DIST = max_dist  # Use provided max_dist for normalization
 
@@ -230,7 +231,10 @@ def compute_features(
         union = len(words_i.union(words_j))
         jaccard = intersection / union if union > 0 else 0.0
 
-    return [time_diff_norm, speaker_match, pos_dist_norm, jaccard]
+    # 5. Directedness: child mentions parent's speaker
+    directedness = 1.0 if msg_i.speaker in msg_j.targets else 0.0
+
+    return [time_diff_norm, speaker_match, pos_dist_norm, jaccard, directedness]
 
 
 class IRCDisentanglementDataset(Dataset):
@@ -293,6 +297,7 @@ class IRCDisentanglementDataset(Dataset):
                 total=len(ascii_files),
                 desc="Loading conversations",
                 leave=True,
+                disable=True,
             )
         ):
             conv = load_conversation(ascii_path, ann_path)
@@ -351,7 +356,7 @@ class IRCDisentanglementDataset(Dataset):
             process_indices,
             desc=f"  Samples for {conv.name}",
             leave=False,
-            disable=len(process_indices) < 100,
+            disable=True,
         ):
             msg_i = messages[i]
 
@@ -401,7 +406,7 @@ class IRCDisentanglementDataset(Dataset):
                 parent_text = candidates[0] if candidates else ""
 
             # Store all candidate features as a 2D tensor [C, num_features]
-            all_features = torch.tensor(per_candidate_features)  # [C, 4]
+            all_features = torch.tensor(per_candidate_features)  # [C, 5]
 
             # Store sample - tokenization happens in __getitem__ (lazy)
             self.samples.append((parent_text, msg_i.text, all_features, gold_parent_idx))
@@ -462,13 +467,13 @@ class IRCDisentanglementDataset(Dataset):
         else:
             all_candidate_token_type_ids = None
 
-        # features is already a 2D tensor [C, 4] from _create_samples_for_conversation
+        # features is already a 2D tensor [C, 5] from _create_samples_for_conversation
         # gold_parent_idx is the index of the correct candidate in the candidate_indices list
         
         item = {
             "input_ids": all_candidate_input_ids,        # [C, seq_len]
             "attention_mask": all_candidate_attention_mask, # [C, seq_len]
-            "features": features,  # Already a torch tensor [C, 4]
+            "features": features,  # Already a torch tensor [C, 5]
             "labels": torch.tensor(gold_parent_idx, dtype=torch.long)
         }
 

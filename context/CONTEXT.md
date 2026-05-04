@@ -66,8 +66,9 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Speaker match**: 1 if same speaker, 0 otherwise.
 - **Position distance**: `i - j`.
 - **Word overlap**: Jaccard similarity of word sets.
+- **Directedness**: 1 if child message mentions parent's speaker (explicit @mention).
 
-**Integration**: Features are concatenated to the 768-dim [CLS] vector, resulting in a 772-dim input to the classification head.
+**Integration**: Features are concatenated to the 768-dim [CLS] vector, resulting in a 773-dim input to the classification head.
 
 ### Pair Generation & Class Imbalance
 - **Window**: `MAX_DIST` (default 30). Reduced from 101 to optimize for local 4070 GPU memory/speed.

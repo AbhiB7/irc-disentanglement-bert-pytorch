@@ -4,8 +4,8 @@ IRC Conversation Disentanglement Model - BERT CrossEncoder with Handcrafted Feat
 Architecture:
 1. BERT CrossEncoder processes message pairs
 2. Extract [CLS] token embedding (768-dim)
-3. Concatenate with 4 handcrafted features → 772-dim vector
-4. Linear layer (772 → 1) + Sigmoid for binary classification
+3. Concatenate with 5 handcrafted features → 773-dim vector
+4. Linear layer (773 → 1) + Sigmoid for binary classification
 
 Matches the architecture described in context/CONTEXT.md
 """
@@ -23,7 +23,7 @@ class CrossEncoderWithFeatures(nn.Module):
     
     Input: 
     - Tokenized message pairs (input_ids, attention_mask, token_type_ids)
-    - 4 handcrafted features: [time_diff, speaker_match, pos_dist, word_jaccard]
+    - 5 handcrafted features: [time_diff, speaker_match, pos_dist, word_jaccard, directedness]
     
     Output:
     - Probability that message_j is a reply to message_i (0-1)
@@ -32,7 +32,7 @@ class CrossEncoderWithFeatures(nn.Module):
     def __init__(
         self,
         model_name: str = "bert-base-uncased",
-        num_features: int = 4,
+        num_features: int = 5,
         dropout: float = 0.1,
         freeze_bert: bool = False
     ):
@@ -189,7 +189,7 @@ class CrossEncoderWithFeatures(nn.Module):
 
 def create_model(
     model_name: str = "microsoft/deberta-v3-base",
-    num_features: int = 4,
+    num_features: int = 5,
     dropout: float = 0.1,
     freeze_bert: bool = False,
     device: str = None
@@ -238,7 +238,7 @@ def test_model():
     """Smoke test for multiclass [batch, C, seq] architecture"""
     print("Testing CrossEncoderWithFeatures model (multiclass)...")
 
-    model = create_model(model_name="bert-base-uncased", num_features=4)
+    model = create_model(model_name="bert-base-uncased", num_features=5)
     trainable, total = count_parameters(model)
     print(f"  Parameters: {trainable:,} trainable, {total:,} total")
 
@@ -248,7 +248,7 @@ def test_model():
 
     input_ids = torch.randint(0, 1000, (batch_size, num_candidates, seq_len))
     attention_mask = torch.ones((batch_size, num_candidates, seq_len), dtype=torch.long)
-    features = torch.randn((batch_size, 4))
+    features = torch.randn((batch_size, 5))
     labels = torch.tensor([2, 4], dtype=torch.long)
 
     outputs = model(
