@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from data_loader import IRCDisentanglementDataset, load_dataset_files
 from model import CrossEncoderWithFeatures, create_model
-from train import evaluate
+from train import evaluate, collate_fn
 
 # Configure logging
 LOG_DIR = Path(__file__).parent.parent / "logs"
@@ -109,8 +109,8 @@ def load_checkpoint_for_eval(checkpoint_path, device):
     
     model = create_model(
         model_name="microsoft/deberta-v3-base",
-        max_length=128,
-        max_dist=50,
+        num_features=4,
+        dropout=0.1,
     )
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
@@ -122,7 +122,7 @@ def load_checkpoint_for_eval(checkpoint_path, device):
 
 def load_dev_dataset(data_dir, max_dist, max_length, batch_size, num_workers, device):
     """Load the dev dataset for evaluation"""
-    _, dev_ascii, _, dev_ann = load_dataset_files(data_dir)
+    dev_ascii, dev_ann = load_dataset_files(data_dir, split="dev")
     
     dev_dataset = IRCDisentanglementDataset(
         ascii_files=dev_ascii,
@@ -138,6 +138,7 @@ def load_dev_dataset(data_dir, max_dist, max_length, batch_size, num_workers, de
         shuffle=False,
         num_workers=num_workers,
         pin_memory=(device == "cuda"),
+        collate_fn=collate_fn,
     )
     
     return dev_loader
@@ -175,7 +176,6 @@ def main():
     logger.info(f"Precision: {metrics['precision']:.4f}")
     logger.info(f"Recall: {metrics['recall']:.4f}")
     logger.info(f"F1: {metrics['f1']:.4f}")
-    logger.info(f"  TP: {metrics['tp']}, FP: {metrics['fp']}, TN: {metrics['tn']}, FN: {metrics['fn']}")
     logger.info("=" * 80)
     
     logger.info(f"Results saved to: {LOG_FILE}")

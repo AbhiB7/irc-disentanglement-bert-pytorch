@@ -235,67 +235,46 @@ def count_parameters(model: nn.Module) -> Tuple[int, int]:
 
 # Test function to verify model works
 def test_model():
-    """Test the model with dummy data"""
-    print("Testing CrossEncoderWithFeatures model...")
-    
-    # Create model
-    model = create_model(
-        model_name="microsoft/deberta-v3-base",
-        num_features=4,
-        dropout=0.1,
-        freeze_bert=False
-    )
-    
-    # Count parameters
+    """Smoke test for multiclass [batch, C, seq] architecture"""
+    print("Testing CrossEncoderWithFeatures model (multiclass)...")
+
+    model = create_model(model_name="bert-base-uncased", num_features=4)
     trainable, total = count_parameters(model)
     print(f"  Parameters: {trainable:,} trainable, {total:,} total")
-    print(f"  BERT hidden size: {model.bert_hidden_size}")
-    print(f"  Combined size: {model.combined_size}")
-    
-    # Create dummy batch
+
     batch_size = 2
-    seq_len = 128
-    
-    # Random inputs (simulating tokenized message pairs)
-    input_ids = torch.randint(0, 1000, (batch_size, seq_len))
-    attention_mask = torch.ones((batch_size, seq_len))
-    token_type_ids = torch.zeros((batch_size, seq_len), dtype=torch.long)
+    num_candidates = 5
+    seq_len = 32
+
+    input_ids = torch.randint(0, 1000, (batch_size, num_candidates, seq_len))
+    attention_mask = torch.ones((batch_size, num_candidates, seq_len), dtype=torch.long)
     features = torch.randn((batch_size, 4))
-    labels = torch.tensor([1.0, 0.0])
-    
-    # Forward pass
+    labels = torch.tensor([2, 4], dtype=torch.long)
+
     outputs = model(
         input_ids=input_ids,
         attention_mask=attention_mask,
-        token_type_ids=token_type_ids,
         features=features,
-        labels=labels
+        labels=labels,
     )
-    
-    print(f"  Input shape: {input_ids.shape}")
-    print(f"  Features shape: {features.shape}")
-    print(f"  Logits shape: {outputs['logits'].shape}")
-    print(f"  Probs shape: {outputs['probs'].shape}")
-    print(f"  Loss: {outputs.get('loss', 'N/A')}")
-    
-    # Test prediction
+
+    assert outputs["logits"].shape == (batch_size, num_candidates), \
+        f"Expected logits [{batch_size}, {num_candidates}], got {outputs['logits'].shape}"
+    assert outputs["probs"].shape == (batch_size, num_candidates), \
+        f"Expected probs [{batch_size}, {num_candidates}], got {outputs['probs'].shape}"
+    assert outputs["loss"].dim() == 0, "Loss should be scalar"
+    assert torch.allclose(outputs["probs"].sum(dim=-1), torch.ones(batch_size), atol=1e-5), \
+        "Probs must sum to 1 per sample"
+
     predictions, probs = model.predict(
         input_ids=input_ids,
         attention_mask=attention_mask,
-        token_type_ids=token_type_ids,
         features=features,
-        threshold=0.5
     )
-    
-    print(f"  Predictions: {predictions}")
-    print(f"  Probabilities: {probs}")
-    
-    # Verify architecture
-    assert outputs['logits'].shape == (batch_size,), "Logits should have shape [batch_size]"
-    assert outputs['probs'].shape == (batch_size,), "Probs should have shape [batch_size]"
-    assert model.combined_size == 768 + 4, f"Combined size should be 772, got {model.combined_size}"
-    
-    print("\n✓ Model test passed!")
+    assert predictions.shape == (batch_size,)
+    assert all(0 <= p < num_candidates for p in predictions.tolist())
+
+    print("  test_model() passed.")
     return model
 
 

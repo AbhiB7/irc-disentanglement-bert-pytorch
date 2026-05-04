@@ -9,7 +9,7 @@ import torch
 import pytest
 from pathlib import Path
 
-# Add src directory to path
+# Add src directory to pathnges 
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from model import CrossEncoderWithFeatures, create_model, count_parameters

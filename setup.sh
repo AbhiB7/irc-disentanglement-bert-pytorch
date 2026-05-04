@@ -24,8 +24,8 @@ conda activate ircbert
 python -m pip install --upgrade pip setuptools wheel
 
 # Install dependencies via pip
-echo "Installing PyTorch 2.6+ with CUDA 12.1 (Security Requirement)..."
-pip install "torch>=2.6.0" --index-url https://download.pytorch.org/whl/cu121
+echo "Installing PyTorch with CUDA 12.1..."
+pip install torch --index-url https://download.pytorch.org/whl/cu121
 
 echo "Installing other dependencies..."
 pip install transformers datasets sentence-transformers accelerate

@@ -410,37 +410,18 @@ class IRCDisentanglementDataset(Dataset):
         conv = self.conversations[conv_idx]
         msg_i = conv.messages[msg_i_idx] # child message
 
-        # Get all candidate texts for this child message
-        # This is crucial for multiclass classification
-        candidate_texts = []
-        # We need to reconstruct the list of candidates for msg_i
-        # This means looking at all messages j within max_dist of i
-        
-        # First, let's find all candidate indices for msg_i
-        # This logic is similar to _create_samples_for_conversation but needs to be here
+        # Build candidate list using indices directly (no string matching)
         all_candidate_indices = []
         for j in range(max(0, msg_i_idx - self.max_dist + 1), msg_i_idx + 1):
             msg_j = conv.messages[j]
-            # Skip system messages as parents (except self-links)
             if j != msg_i_idx and msg_j.is_system:
                 continue
             all_candidate_indices.append(j)
-        
-        # Get the text for each candidate
-        for j_idx in all_candidate_indices:
-            candidate_texts.append(conv.messages[j_idx].text)
 
-        # The current sample corresponds to one specific candidate (parent_text)
-        # We need to find its index in the full candidate list
-        current_candidate_idx_in_full_list = -1
-        for i, c_text in enumerate(candidate_texts):
-            if c_text == parent_text:
-                current_candidate_idx_in_full_list = i
-                break
-        
-        if current_candidate_idx_in_full_list == -1:
-            # This should not happen, but handle gracefully
-            raise ValueError(f"Could not find current parent '{parent_text}' in candidate list for child '{child_text}'")
+        candidate_texts = [conv.messages[j].text for j in all_candidate_indices]
+
+        # candidate_idx from conversation_map is the correct position directly
+        current_candidate_idx_in_full_list = candidate_idx
 
         # Tokenize all candidate messages
         # Each candidate is a separate sequence
