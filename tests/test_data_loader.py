@@ -297,11 +297,15 @@ class TestIRCDataset(unittest.TestCase):
         self.assertIn('features', item)
         self.assertIn('labels', item)
         
-        # Check tensor shapes
-        self.assertEqual(item['input_ids'].dim(), 1)
-        self.assertEqual(item['attention_mask'].dim(), 1)
-        self.assertEqual(item['features'].dim(), 1)
-        self.assertEqual(item['features'].shape[0], 4)  # 4 features
+        # Check tensor shapes (multiclass: input_ids is [C, seq_len])
+        self.assertEqual(item['input_ids'].dim(), 2)
+        self.assertEqual(item['attention_mask'].dim(), 2)
+        self.assertGreater(item['input_ids'].shape[0], 0)   # C > 0
+        self.assertEqual(item['labels'].dtype, torch.long)
+        self.assertEqual(item['labels'].dim(), 0)           # scalar label
+        # features should be [C, 4] in multiclass mode
+        self.assertEqual(item['features'].dim(), 2)
+        self.assertEqual(item['features'].shape[1], 4)      # 4 features per candidate
 
     def test_dataset_with_dataloader(self):
         """Test using dataset with PyTorch DataLoader"""
@@ -317,9 +321,13 @@ class TestIRCDataset(unittest.TestCase):
             max_length=128
         )
         
-        # Create DataLoader
+        # Create DataLoader with collate_fn for multiclass
         from torch.utils.data import DataLoader
-        dataloader = DataLoader(dataset, batch_size=2, shuffle=False)
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+        from train import collate_fn
+        dataloader = DataLoader(dataset, batch_size=2, shuffle=False, collate_fn=collate_fn)
         
         # Get one batch
         batch = next(iter(dataloader))
@@ -330,9 +338,10 @@ class TestIRCDataset(unittest.TestCase):
         self.assertIn('features', batch)
         self.assertIn('labels', batch)
         
-        # Check batch shapes
-        self.assertEqual(batch['input_ids'].shape[0], 2)  # batch_size
-        self.assertEqual(batch['features'].shape[1], 4)   # 4 features
+        # Check batch shapes (multiclass: [batch, C, seq_len])
+        self.assertEqual(batch['input_ids'].dim(), 3)        # [batch, C, seq_len]
+        self.assertEqual(batch['input_ids'].shape[0], 2)     # batch_size
+        self.assertEqual(batch['features'].shape[1], 4)      # 4 features
 
 
 class TestLoadDatasetFiles(unittest.TestCase):

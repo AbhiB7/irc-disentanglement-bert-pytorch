@@ -120,14 +120,14 @@ def load_checkpoint_for_eval(checkpoint_path, device):
     return model
 
 
-def load_dev_dataset(data_dir, max_dist, max_length, batch_size, num_workers, device):
+def load_dev_dataset(data_dir, max_dist, max_length, batch_size, num_workers, device, tokenizer):
     """Load the dev dataset for evaluation"""
     dev_ascii, dev_ann = load_dataset_files(data_dir, split="dev")
     
     dev_dataset = IRCDisentanglementDataset(
         ascii_files=dev_ascii,
         annotation_files=dev_ann,
-        tokenizer=None,  # Will be set later via model
+        tokenizer=tokenizer,
         max_dist=max_dist,
         max_length=max_length,
     )
@@ -150,6 +150,11 @@ def main():
     device = torch.device(args.device)
     logger.info(f"Using device: {device}")
     
+    # Load tokenizer
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    logger.info(f"Loaded tokenizer: {tokenizer.__class__.__name__}")
+    
     # Load checkpoint
     model = load_checkpoint_for_eval(args.checkpoint, device)
     
@@ -162,6 +167,7 @@ def main():
         args.batch_size,
         args.num_workers,
         device,
+        tokenizer,
     )
     logger.info(f"Dev dataset: {len(dev_loader.dataset)} samples")
     

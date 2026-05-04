@@ -434,59 +434,17 @@ def evaluate(model, dataloader, device, fp16=False):
     # Multiclass metrics: accuracy is the primary metric
     accuracy = (all_predictions == all_labels).float().mean().item()
 
-    # For multiclass, we can compute precision, recall, F1 at the candidate level
-    # This is similar to binary but with multiple classes
-    num_classes = all_labels.max().item() + 1
-    precision_list = []
-    recall_list = []
-    f1_list = []
-
-    for c in range(num_classes):
-        pred_c = all_predictions == c
-        label_c = all_labels == c
-
-        tp = (pred_c & label_c).sum().item()
-        fp = (pred_c & ~label_c).sum().item()
-        fn = (~pred_c & label_c).sum().item()
-
-        if tp + fp > 0:
-            precision = tp / (tp + fp)
-        else:
-            precision = 0.0
-
-        if tp + fn > 0:
-            recall = tp / (tp + fn)
-        else:
-            recall = 0.0
-
-        if precision + recall > 0:
-            f1 = 2 * precision * recall / (precision + recall)
-        else:
-            f1 = 0.0
-
-        precision_list.append(precision)
-        recall_list.append(recall)
-        f1_list.append(f1)
-
-    # Average metrics across all classes
-    avg_precision = sum(precision_list) / len(precision_list) if precision_list else 0.0
-    avg_recall = sum(recall_list) / len(recall_list) if recall_list else 0.0
-    avg_f1 = sum(f1_list) / len(f1_list) if f1_list else 0.0
-
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
 
     elapsed = (datetime.now() - start_time).total_seconds()
     logger.info(f"Evaluation complete in {elapsed:.2f}s")
     logger.info(
-        f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}, Precision: {avg_precision:.4f}, Recall: {avg_recall:.4f}, F1: {avg_f1:.4f}"
+        f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}"
     )
 
     return {
         "loss": avg_loss,
         "accuracy": accuracy,
-        "precision": avg_precision,
-        "recall": avg_recall,
-        "f1": avg_f1,
         "predictions": all_predictions,
         "labels": all_labels,
         "probs": all_probs,

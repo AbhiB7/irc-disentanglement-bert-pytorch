@@ -326,7 +326,7 @@ class IRCDisentanglementDataset(Dataset):
         )
 
     def _create_samples_for_conversation(self, conv: IRCConversation, conv_idx: int):
-        """Create multiclass samples for a conversation (one sample per candidate)"""
+        """Create multiclass samples for a conversation (one sample per child message)"""
         messages = conv.messages
         gold_links = conv.gold_links
 
@@ -384,16 +384,28 @@ class IRCDisentanglementDataset(Dataset):
             if self.skip_labels:
                 gold_parent_idx = -1  # Placeholder
 
-            # Compute features for each candidate
+            # Compute features for each candidate and store per-candidate features
+            per_candidate_features = []
             for candidate_idx, (conv_idx_c, i_c, j_c) in enumerate(candidate_indices):
                 msg_j = messages[j_c]
                 features = compute_features(
                     msg_j, msg_i, conv, max_dist=self.max_dist
                 )  # parent, child
+                per_candidate_features.append(features)
 
-                # Store sample - tokenization happens in __getitem__ (lazy)
-                self.samples.append((msg_j.text, msg_i.text, features, gold_parent_idx))
-                self.conversation_map.append((conv_idx, i, candidate_idx))
+            # Store ONE sample per child message with all candidate features
+            # Store parent_text as the gold parent text (or first candidate if no gold)
+            if gold_parent_idx >= 0 and gold_parent_idx < len(candidates):
+                parent_text = candidates[gold_parent_idx]
+            else:
+                parent_text = candidates[0] if candidates else ""
+
+            # Store all candidate features as a 2D tensor [C, num_features]
+            all_features = torch.tensor(per_candidate_features)  # [C, 4]
+
+            # Store sample - tokenization happens in __getitem__ (lazy)
+            self.samples.append((parent_text, msg_i.text, all_features, gold_parent_idx))
+            self.conversation_map.append((conv_idx, i, candidate_indices))
 
         samples_added = len(self.samples) - samples_before
         logger.info(f"  Created {samples_added} samples for {conv.name}")
@@ -406,22 +418,16 @@ class IRCDisentanglementDataset(Dataset):
         parent_text, child_text, features, gold_parent_idx = self.samples[idx]
         
         # Get conversation and message indices from conversation_map
-        conv_idx, msg_i_idx, candidate_idx = self.conversation_map[idx]
+        conv_idx, msg_i_idx, candidate_indices = self.conversation_map[idx]
         conv = self.conversations[conv_idx]
         msg_i = conv.messages[msg_i_idx] # child message
 
-        # Build candidate list using indices directly (no string matching)
-        all_candidate_indices = []
-        for j in range(max(0, msg_i_idx - self.max_dist + 1), msg_i_idx + 1):
-            msg_j = conv.messages[j]
-            if j != msg_i_idx and msg_j.is_system:
-                continue
-            all_candidate_indices.append(j)
-
+        # candidate_indices is a list of (conv_idx, i, j) tuples
+        # Extract just the j indices (candidate message indices)
+        all_candidate_indices = [j for (_, _, j) in candidate_indices]
+        
+        # Get candidate texts
         candidate_texts = [conv.messages[j].text for j in all_candidate_indices]
-
-        # candidate_idx from conversation_map is the correct position directly
-        current_candidate_idx_in_full_list = candidate_idx
 
         # Tokenize all candidate messages
         # Each candidate is a separate sequence
@@ -435,15 +441,6 @@ class IRCDisentanglementDataset(Dataset):
                 return_tensors="pt",
             )
             candidate_encodings.append(encoding)
-        
-        # Tokenize child message
-        child_encoding = self.tokenizer(
-            child_text,
-            truncation=True,
-            padding="max_length",
-            max_length=self.max_length,
-            return_tensors="pt",
-        )
 
         # Prepare batch input_ids and attention_mask
         # The model expects input_ids of shape [C, seq_len] where C is number of candidates
@@ -465,11 +462,14 @@ class IRCDisentanglementDataset(Dataset):
         else:
             all_candidate_token_type_ids = None
 
+        # features is already a 2D tensor [C, 4] from _create_samples_for_conversation
+        # gold_parent_idx is the index of the correct candidate in the candidate_indices list
+        
         item = {
             "input_ids": all_candidate_input_ids,        # [C, seq_len]
             "attention_mask": all_candidate_attention_mask, # [C, seq_len]
-            "features": torch.tensor(features, dtype=torch.float32), # Should be [num_features]
-            "labels": torch.tensor(current_candidate_idx_in_full_list, dtype=torch.long)
+            "features": features,  # Already a torch tensor [C, 4]
+            "labels": torch.tensor(gold_parent_idx, dtype=torch.long)
         }
 
         if all_candidate_token_type_ids is not None:
