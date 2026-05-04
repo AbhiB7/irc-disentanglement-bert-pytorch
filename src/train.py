@@ -96,7 +96,7 @@ def parse_args():
         "--batch-size",
         type=int,
         default=64,
-        help="Batch size for training (Optimized for RTX 5070 12GB)"
+        help="Batch size for training (Optimized for RTX 5070 12GB)",
     )
 
     parser.add_argument(
@@ -172,10 +172,13 @@ def parse_args():
     parser.add_argument(
         "--threshold", type=float, default=0.5, help="Threshold for binary prediction"
     )
-    
+
     # Dynamic pos_weight for class imbalance (increased max_dist may require higher cap)
     parser.add_argument(
-        "--pos-weight-max", type=float, default=2500.0, help="Maximum pos_weight value for BCE loss"
+        "--pos-weight-max",
+        type=float,
+        default=2500.0,
+        help="Maximum pos_weight value for BCE loss",
     )
 
     # Test mode options
@@ -202,6 +205,47 @@ def parse_args():
     )
 
     return parser.parse_args()
+
+
+def collate_fn(batch):
+    """Custom collate function to handle variable-sized candidate lists per item"""
+    # batch is a list of dictionaries from __getitem__
+    # Each item has: input_ids [C, seq_len], attention_mask [C, seq_len], features [num_features], labels [1]
+
+    # Find the maximum number of candidates in this batch
+    max_candidates = max(item["input_ids"].shape[0] for item in batch)
+    seq_len = batch[0]["input_ids"].shape[1]
+    num_features = batch[0]["features"].shape[0]
+
+    # Initialize padded tensors
+    batch_input_ids = torch.zeros(len(batch), max_candidates, seq_len, dtype=torch.long)
+    batch_attention_mask = torch.zeros(
+        len(batch), max_candidates, seq_len, dtype=torch.long
+    )
+    batch_features = torch.zeros(len(batch), num_features, dtype=torch.float32)
+    batch_labels = torch.zeros(len(batch), dtype=torch.long)
+
+    # Fill batch
+    for i, item in enumerate(batch):
+        # Get current item's data
+        input_ids = item["input_ids"]  # [C_curr, seq_len]
+        attention_mask = item["attention_mask"]  # [C_curr, seq_len]
+        features = item["features"]  # [num_features]
+        labels = item["labels"]  # [scalar]
+
+        # Copy data to batch tensors (padding with 0s for extra candidates)
+        actual_candidates = input_ids.shape[0]
+        batch_input_ids[i, :actual_candidates] = input_ids
+        batch_attention_mask[i, :actual_candidates] = attention_mask
+        batch_features[i] = features
+        batch_labels[i] = labels
+
+    return {
+        "input_ids": batch_input_ids,
+        "attention_mask": batch_attention_mask,
+        "features": batch_features,
+        "labels": batch_labels,
+    }
 
 
 def create_dataloaders(args, tokenizer):
@@ -239,7 +283,7 @@ def create_dataloaders(args, tokenizer):
             test_end=args.test_end,
         )
 
-        logger.info(f"  Dev dataset created: {len(dev_dataset)} pairs")
+        logger.info(f"  Dev dataset created: {len(dev_dataset)} samples")
 
         dev_loader = DataLoader(
             dev_dataset,
@@ -247,6 +291,7 @@ def create_dataloaders(args, tokenizer):
             shuffle=False,
             num_workers=args.num_workers,
             pin_memory=(args.device == "cuda"),
+            collate_fn=collate_fn,
         )
 
         return None, dev_loader
@@ -279,7 +324,7 @@ def create_dataloaders(args, tokenizer):
             test_end=args.test_end,
         )
 
-        logger.info(f"  Train dataset created: {len(train_dataset)} pairs")
+        logger.info(f"  Train dataset created: {len(train_dataset)} samples")
 
         logger.info(f"Loading {len(dev_ascii)} dev files...")
         dev_dataset = IRCDisentanglementDataset(
@@ -290,7 +335,7 @@ def create_dataloaders(args, tokenizer):
             max_length=args.max_length,
         )
 
-        logger.info(f"  Dev dataset created: {len(dev_dataset)} pairs")
+        logger.info(f"  Dev dataset created: {len(dev_dataset)} samples")
 
         train_loader = DataLoader(
             train_dataset,
@@ -298,6 +343,7 @@ def create_dataloaders(args, tokenizer):
             shuffle=True,
             num_workers=args.num_workers,
             pin_memory=(args.device == "cuda"),
+            collate_fn=collate_fn,
         )
 
         dev_loader = DataLoader(
@@ -306,16 +352,17 @@ def create_dataloaders(args, tokenizer):
             shuffle=False,
             num_workers=args.num_workers,
             pin_memory=(args.device == "cuda"),
+            collate_fn=collate_fn,
         )
 
         return train_loader, dev_loader
 
 
-def evaluate(model, dataloader, device, threshold=0.5, fp16=False):
-    """Evaluate model on a dataset"""
+def evaluate(model, dataloader, device, fp16=False):
+    """Evaluate model on a dataset (multiclass mode)"""
     model.eval()
 
-    logger.info(f"Starting evaluation on {len(dataloader.dataset)} pairs")
+    logger.info(f"Starting evaluation on {len(dataloader.dataset)} samples")
     start_time = datetime.now()
 
     all_predictions = []
@@ -351,9 +398,9 @@ def evaluate(model, dataloader, device, threshold=0.5, fp16=False):
                         labels=labels,
                     )
 
-                # Get predictions
+                # Get predictions (multiclass: argmax)
                 probs = outputs["probs"]
-                predictions = (probs >= threshold).long()
+                predictions = torch.argmax(probs, dim=-1)
 
                 # Store results
                 all_predictions.extend(predictions.cpu().numpy())
@@ -366,11 +413,15 @@ def evaluate(model, dataloader, device, threshold=0.5, fp16=False):
                     num_batches += 1
             except RuntimeError as e:
                 if "out of memory" in str(e).lower():
-                    logger.error(f"  Eval Batch {batch_idx + 1}: CUDA Out of Memory (OOM) during evaluation!")
+                    logger.error(
+                        f"  Eval Batch {batch_idx + 1}: CUDA Out of Memory (OOM) during evaluation!"
+                    )
                     if torch.cuda.is_available():
                         allocated = torch.cuda.memory_allocated(device) / (1024**2)
                         reserved = torch.cuda.memory_reserved(device) / (1024**2)
-                        logger.error(f"  Memory at OOM: {allocated:.0f}/{reserved:.0f}MB")
+                        logger.error(
+                            f"  Memory at OOM: {allocated:.0f}/{reserved:.0f}MB"
+                        )
                     torch.cuda.empty_cache()
                     continue
                 else:
@@ -389,36 +440,82 @@ def evaluate(model, dataloader, device, threshold=0.5, fp16=False):
     all_labels = torch.tensor(all_labels)
     all_probs = torch.tensor(all_probs)
 
-    # Calculate metrics
-    tp = ((all_predictions == 1) & (all_labels == 1)).sum().item()
-    fp = ((all_predictions == 1) & (all_labels == 0)).sum().item()
-    tn = ((all_predictions == 0) & (all_labels == 0)).sum().item()
-    fn = ((all_predictions == 0) & (all_labels == 1)).sum().item()
+    # Multiclass metrics: accuracy is the primary metric
+    accuracy = (all_predictions == all_labels).float().mean().item()
 
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = (
-        2 * precision * recall / (precision + recall)
-        if (precision + recall) > 0
-        else 0.0
-    )
-    accuracy = (tp + tn) / len(all_labels) if len(all_labels) > 0 else 0.0
+    # For multiclass, we can compute precision, recall, F1 at the candidate level
+    # This is similar to binary but with multiple classes
+    num_classes = all_labels.max().item() + 1
+    precision_list = []
+    recall_list = []
+    f1_list = []
+
+    for c in range(num_classes):
+        pred_c = all_predictions == c
+        label_c = all_labels == c
+
+        tp = (pred_c & label_c).sum().item()
+        fp = (pred_c & ~label_c).sum().item()
+        fn = (~pred_c & label_c).sum().item()
+
+        if tp + fp > 0:
+            precision = tp / (tp + fp)
+        else:
+            precision = 0.0
+
+        if tp + fn > 0:
+            recall = tp / (tp + fn)
+        else:
+            recall = 0.0
+
+        if precision + recall > 0:
+            f1 = 2 * precision * recall / (precision + recall)
+        else:
+            f1 = 0.0
+
+        precision_list.append(precision)
+        recall_list.append(recall)
+        f1_list.append(f1)
+
+    # Average metrics across all classes
+    avg_precision = sum(precision_list) / len(precision_list) if precision_list else 0.0
+    avg_recall = sum(recall_list) / len(recall_list) if recall_list else 0.0
+    avg_f1 = sum(f1_list) / len(f1_list) if f1_list else 0.0
 
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
 
     elapsed = (datetime.now() - start_time).total_seconds()
     logger.info(f"Evaluation complete in {elapsed:.2f}s")
     logger.info(
-        f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}"
+        f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}, Precision: {avg_precision:.4f}, Recall: {avg_recall:.4f}, F1: {avg_f1:.4f}"
+    )
+    # Calculate TP, FP, TN, FN for multiclass
+    tp = sum(
+        (pred == label).sum().item() for pred, label in zip(all_predictions, all_labels)
+    )
+    fp = (
+        sum(
+            (pred != label).sum().item()
+            for pred, label in zip(all_predictions, all_labels)
+        )
+        - tp
+    )
+    tn = 0  # Not meaningful for multiclass
+    fn = (
+        sum(
+            (pred != label).sum().item()
+            for pred, label in zip(all_predictions, all_labels)
+        )
+        - tp
     )
     logger.info(f"  TP: {tp}, FP: {fp}, TN: {tn}, FN: {fn}")
 
     return {
         "loss": avg_loss,
         "accuracy": accuracy,
-        "precision": precision,
-        "recall": recall,
-        "f1": f1,
+        "precision": avg_precision,
+        "recall": avg_recall,
+        "f1": avg_f1,
         "tp": tp,
         "fp": fp,
         "tn": tn,
@@ -743,9 +840,9 @@ def main():
         freeze_bert=args.freeze_bert,
         device=device,
     )
-    
+
     # Update pos_weight max based on args
-    if hasattr(model, 'num_features'):
+    if hasattr(model, "num_features"):
         # The model's forward method uses a hardcoded max of 1500
         # We'll need to update it to use args.pos_weight_max
         pass
@@ -931,10 +1028,13 @@ if __name__ == "__main__":
                 if torch.cuda.is_available():
                     allocated = torch.cuda.memory_allocated() / (1024**2)
                     reserved = torch.cuda.memory_reserved() / (1024**2)
-                    logger.error(f"Final Memory State: {allocated:.0f}/{reserved:.0f}MB")
-            
+                    logger.error(
+                        f"Final Memory State: {allocated:.0f}/{reserved:.0f}MB"
+                    )
+
             logger.exception("Fatal error during training:")
         else:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)

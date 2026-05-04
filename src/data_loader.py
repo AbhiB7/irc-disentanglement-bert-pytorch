@@ -236,7 +236,7 @@ def compute_features(
 class IRCDisentanglementDataset(Dataset):
     """
     PyTorch Dataset for IRC conversation disentanglement.
-    Creates message pairs with labels and features.
+    Creates multiclass samples (which candidate is the parent?) - one sample per candidate.
     """
 
     def __init__(
@@ -274,8 +274,8 @@ class IRCDisentanglementDataset(Dataset):
         self.conversations = []
         self.conversation_map = (
             []
-        )  # Maps pair index to (conv_idx, msg_i_idx, msg_j_idx)
-        self.pairs = []  # List of (text_pair, label, features) - raw text for lazy tokenization
+        )  # Maps sample index to (conv_idx, msg_i_idx, candidate_idx)
+        self.samples = []  # List of (parent_text, child_text, features, label) - raw text for lazy tokenization
 
         logger.info(
             f"Initializing IRCDisentanglementDataset with {len(ascii_files)} files"
@@ -298,67 +298,67 @@ class IRCDisentanglementDataset(Dataset):
             conv = load_conversation(ascii_path, ann_path)
             self.conversations.append(conv)
 
-            # Create message pairs
-            self._create_pairs_for_conversation(conv, len(self.conversations) - 1)
+            # Create multiclass samples (one per candidate)
+            self._create_samples_for_conversation(conv, len(self.conversations) - 1)
 
             logger.info(
-                f"  File {idx+1}/{len(ascii_files)}: {conv.name} - {len(conv.messages)} messages, {len(self.pairs)} total pairs so far"
+                f"  File {idx+1}/{len(ascii_files)}: {conv.name} - {len(conv.messages)} messages, {len(self.samples)} total samples so far"
             )
 
-            # Early exit if we've reached test_end pairs (if limiting)
-            # Check against test_end limit (now supports values > 1M)
-            if self.test_end < 1000000000 and len(self.pairs) >= self.test_end:
+            # Early exit if we've reached test_end samples (if limiting)
+            if self.test_end < 1000000000 and len(self.samples) >= self.test_end:
                 logger.info(
-                    f"  Reached test_end limit ({self.test_end} pairs), stopping early"
+                    f"  Reached test_end limit ({self.test_end} samples), stopping early"
                 )
                 break
 
-        # Truncate pairs to test_end if specified
-        if self.test_end < 1000000000 and self.test_end < len(self.pairs):
+        # Truncate samples to test_end if specified
+        if self.test_end < 1000000000 and self.test_end < len(self.samples):
             logger.info(
-                f"Truncating pairs from {len(self.pairs)} to {self.test_end} (test_end limit)"
+                f"Truncating samples from {len(self.samples)} to {self.test_end} (test_end limit)"
             )
-            self.pairs = self.pairs[: self.test_end]
+            self.samples = self.samples[: self.test_end]
             self.conversation_map = self.conversation_map[: self.test_end]
 
         elapsed = (datetime.now() - start_time).total_seconds()
         logger.info(
-            f"Dataset initialization complete: {len(self.pairs)} pairs from {len(self.conversations)} conversations in {elapsed:.2f}s"
+            f"Dataset initialization complete: {len(self.samples)} samples from {len(self.conversations)} conversations in {elapsed:.2f}s"
         )
 
-    def _create_pairs_for_conversation(self, conv: IRCConversation, conv_idx: int):
-        """Create all message pairs for a conversation"""
+    def _create_samples_for_conversation(self, conv: IRCConversation, conv_idx: int):
+        """Create multiclass samples for a conversation (one sample per candidate)"""
         messages = conv.messages
         gold_links = conv.gold_links
 
         # Determine which messages to process
-        # If test_end is small, we limit messages per file to speed up loading
-        # If limiting data, only process a subset of messages per file to speed up loading
         if self.test_end < 1000000000:
             start_idx = self.test_start
             end_idx = min(self.test_end, len(messages))
             process_indices = range(start_idx, end_idx)
             logger.info(
-                f"  Creating pairs for {conv.name}: messages {start_idx} to {end_idx} (limited)"
+                f"  Creating samples for {conv.name}: messages {start_idx} to {end_idx} (limited)"
             )
         else:
             process_indices = range(len(messages))
             logger.info(
-                f"  Creating pairs for {conv.name}: all {len(messages)} messages"
+                f"  Creating samples for {conv.name}: all {len(messages)} messages"
             )
 
-        pairs_before = len(self.pairs)
+        samples_before = len(self.samples)
 
         # Use tqdm for progress bar on message iteration
         for i in tqdm(
             process_indices,
-            desc=f"  Pairs for {conv.name}",
+            desc=f"  Samples for {conv.name}",
             leave=False,
             disable=len(process_indices) < 100,
         ):
             msg_i = messages[i]
 
-            # For each possible parent within max_dist
+            # Collect candidates within max_dist
+            candidates = []
+            candidate_indices = []  # (conv_idx, msg_i_idx, candidate_idx)
+            
             for j in range(max(0, i - self.max_dist + 1), i + 1):
                 msg_j = messages[j]
 
@@ -366,57 +366,133 @@ class IRCDisentanglementDataset(Dataset):
                 if j != i and msg_j.is_system:
                     continue
 
-                # Create pair - store RAW text for lazy tokenization
-                text_pair = [msg_j.text, msg_i.text]  # [parent, child]
+                candidates.append(msg_j.text)
+                candidate_indices.append((conv_idx, i, j))
 
-                # Label: 1 if j is a gold parent of i, 0 otherwise
-                label = 1.0 if (i in gold_links and j in gold_links[i]) else 0.0
+            if not candidates:
+                continue  # Skip messages with no valid candidates
 
-                # For blind test mode, we don't have gold labels
-                if self.skip_labels:
-                    label = -1.0  # Placeholder
+            # Find gold parent index
+            gold_parent_idx = -1
+            if i in gold_links:
+                for candidate_idx, (conv_idx_c, i_c, j_c) in enumerate(candidate_indices):
+                    if j_c in gold_links[i]:
+                        gold_parent_idx = candidate_idx
+                        break
 
-                # Compute features
+            # For blind test mode, we don't have gold labels
+            if self.skip_labels:
+                gold_parent_idx = -1  # Placeholder
+
+            # Compute features for each candidate
+            for candidate_idx, (conv_idx_c, i_c, j_c) in enumerate(candidate_indices):
+                msg_j = messages[j_c]
                 features = compute_features(
                     msg_j, msg_i, conv, max_dist=self.max_dist
                 )  # parent, child
 
-                # Store raw text pair - tokenization happens in __getitem__ (lazy)
-                self.pairs.append((text_pair, label, features))
-                self.conversation_map.append((conv_idx, i, j))
+                # Store sample - tokenization happens in __getitem__ (lazy)
+                self.samples.append((msg_j.text, msg_i.text, features, gold_parent_idx))
+                self.conversation_map.append((conv_idx, i, candidate_idx))
 
-        pairs_added = len(self.pairs) - pairs_before
-        logger.info(f"  Created {pairs_added} pairs for {conv.name}")
+        samples_added = len(self.samples) - samples_before
+        logger.info(f"  Created {samples_added} samples for {conv.name}")
 
     def __len__(self):
-        return len(self.pairs)
+        return len(self.samples)
 
     def __getitem__(self, idx):
-        text_pair, label, features = self.pairs[idx]
+        # Get sample data: (parent_text, child_text, features, gold_parent_idx)
+        parent_text, child_text, features, gold_parent_idx = self.samples[idx]
+        
+        # Get conversation and message indices from conversation_map
+        conv_idx, msg_i_idx, candidate_idx = self.conversation_map[idx]
+        conv = self.conversations[conv_idx]
+        msg_i = conv.messages[msg_i_idx] # child message
 
-        # Tokenize on-the-fly (lazy tokenization to save RAM)
-        encoding = self.tokenizer(
-            text_pair[0],  # parent text
-            text_pair[1],  # child text
+        # Get all candidate texts for this child message
+        # This is crucial for multiclass classification
+        candidate_texts = []
+        # We need to reconstruct the list of candidates for msg_i
+        # This means looking at all messages j within max_dist of i
+        
+        # First, let's find all candidate indices for msg_i
+        # This logic is similar to _create_samples_for_conversation but needs to be here
+        all_candidate_indices = []
+        for j in range(max(0, msg_i_idx - self.max_dist + 1), msg_i_idx + 1):
+            msg_j = conv.messages[j]
+            # Skip system messages as parents (except self-links)
+            if j != msg_i_idx and msg_j.is_system:
+                continue
+            all_candidate_indices.append(j)
+        
+        # Get the text for each candidate
+        for j_idx in all_candidate_indices:
+            candidate_texts.append(conv.messages[j_idx].text)
+
+        # The current sample corresponds to one specific candidate (parent_text)
+        # We need to find its index in the full candidate list
+        current_candidate_idx_in_full_list = -1
+        for i, c_text in enumerate(candidate_texts):
+            if c_text == parent_text:
+                current_candidate_idx_in_full_list = i
+                break
+        
+        if current_candidate_idx_in_full_list == -1:
+            # This should not happen, but handle gracefully
+            raise ValueError(f"Could not find current parent '{parent_text}' in candidate list for child '{child_text}'")
+
+        # Tokenize all candidate messages
+        # Each candidate is a separate sequence
+        candidate_encodings = []
+        for c_text in candidate_texts:
+            encoding = self.tokenizer(
+                c_text,
+                truncation=True,
+                padding="max_length",
+                max_length=self.max_length,
+                return_tensors="pt",
+            )
+            candidate_encodings.append(encoding)
+        
+        # Tokenize child message
+        child_encoding = self.tokenizer(
+            child_text,
             truncation=True,
             padding="max_length",
             max_length=self.max_length,
             return_tensors="pt",
         )
 
+        # Prepare batch input_ids and attention_mask
+        # The model expects input_ids of shape [C, seq_len] where C is number of candidates
+        input_ids_list = []
+        attention_mask_list = []
+        
+        # Add all candidate sequences
+        for cand_enc in candidate_encodings:
+            input_ids_list.append(cand_enc["input_ids"].squeeze(0)) # Remove batch dim
+            attention_mask_list.append(cand_enc["attention_mask"].squeeze(0))
+        
+        # Stack all candidate inputs: [C, seq_len]
+        all_candidate_input_ids = torch.stack(input_ids_list)
+        all_candidate_attention_mask = torch.stack(attention_mask_list)
+
+        # Token type IDs might not be necessary for DeBERTa, but include if available
+        if "token_type_ids" in candidate_encodings[0]:
+            all_candidate_token_type_ids = torch.stack([enc["token_type_ids"].squeeze(0) for enc in candidate_encodings])
+        else:
+            all_candidate_token_type_ids = None
+
         item = {
-            "input_ids": encoding["input_ids"].squeeze(0),
-            "attention_mask": encoding["attention_mask"].squeeze(0),
-            "features": torch.tensor(features, dtype=torch.float32),
-            "labels": (
-                torch.tensor(label, dtype=torch.float32)
-                if label != -1
-                else torch.tensor(0.0, dtype=torch.float32)
-            ),
+            "input_ids": all_candidate_input_ids,        # [C, seq_len]
+            "attention_mask": all_candidate_attention_mask, # [C, seq_len]
+            "features": torch.tensor(features, dtype=torch.float32), # Should be [num_features]
+            "labels": torch.tensor(current_candidate_idx_in_full_list, dtype=torch.long)
         }
 
-        if "token_type_ids" in encoding:
-            item["token_type_ids"] = encoding["token_type_ids"].squeeze(0)
+        if all_candidate_token_type_ids is not None:
+            item["token_type_ids"] = all_candidate_token_type_ids
 
         return item
 

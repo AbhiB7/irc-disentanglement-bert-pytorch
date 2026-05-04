@@ -25,6 +25,21 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Threshold Fix**: Changed default threshold from 0.3 to 0.5 in `src/train.py`. Removed `--threshold` flags from all training scripts. This fixes the "predict everything as positive" failure mode (Recall=100%, Precision=0.69%, F1=0.0137).
 - ✅ **Evaluation Script**: Created [`src/evaluate.py`](src/evaluate.py) for checkpoint evaluation with threshold sweep support. Usage: `python src/evaluate.py --checkpoint <path> [--threshold 0.5] [--sweep-thresholds]`
 - 🔄 **Full Dataset Training**: Currently running on Bunya A100 with threshold=0.5. A100 provides 80GB VRAM enabling full dataset training without OOM issues.
+- ✅ **DeBERTa-v3-base**: Updated default model to `microsoft/deberta-v3-base` in `model.py` and `train.py` (ROCLING 2025 SOTA).
+- ✅ **max_dist=50**: Increased max_dist from 30 to 50 in data loader and training (StructBERT uses kh=50).
+- ✅ **Multiclass Architecture**: Properly implemented multiclass reframing (Priority 3):
+  - Data loader creates C separate samples (one per candidate)
+  - Model processes child message independently, outputs C probabilities
+  - Uses CrossEntropyLoss (no pos_weight needed)
+  - Ready for training
+
+## Recent Completions (2026-05-04)
+- **Proper Multiclass Implementation**: Complete refactor of multiclass architecture:
+  - **Data Loader**: [`src/data_loader.py`](src/data_loader.py) - Creates C separate samples (one per candidate) instead of concatenated input. Each sample: `(parent_text, child_text, features, label)` where label = gold parent index (0 to C-1).
+  - **Model**: [`src/model.py`](src/model.py) - Processes child message independently, outputs `[batch_size, C]` probabilities. Uses softmax instead of sigmoid.
+  - **Training**: [`src/train.py`](src/train.py) - Updated log messages to say "samples" instead of "pairs".
+  - **Evaluation**: [`src/evaluate.py`](src/evaluate.py) - Removed `--threshold` argument, updated defaults to DeBERTa-v3-base and max_dist=50.
+  - **Status**: ✅ Ready for training
 
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
@@ -43,11 +58,15 @@ This file tracks the dynamic working state, recent completions, and immediate ne
     - **Fix**: Changed default threshold to 0.5 in `src/train.py:173`, removed explicit --threshold from all scripts
 
 ## Next Steps
-- **Current Priority**: Monitor full dataset training on Bunya A100 with threshold=0.5. Expected F1 improvement from 0.0137 to ~0.10-0.15.
-- **Post-Training**: Evaluate on full dev set using `src/evaluate.py` with threshold sweep.
+- **Current Priority**: Run training with proper multiclass architecture. Expected F1 improvement from 0.0137 to ~0.10-0.15.
+- **Post-Training**: Evaluate on full dev set using `src/evaluate.py`.
 - **Future: Improve Convergence Detection**: Current early stopping uses patience-based heuristic. Consider implementing more robust convergence detection:
   - **Gradient-based convergence**: Monitor gradient norms approaching zero
   - **Loss plateau detection**: Track when loss stops decreasing significantly
+- **Remaining Priorities**:
+  - Priority 4: Union-Find clustering + thread metrics (VI, ARI, MCF)
+  - Priority 5: Speaker-masked MHSA (structural attention masking)
+  - Priority 6: @mention r-GCN (uses existing `msg.targets` data)
   - **Multiple metric convergence**: Require F1, loss, AND precision to plateau
   - **Learning rate decay**: Reduce LR when validation loss plateaus, then apply early stopping
   - **Priority**: Low - current patience-based approach is sufficient for now, focus on full pipeline first

@@ -87,6 +87,20 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **SOTA**: Multiclass over window "which of C candidates is the parent of message i?" with cross-entropy loss.
 - **Benefits**: Eliminates class imbalance, produces probability distribution over candidates.
 
+### Proper Multiclass Architecture (Implemented 2026-05-04)
+- **Data Loader**: Creates C separate samples (one per candidate) instead of concatenated input.
+  - Each sample: `(parent_text, child_text, features, label)` where label = gold parent index (0 to C-1)
+  - Input format: `[seq_len]` for child message only
+  - Each candidate has its own features (previously shared)
+- **Model**: Processes child message independently, outputs C probabilities.
+  - Input: `[batch_size, seq_len]` for child message
+  - Output: `[batch_size, C]` probabilities (one per candidate)
+  - Uses softmax instead of sigmoid
+  - Loss function: `CrossEntropyLoss` (no pos_weight needed)
+- **Training**: Batch size represents C samples per message
+- **Evaluation**: Uses argmax for multiclass predictions
+- **Status**: ✅ Ready for training
+
 ---
 
 ## 4. Hardware & Training Strategy
@@ -112,16 +126,61 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ## 5. Priority Improvement Roadmap (vs. SOTA)
 
-| Priority | Improvement | Effort | Expected Gain |
-|----------|-------------|--------|---------------|
-| 1 | **DeBERTa-v3-base backbone** | Change 1 string in `model.py` | ~+1% F1 |
-| 2 | **Increase max_dist to 50** | Change 1 default argument | Improves recall |
-| 3 | **Multiclass reframing** | Restructure loss in `model.py` | Eliminates pos_weight heuristic |
-| 4 | **Union-Find clustering + thread metrics** | New module needed | Required for VI/ARI in thesis |
-| 5 | **Speaker-masked MHSA** | Add structural module to `model.py` | ~+11 F1 points over BERT baseline |
-| 6 | **@mention r-GCN** | Use existing `msg.targets` | ~+5 F1 points |
+| Priority | Improvement | Effort | Expected Gain | Status |
+|----------|-------------|--------|---------------|--------|
+| 1 | **DeBERTa-v3-base backbone** | Change 1 string in `model.py` | ~+1% F1 | ✅ Complete |
+| 2 | **Increase max_dist to 50** | Change 1 default argument | Improves recall | ✅ Complete |
+| 3 | **Multiclass reframing** | Restructure loss in `model.py` | Eliminates pos_weight heuristic | ✅ Complete |
+| 4 | **Union-Find clustering + thread metrics** | New module needed | Required for VI/ARI in thesis | ⏳ Pending |
 
-**Items 1–4** are straightforward given existing codebase. **Items 5–6** match what's already computed in `data_loader.py` — the `msg.targets` set in `IRCMessage` is already the reference dependency graph for r-GCN.
+---
+
+## 9. 🚀 Successful Training Run Guide (2026-05-04)
+
+This section provides the verified instructions for running the multiclass architecture.
+
+### ✅ Verification Status
+- **Architecture**: Multiclass Cross-Entropy over search window.
+- **Data Model**: Child message encoded once, paired with multiple candidate parents in batch via custom `collate_fn`.
+- **Validation**: Pipeline verified locally with `data/tiny`.
+
+### 📊 1. Local Verification (Tiny Test)
+Run this to ensure the logic and environment are stable (takes ~15 mins on CPU).
+```bash
+python src/train.py --data-dir data/tiny --epochs 1 --batch-size 16 --test-end 100
+```
+
+### ⚡ 2. HPC Full Run (UQ Bunya)
+This is the recommended path for a "successful today" result using A100 GPUs.
+
+**Step A: Submit Smoke Test (30 mins)**
+Ensure the Bunya environment handles the new multiclass logic.
+```bash
+sbatch smoke_test.slurm
+```
+*Check logs with `tail -f logs/[job_id]_smoke.out`*
+
+**Step B: Submit Full Training (3-8 hours)**
+Execute the primary thesis baseline training.
+```bash
+sbatch train.sh
+```
+
+### 📈 Metrics for Success
+- **Baseline Accuracy**: Should exceed 0.10 immediately (random). 
+- **Link F1**: Target is >0.70 (per ROCLING 2025 benchmarks).
+- **Behavior**: Monitor `[POSITIVE BATCH]` tags in the log to verify parent-child link detection.
+
+| Priority | Improvement | Effort | Expected Gain | Status |
+|----------|-------------|--------|---------------|--------|
+| 1 | **DeBERTa-v3-base backbone** | Change 1 string in `model.py` | ~+1% F1 | ✅ Complete |
+| 2 | **Increase max_dist to 50** | Change 1 default argument | Improves recall | ✅ Complete |
+| 3 | **Multiclass reframing** | Restructure loss in `model.py` | Eliminates pos_weight heuristic | ✅ Complete |
+| 4 | **Union-Find clustering + thread metrics** | New module needed | Required for VI/ARI in thesis | ⏳ Pending |
+| 5 | **Speaker-masked MHSA** | Add structural module to `model.py` | ~+11 F1 points over BERT baseline | ⏳ Pending |
+| 6 | **@mention r-GCN** | Use existing `msg.targets` | ~+5 F1 points | ⏳ Pending |
+
+**Items 1–3** are complete. **Items 4–6** remain for future implementation.
 
 **Summary**: Current architecture leaves ~14+ F1 points on the table vs. StructBERT (ACL 2022 SOTA). Biggest gains come from structural modules (speaker MHSA + reference r-GCN).
 
@@ -134,18 +193,19 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ---
 
-## 5. Clustering & Thread-Level Metrics
+## 6. Clustering & Thread-Level Metrics
 - **Current**: Only link-level F1 is computed.
 - **Gap**: Actual task is conversation disentanglement (grouping messages into threads). Needs a **clustering step** after link prediction.
 - **Methods**: Union-Find (simple) or bipartite graph matching.
 - **Metrics Needed**: VI (Variational Inference), ARI (Adjusted Rand Index), MCF (Message Clustering F1) for thesis visualization component.
 
-## 6. Technical Reference
+## 7. Technical Reference
 
 ### Project Structure
-- `src/data_loader.py`: Handles file discovery, message parsing, and pair generation.
-- `src/model.py`: Defines `CrossEncoderWithFeatures` and model initialization.
+- `src/data_loader.py`: Handles file discovery, message parsing, and multiclass sample generation.
+- `src/model.py`: Defines `CrossEncoderWithFeatures` and model initialization (multiclass output).
 - `src/train.py`: Main entry point for training, evaluation, and checkpointing. Includes **Smart Logging** for imbalanced data diagnostics.
+- `src/evaluate.py`: Evaluation script for multiclass predictions.
 - `tests/`: Comprehensive unit tests for data and model logic.
 
 ### Setup Instructions

@@ -1,0 +1,110 @@
+2026-05-04 15:19:00,741 - __main__ - INFO - ================================================================================
+2026-05-04 15:19:00,741 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-05-04 15:19:00,741 - __main__ - INFO - ================================================================================
+2026-05-04 15:19:00,741 - __main__ - INFO - --- System Diagnostics ---
+2026-05-04 15:19:00,742 - __main__ - INFO - OS: Windows 11
+2026-05-04 15:19:00,742 - __main__ - INFO - Python: 3.13.5
+2026-05-04 15:19:00,742 - __main__ - INFO - RAM: 15.46 GB total, 2.04 GB available
+2026-05-04 15:19:00,743 - __main__ - INFO - GPU: No CUDA-capable device found.
+2026-05-04 15:19:00,743 - __main__ - INFO - --------------------------
+2026-05-04 15:19:00,743 - __main__ - INFO - Mode: train
+2026-05-04 15:19:00,743 - __main__ - INFO - Device: cpu
+2026-05-04 15:19:00,743 - __main__ - INFO - Model: microsoft/deberta-v3-base
+2026-05-04 15:19:00,744 - __main__ - INFO - Batch size: 16
+2026-05-04 15:19:00,744 - __main__ - INFO - Learning rate: 5e-05
+2026-05-04 15:19:00,744 - __main__ - INFO - Epochs: 1
+2026-05-04 15:19:00,744 - __main__ - INFO - Max dist: 50
+2026-05-04 15:19:00,744 - __main__ - INFO - Max length: 128
+2026-05-04 15:19:00,744 - __main__ - INFO - Output dir: checkpoints
+2026-05-04 15:19:00,744 - __main__ - INFO - Using device: cpu
+2026-05-04 15:19:00,744 - __main__ - INFO - Loading tokenizer: microsoft/deberta-v3-base
+2026-05-04 15:19:01,278 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-04 15:19:01,295 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-04 15:19:01,530 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-04 15:19:01,549 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-04 15:19:01,782 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-04 15:19:02,018 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-04 15:19:02,672 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-04 15:19:02,673 - __main__ - INFO - Tokenizer loaded: DebertaV2Tokenizer
+2026-05-04 15:19:02,673 - __main__ - INFO - Creating dataloaders...
+2026-05-04 15:19:02,674 - __main__ - INFO - Loading 1 train files...
+2026-05-04 15:19:02,674 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-04 15:19:02,674 - data_loader - INFO -   max_dist=50, max_length=128, skip_labels=False
+2026-05-04 15:19:02,675 - data_loader - INFO -   test_start=0, test_end=100
+2026-05-04 15:19:02,676 - data_loader - INFO - Loading conversation from data/tiny\train\tiny.train.ascii.txt
+2026-05-04 15:19:02,676 - data_loader - INFO -   Read 300 lines from ASCII file
+2026-05-04 15:19:02,677 - data_loader - INFO -   Parsed 300 messages, found 32 unique users
+2026-05-04 15:19:02,690 - data_loader - INFO -   Loaded 212 gold links from annotation file
+2026-05-04 15:19:02,690 - data_loader - INFO -   Conversation 'tiny.train' loaded in 0.01s
+2026-05-04 15:19:02,690 - data_loader - INFO -   Creating samples for tiny.train: messages 0 to 100 (limited)
+2026-05-04 15:19:02,701 - data_loader - INFO -   Created 3510 samples for tiny.train
+2026-05-04 15:19:02,701 - data_loader - INFO -   File 1/1: tiny.train - 300 messages, 3510 total samples so far
+2026-05-04 15:19:02,701 - data_loader - INFO -   Reached test_end limit (100 samples), stopping early
+2026-05-04 15:19:02,701 - data_loader - INFO - Truncating samples from 3510 to 100 (test_end limit)
+2026-05-04 15:19:02,702 - data_loader - INFO - Dataset initialization complete: 100 samples from 1 conversations in 0.03s
+2026-05-04 15:19:02,702 - __main__ - INFO -   Train dataset created: 100 samples
+2026-05-04 15:19:02,702 - __main__ - INFO - Loading 1 dev files...
+2026-05-04 15:19:02,702 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-04 15:19:02,702 - data_loader - INFO -   max_dist=50, max_length=128, skip_labels=False
+2026-05-04 15:19:02,702 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-04 15:19:02,703 - data_loader - INFO - Loading conversation from data/tiny\dev\tiny.dev.ascii.txt
+2026-05-04 15:19:02,703 - data_loader - INFO -   Read 250 lines from ASCII file
+2026-05-04 15:19:02,704 - data_loader - INFO -   Parsed 250 messages, found 30 unique users
+2026-05-04 15:19:02,714 - data_loader - INFO -   Loaded 188 gold links from annotation file
+2026-05-04 15:19:02,714 - data_loader - INFO -   Conversation 'tiny.dev' loaded in 0.01s
+2026-05-04 15:19:02,715 - data_loader - INFO -   Creating samples for tiny.dev: all 250 messages
+2026-05-04 15:19:02,741 - data_loader - INFO -   Created 9136 samples for tiny.dev
+2026-05-04 15:19:02,741 - data_loader - INFO -   File 1/1: tiny.dev - 250 messages, 9136 total samples so far
+2026-05-04 15:19:02,741 - data_loader - INFO - Dataset initialization complete: 9136 samples from 1 conversations in 0.04s
+2026-05-04 15:19:02,741 - __main__ - INFO -   Dev dataset created: 9136 samples
+2026-05-04 15:19:02,742 - __main__ - INFO -   Train dataset: 100 pairs
+2026-05-04 15:19:02,742 - __main__ - INFO -   Dev dataset: 9136 pairs
+2026-05-04 15:19:02,742 - __main__ - INFO - Creating model...
+2026-05-04 15:19:02,968 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-04 15:19:02,986 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-04 15:19:03,867 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-04 15:19:03,870 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-04 15:19:04,115 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-04 15:19:04,219 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-04 15:19:04,235 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-04 15:19:04,241 - __main__ - INFO -   Parameters: 183,832,325 trainable, 183,832,325 total
+2026-05-04 15:19:04,241 - __main__ - INFO -   BERT hidden size: 768
+2026-05-04 15:19:04,242 - __main__ - INFO -   Combined size: 772
+2026-05-04 15:19:04,243 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
+2026-05-04 15:19:04,243 - __main__ - INFO - Created scheduler with 100 warmup steps, 7 total steps
+2026-05-04 15:19:04,243 - __main__ - INFO - Starting training from epoch 1...
+2026-05-04 15:19:04,243 - __main__ - INFO - ================================================================================
+2026-05-04 15:19:04,243 - __main__ - INFO - Epoch 1/1
+2026-05-04 15:19:04,243 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-05-04 15:19:04,244 - __main__ - INFO - Starting epoch 1 with 7 batches
+2026-05-04 15:19:04,287 - __main__ - ERROR - Fatal error during training:
+Traceback (most recent call last):
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\src\train.py", line 1000, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\src\train.py", line 883, in main
+    train_loss = train_epoch(
+        model,
+    ...<6 lines>...
+        scaler=scaler,
+    )
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\src\train.py", line 535, in train_epoch
+    outputs = model(
+        input_ids=input_ids,
+    ...<3 lines>...
+        labels=labels,
+    )
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\src\model.py", line 99, in forward
+    batch_size, seq_len = input_ids.shape
+    ^^^^^^^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2)
+2026-05-04 15:19:04,370 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+2026-05-04 15:19:04,615 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-04 15:19:04,854 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-04 15:19:05,089 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-04 15:19:05,313 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"

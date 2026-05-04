@@ -1,0 +1,93 @@
+2026-05-04 15:05:37,130 - __main__ - INFO - ================================================================================
+2026-05-04 15:05:37,130 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-05-04 15:05:37,130 - __main__ - INFO - ================================================================================
+2026-05-04 15:05:37,130 - __main__ - INFO - --- System Diagnostics ---
+2026-05-04 15:05:37,130 - __main__ - INFO - OS: Windows 11
+2026-05-04 15:05:37,130 - __main__ - INFO - Python: 3.13.5
+2026-05-04 15:05:37,131 - __main__ - INFO - RAM: 15.46 GB total, 1.93 GB available
+2026-05-04 15:05:37,131 - __main__ - INFO - GPU: No CUDA-capable device found.
+2026-05-04 15:05:37,131 - __main__ - INFO - --------------------------
+2026-05-04 15:05:37,131 - __main__ - INFO - Mode: train
+2026-05-04 15:05:37,131 - __main__ - INFO - Device: cpu
+2026-05-04 15:05:37,132 - __main__ - INFO - Model: microsoft/deberta-v3-base
+2026-05-04 15:05:37,132 - __main__ - INFO - Batch size: 16
+2026-05-04 15:05:37,132 - __main__ - INFO - Learning rate: 5e-05
+2026-05-04 15:05:37,132 - __main__ - INFO - Epochs: 1
+2026-05-04 15:05:37,132 - __main__ - INFO - Max dist: 50
+2026-05-04 15:05:37,132 - __main__ - INFO - Max length: 128
+2026-05-04 15:05:37,133 - __main__ - INFO - Output dir: checkpoints
+2026-05-04 15:05:37,133 - __main__ - INFO - Using device: cpu
+2026-05-04 15:05:37,133 - __main__ - INFO - Loading tokenizer: microsoft/deberta-v3-base
+2026-05-04 15:05:37,680 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-04 15:05:37,700 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-04 15:05:37,724 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-04 15:05:38,002 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-04 15:05:38,020 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-04 15:05:38,040 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-04 15:05:38,280 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-04 15:05:38,510 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-04 15:05:38,742 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/spm.model "HTTP/1.1 302 Found"
+2026-05-04 15:05:39,009 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/xet-read-token/8ccc9b6f36199bec6961081d44eb72fb3f7353f3 "HTTP/1.1 200 OK"
+2026-05-04 15:05:42,859 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer.json "HTTP/1.1 404 Not Found"
+2026-05-04 15:05:42,860 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-04 15:05:43,095 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/added_tokens.json "HTTP/1.1 404 Not Found"
+2026-05-04 15:05:43,332 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/special_tokens_map.json "HTTP/1.1 404 Not Found"
+2026-05-04 15:05:43,564 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/chat_template.jinja "HTTP/1.1 404 Not Found"
+2026-05-04 15:05:43,567 - __main__ - ERROR - Fatal error during training:
+Traceback (most recent call last):
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\tokenization_utils_tokenizers.py", line 217, in convert_to_native_format
+    extractor = SentencePieceExtractor(vocab_file)
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\convert_slow_tokenizer.py", line 152, in __init__
+    requires_backends(self, "sentencepiece")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\utils\import_utils.py", line 2021, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+SentencePieceExtractor requires the SentencePiece library but it was not found in your environment. Check out the instructions on the
+installation page of its repo: https://github.com/google/sentencepiece#installation and follow the ones
+that match your environment. Please note that you may need to restart your runtime after installation.
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\convert_slow_tokenizer.py", line 1920, in extract_vocab_merges_from_model
+    from tiktoken.load import load_tiktoken_bpe
+ModuleNotFoundError: No module named 'tiktoken'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\src\train.py", line 958, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\src\train.py", line 757, in main
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\models\auto\tokenization_auto.py", line 816, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\tokenization_utils_base.py", line 1729, in from_pretrained
+    return cls._from_pretrained(
+           ~~~~~~~~~~~~~~~~~~~~^
+        resolved_vocab_files,
+        ^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\tokenization_utils_base.py", line 1915, in _from_pretrained
+    init_kwargs = cls.convert_to_native_format(**init_kwargs)
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\tokenization_utils_tokenizers.py", line 283, in convert_to_native_format
+    local_kwargs["tokenizer_object"] = converter.converted()
+                                       ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\convert_slow_tokenizer.py", line 1957, in converted
+    tokenizer = self.tokenizer()
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\convert_slow_tokenizer.py", line 1950, in tokenizer
+    vocab_scores, merges = self.extract_vocab_merges_from_model(self.vocab_file)
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vigyan\Documents\UQ\courses\2026_Sem1\REIT7842_Thesis\irc_dis_pytorch\.venv-irc-bert\Lib\site-packages\transformers\convert_slow_tokenizer.py", line 1922, in extract_vocab_merges_from_model
+    raise ValueError(
+        "`tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`."
+    )
+ValueError: `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.

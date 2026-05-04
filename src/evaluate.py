@@ -1,11 +1,10 @@
 """
 IRC Conversation Disentanglement - Checkpoint Evaluation Script
 
-Evaluates a trained checkpoint on the dev set.
+Evaluates a trained checkpoint on the dev set (multiclass mode).
 Usage: python evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt
 
-Supports threshold sweep to find optimal threshold:
-Usage: python evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt --sweep-thresholds
+Note: Multiclass mode uses argmax for predictions (no threshold needed).
 """
 
 import argparse
@@ -40,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Evaluate IRC Disentanglement Checkpoint",
+        description="Evaluate IRC Disentanglement Checkpoint (Multiclass Mode)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     
@@ -61,8 +60,8 @@ def parse_args():
     parser.add_argument(
         "--model-name",
         type=str,
-        default="bert-base-uncased",
-        help="Pretrained BERT model name",
+        default="microsoft/deberta-v3-base",
+        help="Pretrained model name (default: DeBERTa-v3-base)",
     )
     
     parser.add_argument(
@@ -75,7 +74,7 @@ def parse_args():
     parser.add_argument(
         "--max-dist",
         type=int,
-        default=30,
+        default=50,
         help="Maximum distance to consider for linking",
     )
     
@@ -94,23 +93,10 @@ def parse_args():
     )
     
     parser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.5,
-        help="Threshold for binary prediction",
-    )
-    
-    parser.add_argument(
         "--device",
         type=str,
         default="cuda" if torch.cuda.is_available() else "cpu",
         help="Device to use for evaluation",
-    )
-    
-    parser.add_argument(
-        "--sweep-thresholds",
-        action="store_true",
-        help="Sweep thresholds from 0.3 to 0.9 to find optimal",
     )
     
     return parser.parse_args()
@@ -122,9 +108,9 @@ def load_checkpoint_for_eval(checkpoint_path, device):
     checkpoint = torch.load(checkpoint_path, map_location=device)
     
     model = create_model(
-        model_name="bert-base-uncased",
+        model_name="microsoft/deberta-v3-base",
         max_length=128,
-        max_dist=30,
+        max_dist=50,
     )
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
@@ -157,42 +143,6 @@ def load_dev_dataset(data_dir, max_dist, max_length, batch_size, num_workers, de
     return dev_loader
 
 
-def sweep_thresholds(model, dev_loader, device, thresholds=None):
-    """Sweep thresholds and print metrics for each"""
-    if thresholds is None:
-        thresholds = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    
-    logger.info("=" * 80)
-    logger.info("Threshold Sweep Results")
-    logger.info("=" * 80)
-    
-    results = []
-    for thresh in thresholds:
-        logger.info(f"\nEvaluating with threshold = {thresh}")
-        metrics = evaluate(model, dev_loader, device, threshold=thresh)
-        
-        logger.info(f"  Precision: {metrics['precision']:.4f}")
-        logger.info(f"  Recall: {metrics['recall']:.4f}")
-        logger.info(f"  F1: {metrics['f1']:.4f}")
-        logger.info(f"  TP: {metrics['tp']}, FP: {metrics['fp']}, TN: {metrics['tn']}, FN: {metrics['fn']}")
-        
-        results.append({
-            'threshold': thresh,
-            'precision': metrics['precision'],
-            'recall': metrics['recall'],
-            'f1': metrics['f1'],
-        })
-    
-    # Find best F1
-    best = max(results, key=lambda x: x['f1'])
-    
-    logger.info("\n" + "=" * 80)
-    logger.info(f"Best threshold: {best['threshold']} with F1 = {best['f1']:.4f}")
-    logger.info("=" * 80)
-    
-    return results
-
-
 def main():
     args = parse_args()
     
@@ -212,25 +162,21 @@ def main():
         args.num_workers,
         device,
     )
-    logger.info(f"Dev dataset: {len(dev_loader.dataset)} pairs")
+    logger.info(f"Dev dataset: {len(dev_loader.dataset)} samples")
     
-    # Run evaluation
-    if args.sweep_thresholds:
-        sweep_thresholds(model, dev_loader, device)
-    else:
-        metrics = evaluate(model, dev_loader, device, threshold=args.threshold)
-        
-        logger.info("=" * 80)
-        logger.info("Evaluation Results")
-        logger.info("=" * 80)
-        logger.info(f"Threshold: {args.threshold}")
-        logger.info(f"Loss: {metrics['loss']:.4f}")
-        logger.info(f"Accuracy: {metrics['accuracy']:.4f}")
-        logger.info(f"Precision: {metrics['precision']:.4f}")
-        logger.info(f"Recall: {metrics['recall']:.4f}")
-        logger.info(f"F1: {metrics['f1']:.4f}")
-        logger.info(f"  TP: {metrics['tp']}, FP: {metrics['fp']}, TN: {metrics['tn']}, FN: {metrics['fn']}")
-        logger.info("=" * 80)
+    # Run evaluation (multiclass mode - no threshold needed)
+    metrics = evaluate(model, dev_loader, device)
+    
+    logger.info("=" * 80)
+    logger.info("Evaluation Results (Multiclass Mode)")
+    logger.info("=" * 80)
+    logger.info(f"Loss: {metrics['loss']:.4f}")
+    logger.info(f"Accuracy: {metrics['accuracy']:.4f}")
+    logger.info(f"Precision: {metrics['precision']:.4f}")
+    logger.info(f"Recall: {metrics['recall']:.4f}")
+    logger.info(f"F1: {metrics['f1']:.4f}")
+    logger.info(f"  TP: {metrics['tp']}, FP: {metrics['fp']}, TN: {metrics['tn']}, FN: {metrics['fn']}")
+    logger.info("=" * 80)
     
     logger.info(f"Results saved to: {LOG_FILE}")
 

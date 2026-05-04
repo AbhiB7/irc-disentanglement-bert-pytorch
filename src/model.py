@@ -84,76 +84,76 @@ class CrossEncoderWithFeatures(nn.Module):
         Forward pass through the model.
         
         Args:
-            input_ids: Token IDs [batch_size, seq_len]
-            attention_mask: Attention mask [batch_size, seq_len]
-            token_type_ids: Token type IDs (segment IDs) [batch_size, seq_len]
+            input_ids: Token IDs [batch_size, C, seq_len]
+            attention_mask: Attention mask [batch_size, C, seq_len]
+            token_type_ids: Token type IDs [batch_size, C, seq_len]
             features: Handcrafted features [batch_size, num_features]
-            labels: Ground truth labels [batch_size]
-            
+            labels: Ground truth labels [batch_size] (gold parent index)
+             
         Returns:
             Dictionary with:
-            - logits: Raw model outputs [batch_size]
-            - probs: Sigmoid probabilities [batch_size]
-            - loss: BCE loss (if labels provided)
+            - logits: Raw model outputs [batch_size, C]
+            - probs: Softmax probabilities [batch_size, C]
+            - loss: CrossEntropy loss (if labels provided)
         """
-        batch_size = input_ids.shape[0]
+        batch_size, num_candidates, seq_len = input_ids.shape
         
+        # Reshape for BERT: [batch_size * C, seq_len]
+        flat_input_ids = input_ids.view(-1, seq_len)
+        flat_attention_mask = attention_mask.view(-1, seq_len)
+        flat_token_type_ids = token_type_ids.view(-1, seq_len) if token_type_ids is not None else None
+
         # Get BERT embeddings
         bert_outputs = self.bert(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            token_type_ids=token_type_ids,
+            input_ids=flat_input_ids,
+            attention_mask=flat_attention_mask,
+            token_type_ids=flat_token_type_ids,
             return_dict=True
         )
         
-        # Use [CLS] token embedding (first token)
-        cls_embedding = bert_outputs.last_hidden_state[:, 0, :]  # [batch_size, hidden_size]
+        # Use [CLS] token embedding
+        cls_embedding = bert_outputs.last_hidden_state[:, 0, :]  # [batch_size * C, hidden_size]
         
         # Apply dropout
         cls_embedding = self.dropout(cls_embedding)
         
-        # Concatenate with handcrafted features
+        # Reshape features to match cls_embedding: [batch_size, num_features] -> [batch_size, C, num_features] -> [batch_size * C, num_features]
         if features is not None:
-            # Ensure features have correct shape
-            if features.dim() == 1:
-                features = features.unsqueeze(0)
-            
-            # Verify feature dimension
-            if features.shape[-1] != self.num_features:
-                raise ValueError(
-                    f"Expected {self.num_features} features, got {features.shape[-1]}"
-                )
-            
-            # Concatenate BERT embedding with features
-            combined = torch.cat([cls_embedding, features], dim=-1)  # [batch_size, hidden_size + num_features]
+            expanded_features = features.unsqueeze(1).expand(-1, num_candidates, -1).reshape(-1, self.num_features)
+            combined = torch.cat([cls_embedding, expanded_features], dim=-1)
         else:
-            # If no features provided, use zero-padded features
             zero_features = torch.zeros(
-                batch_size, self.num_features,
+                cls_embedding.shape[0], self.num_features,
                 device=cls_embedding.device,
                 dtype=cls_embedding.dtype
             )
             combined = torch.cat([cls_embedding, zero_features], dim=-1)
         
-        # Classification head
-        logits = self.classifier(combined).squeeze(-1)  # [batch_size]
-        probs = torch.sigmoid(logits)
+        # Classification head: [batch_size * C, 1]
+        logits = self.classifier(combined) 
+        
+        # Reshape back to [batch_size, C]
+        logits = logits.view(batch_size, num_candidates)
+        
+        # Mask out padded candidates (where attention mask is all zeros or similar)
+        # In our case, the collate_fn uses 0 for padding.
+        # Check if the whole candidate was padding:
+        candidate_mask = attention_mask.sum(dim=-1) > 0 # [batch_size, C]
+        logits = logits.masked_fill(~candidate_mask, -1e9)
+        
+        candidate_probs = torch.softmax(logits, dim=-1)  # [batch_size, C]
         
         # Prepare output
         outputs = {
             'logits': logits,
-            'probs': probs
+            'probs': candidate_probs
         }
         
         # Compute loss if labels provided
         if labels is not None:
-            # Dynamic pos_weight based on actual batch label distribution
-            # Clamp prevents explosion on batches with zero positives
-            # Cap increased to 2500 to handle class imbalance with max_dist=50
-            num_neg = (labels == 0).sum().float()
-            num_pos = (labels == 1).sum().float()
-            pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=2500.0)
-            loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight.to(logits.device))
+            # Use CrossEntropyLoss for multiclass classification
+            # No pos_weight needed - each sample has exactly 1 positive class
+            loss_fn = nn.CrossEntropyLoss()
             loss = loss_fn(logits, labels)
             outputs['loss'] = loss
         
@@ -164,15 +164,14 @@ class CrossEncoderWithFeatures(nn.Module):
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
         token_type_ids: Optional[torch.Tensor] = None,
-        features: Optional[torch.Tensor] = None,
-        threshold: float = 0.5
+        features: Optional[torch.Tensor] = None
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Make predictions with thresholding.
+        Make multiclass predictions.
         
         Returns:
-            - predictions: Binary predictions (0 or 1) [batch_size]
-            - probabilities: Sigmoid probabilities [batch_size]
+            - predictions: Candidate indices (0 to C-1) [batch_size]
+            - probabilities: Softmax probabilities [batch_size, C]
         """
         with torch.no_grad():
             outputs = self.forward(
@@ -183,7 +182,7 @@ class CrossEncoderWithFeatures(nn.Module):
             )
             
             probs = outputs['probs']
-            predictions = (probs >= threshold).long()
+            predictions = torch.argmax(probs, dim=-1)  # [batch_size]
             
             return predictions, probs
 
