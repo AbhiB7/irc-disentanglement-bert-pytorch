@@ -25,8 +25,8 @@ export RUN_ROOT=/scratch/user/$USER/ircbert_runs
 export LOG_DIR=$RUN_ROOT/logs
 export CHECKPOINT_DIR=$RUN_ROOT/checkpoints
 
-# Create directories
-mkdir -p $LOG_DIR $CHECKPOINT_DIR
+# Create directories (including repo-local logs for slurm output/error files)
+mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 
 # Run setup (idempotent)
 bash setup.sh

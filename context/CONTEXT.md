@@ -153,6 +153,31 @@ python src/train.py --data-dir data/tiny --epochs 1 --batch-size 16 --test-end 1
 ### ⚡ 2. HPC Full Run (UQ Bunya)
 This is the recommended path for a "successful today" result using A100 GPUs.
 
+#### 🔍 HPC Resource Monitoring (Are GPUs free?)
+Use these commands on Bunya to check the queue and GPU availability:
+
+#### 🛠️ Interactive Debug Session (General Partition)
+If you need to troubleshoot `ls` issues or run small Python tests interactively:
+1.  **Request allocation**: 
+    `salloc --partition=general --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 --mem=4G --time=01:00:00 --account=a_hcc --qos=debug`
+2.  **Drop into the node**: 
+    `srun --pty bash`
+3.  **Verify**: 
+    `hostname` (should show `bunXXX` instead of `bunya3`)
+
+*   **Check GPU availability**: 
+    `sinfo -p gpu_cuda -o "%P %G %D %t"` 
+    (Look for `idle` under the `STATE` column—that means there are free GPUs ready to take your job!)
+*   **Check your specific queue status**: 
+    `squeue -u $USER` 
+    (If `ST` is `PD`, your job is Pending. If `R`, it is Running.)
+*   **See why a job is pending**: 
+    `squeue -j [JOB_ID] -o %r` 
+    (Common reasons: `Resources` = waiting for GPU, `Priority` = waiting in line.)
+*   **Check GPU stats while running**: 
+    `srun --jobid [JOB_ID] nvidia-smi` 
+    (Check if your model is actually using the GPU VRAM).
+
 **Step A: Submit Smoke Test (30 mins)**
 Ensure the Bunya environment handles the new multiclass logic.
 ```bash
