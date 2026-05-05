@@ -1,3 +1,9 @@
+## Dropout = 0.1
+
+Standard for BERT classification heads. Devlin et al. (2019) original BERT paper uses dropout=0.1 on the classification head. Confirmed in practice: ACL 2025 SemEval paper (dropout=0.1 for BERT multi-label classification), Stanford CS224n 2024 projects (hidden dropout probability = 0.1), and common BERT fine-tuning guides (mbrenndoerfer.com: "dropout (0.1): Applied in the classifier head. Increase for small datasets to reduce overfitting.").
+
+Applied via `nn.Dropout(0.1)` to the [CLS] embedding before the linear classifier layer.
+
 ## max_length = 128
 
 Pragmatic choice. BERT supports up to 512 (Devlin et al., 2019). IRC messages are short, 128 is enough for most. Remaining positions padded with `[PAD]` token.

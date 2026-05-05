@@ -41,6 +41,27 @@ This file tracks the dynamic working state, recent completions, and immediate ne
   - **Evaluation**: [`src/evaluate.py`](src/evaluate.py) - Removed `--threshold` argument, updated defaults to DeBERTa-v3-base and max_dist=50.
   - **Status**: ✅ Ready for training
 
+## Recent Completions (2026-05-05)
+- **Test Coverage of `src/data_loader.py`**: Comprehensive test suite covering every function and class:
+  - **`tests/test_create_samples.py`** (5 tests): `_create_samples_for_conversation`, `compute_features`
+  - **`tests/test_data_loader.py`** (8 tests): `__getitem__`, `parse_irc_line`
+  - **`tests/test_load_conversation.py`** (6 tests): `load_conversation`, `load_dataset_files` — includes real file test from `data/tiny/` (300 msgs, 212 links, 32 users)
+  - **Nothing left untested**:
+
+  | Component | Coverage | Test file(s) |
+  |-----------|----------|-------------|
+  | `IRCMessage` dataclass | ✅ Indirectly | All 3 test files |
+  | `IRCConversation` dataclass | ✅ Indirectly | All 3 test files |
+  | `parse_irc_line()` | ✅ Directly | `test_data_loader.py` |
+  | `extract_targets()` | ✅ Indirectly | `test_create_samples.py` |
+  | `load_conversation()` | ✅ Directly | `test_load_conversation.py` |
+  | `compute_features()` | ✅ Directly | `test_create_samples.py` |
+  | `IRCDisentanglementDataset.__init__` | ✅ Indirectly | All dataset tests |
+  | `_create_samples_for_conversation` | ✅ Directly | `test_create_samples.py` |
+  | `__len__` | ✅ Indirectly | All dataset tests |
+  | `__getitem__` | ✅ Directly | `test_data_loader.py` |
+  | `load_dataset_files()` | ✅ Directly | `test_load_conversation.py` |
+
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
 

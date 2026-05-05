@@ -1,13 +1,14 @@
 """
 IRC Conversation Disentanglement Model - BERT CrossEncoder with Handcrafted Features
 
-Architecture:
-1. BERT CrossEncoder processes message pairs
-2. Extract [CLS] token embedding (768-dim)
-3. Concatenate with 5 handcrafted features → 773-dim vector
-4. Linear layer (773 → 1) + Sigmoid for binary classification
+Architecture (multiclass reframing):
+1. BERT processes each of C candidates independently: [batch, C, seq] -> flatten -> [batch*C, seq]
+2. Extract [CLS] token embedding from each (768-dim for BERT-base)
+3. Concatenate with 5 handcrafted features -> 773-dim vector per candidate
+4. Linear layer (773 -> 1) per candidate -> unflatten back to [batch, C]
+5. Softmax over C candidates -> CrossEntropyLoss (multiclass)
 
-Matches the architecture described in context/CONTEXT.md
+Tested: tests/test_model.py (22 tests: init, forward, predict, architecture, loss, smoke)
 """
 
 import torch
@@ -54,6 +55,8 @@ class CrossEncoderWithFeatures(nn.Module):
         combined_size = bert_hidden_size + num_features
         
         # Classification head
+        # Dropout=0.1 is standard for BERT classification heads
+        # (Devlin et al., 2019; ACL 2025 SemEval; Stanford CS224n 2024)
         self.dropout = nn.Dropout(dropout)
         self.classifier = nn.Linear(combined_size, 1)
         
@@ -66,7 +69,11 @@ class CrossEncoderWithFeatures(nn.Module):
         self.combined_size = combined_size
     
     def _init_weights(self, module):
-        """Initialize weights for linear layers"""
+        """
+        Initialize weights for linear layers (classifier head).
+        Uses BERT's initializer_range (typically 0.02) for consistency
+        with pretrained initialization. Weights ~ N(0, 0.02), biases = 0.
+        """
         if isinstance(module, nn.Linear):
             module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
             if module.bias is not None:
@@ -233,51 +240,6 @@ def count_parameters(model: nn.Module) -> Tuple[int, int]:
     return trainable_params, total_params
 
 
-# Test function to verify model works
-def test_model():
-    """Smoke test for multiclass [batch, C, seq] architecture"""
-    print("Testing CrossEncoderWithFeatures model (multiclass)...")
-
-    model = create_model(model_name="bert-base-uncased", num_features=5)
-    trainable, total = count_parameters(model)
-    print(f"  Parameters: {trainable:,} trainable, {total:,} total")
-
-    batch_size = 2
-    num_candidates = 5
-    seq_len = 32
-
-    input_ids = torch.randint(0, 1000, (batch_size, num_candidates, seq_len))
-    attention_mask = torch.ones((batch_size, num_candidates, seq_len), dtype=torch.long)
-    features = torch.randn((batch_size, 5))
-    labels = torch.tensor([2, 4], dtype=torch.long)
-
-    outputs = model(
-        input_ids=input_ids,
-        attention_mask=attention_mask,
-        features=features,
-        labels=labels,
-    )
-
-    assert outputs["logits"].shape == (batch_size, num_candidates), \
-        f"Expected logits [{batch_size}, {num_candidates}], got {outputs['logits'].shape}"
-    assert outputs["probs"].shape == (batch_size, num_candidates), \
-        f"Expected probs [{batch_size}, {num_candidates}], got {outputs['probs'].shape}"
-    assert outputs["loss"].dim() == 0, "Loss should be scalar"
-    assert torch.allclose(outputs["probs"].sum(dim=-1), torch.ones(batch_size), atol=1e-5), \
-        "Probs must sum to 1 per sample"
-
-    predictions, probs = model.predict(
-        input_ids=input_ids,
-        attention_mask=attention_mask,
-        features=features,
-    )
-    assert predictions.shape == (batch_size,)
-    assert all(0 <= p < num_candidates for p in predictions.tolist())
-
-    print("  test_model() passed.")
-    return model
-
-
 if __name__ == "__main__":
-    # Run test
-    model = test_model()
+    print("Run `python -m pytest tests/test_model.py -v` for model tests.")
+    print("Use `python src/train.py` for training.")
