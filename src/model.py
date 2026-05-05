@@ -8,7 +8,7 @@ Architecture (multiclass reframing):
 4. Linear layer (773 -> 1) per candidate -> unflatten back to [batch, C]
 5. Softmax over C candidates -> CrossEntropyLoss (multiclass)
 
-Tested: tests/test_model.py (22 tests: init, forward, predict, architecture, loss, smoke)
+Tested: tests/test_model.py (23 tests: init, forward, predict, architecture, loss, smoke)
 """
 
 import torch
@@ -21,6 +21,8 @@ from typing import Optional, Tuple, Dict
 class CrossEncoderWithFeatures(nn.Module):
     """
     BERT-based CrossEncoder with additional handcrafted features.
+    
+    Tested: tests/test_model.py (23 tests across 6 test classes)
     
     Input: 
     - Tokenized message pairs (input_ids, attention_mask, token_type_ids)

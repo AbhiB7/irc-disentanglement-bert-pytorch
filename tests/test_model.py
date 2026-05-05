@@ -21,12 +21,37 @@ class TestMulticlassModelInit:
     """Test model initialization and configuration"""
 
     def test_create_default(self):
-        """Test creating model with default parameters"""
+        """Test creating model with default parameters (DeBERTa-v3-base)"""
         model = create_model()
         assert isinstance(model, CrossEncoderWithFeatures)
         assert model.num_features == 5
         assert model.bert_hidden_size > 0
         assert model.combined_size == model.bert_hidden_size + 5
+
+    def test_create_deberta(self):
+        """Test creating model with production SOTA model"""
+        model = create_model(model_name="microsoft/deberta-v3-base")
+        assert isinstance(model, CrossEncoderWithFeatures)
+        assert model.bert_hidden_size == 768  # DeBERTa-v3-base uses 768
+        assert model.num_features == 5
+        # DeBERTa doesn't use token_type_ids — verify forward works without them
+        batch_size = 2
+        C = 3
+        seq_len = 16  # Small for speed
+        input_ids = torch.randint(0, 1000, (batch_size, C, seq_len))
+        attention_mask = torch.ones((batch_size, C, seq_len), dtype=torch.long)
+        features = torch.randn((batch_size, 5))
+        labels = torch.zeros(batch_size, dtype=torch.long)
+
+        outputs = model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            features=features,
+            labels=labels
+        )
+        assert outputs['logits'].shape == (batch_size, C)
+        assert outputs['probs'].shape == (batch_size, C)
+        assert outputs['loss'].numel() == 1
 
     def test_create_custom_params(self):
         """Test creating model with custom parameters"""

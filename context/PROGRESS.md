@@ -62,6 +62,18 @@ This file tracks the dynamic working state, recent completions, and immediate ne
   | `__getitem__` | ✅ Directly | `test_data_loader.py` |
   | `load_dataset_files()` | ✅ Directly | `test_load_conversation.py` |
 
+- **Test Coverage of `src/model.py`**: Complete multiclass test suite with 23 tests:
+  - **`tests/test_model.py`** (23 tests across 6 classes):
+    - Init (7): Default, DeBERTa-v3-base, custom params, device, freeze_bert, params count, combined_size
+    - Forward (8): With/without labels, without features, probs sum to 1, single sample, candidate masking, different C, no token_type_ids
+    - Predict (3): Argmax, probs sum to 1, single sample
+    - Architecture (2): Classifier output shape, dropout behavior
+    - Loss (2): Non-negative, finite
+    - Smoke test (1): End-to-end BERT-base verification
+  - Removed embedded `test_model()` from `src/model.py` — replaced with redirect to pytest
+  - Updated module docstring with architecture description and test annotation
+  - All 23 tests run in ~30s on CPU with bert-base-uncased and tiny inputs (seq=32, batch=2, C=5)
+
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
 
