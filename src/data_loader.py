@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class IRCMessage:
-    """Represents a single IRC message with metadata"""
+    """Represents a single IRC message with metadata
+    Tested: tests/test_data_loader.py (parse_irc_line → builds IRCMessage)"""
 
     index: int
     timestamp: Optional[Tuple[int, int]]  # (hour, minute) or None for system messages
@@ -45,7 +46,9 @@ class IRCMessage:
 
 @dataclass
 class IRCConversation:
-    """Represents a single IRC log file with messages and gold links"""
+    """Represents a single IRC log file with messages and gold links
+    Tested: tests/test_create_samples.py & tests/test_data_loader.py (built & used by both)
+    """
 
     name: str
     messages: List[IRCMessage]
@@ -58,6 +61,7 @@ def parse_irc_line(line: str) -> Tuple[Optional[Tuple[int, int]], str, str, bool
     """
     Parse an IRC line in format: [HH:MM] <Speaker> message
     Returns: (timestamp, speaker, text, is_system)
+    Tested: tests/test_data_loader.py (Test 8: 4 cases — normal, system, underscore name, garbage)
     """
     line = line.strip()
 
@@ -82,6 +86,7 @@ def extract_targets(text: str, users: Set[str]) -> Set[str]:
     """
     Extract target users from message text.
     Simplified version of original get_targets function.
+    Indirectly verified by tests/test_create_samples.py Test 4 (directedness)
     """
     targets = set()
     text_lower = text.lower()
@@ -100,6 +105,7 @@ def load_conversation(ascii_path: str, annotation_path: str) -> IRCConversation:
     """
     Load a conversation from ASCII and annotation files.
     Matches the original read_data function logic.
+    Tested: tests/test_load_conversation.py (4 tests — basic, system msgs, empty ann, self-link)
     """
     logger.info(f"Loading conversation from {ascii_path}")
     start_time = datetime.now()
@@ -191,7 +197,7 @@ def compute_features(
     conversation: IRCConversation,
     max_dist: int = 50,
 ) -> List[float]:
-    """
+    """Tested: tests/test_create_samples.py
     Compute 5 handcrafted features as per project plan:
     1. time_diff_min: Time difference in minutes (capped at -100)
     2. speaker_match: 1 if same speaker, 0 otherwise
@@ -252,8 +258,8 @@ class IRCDisentanglementDataset(Dataset):
         max_length: int = 128,
         skip_labels: bool = False,
         test_start: int = 0,
-        test_end: int = 1000000000, # Default to 1 Billion (effectively no limit).
-                                    # Note: Previous limit of 1M was too low for full dataset.
+        test_end: int = 1000000000,  # Default to 1 Billion (effectively no limit).
+        # Note: Previous limit of 1M was too low for full dataset.
     ):
         """
         Args:
@@ -279,7 +285,9 @@ class IRCDisentanglementDataset(Dataset):
         self.conversation_map = (
             []
         )  # Maps sample index to (conv_idx, msg_i_idx, candidate_idx)
-        self.samples = []  # List of (parent_text, child_text, features, label) - raw text for lazy tokenization
+        self.samples = (
+            []
+        )  # List of (parent_text, child_text, features, label) - raw text for lazy tokenization
 
         logger.info(
             f"Initializing IRCDisentanglementDataset with {len(ascii_files)} files"
@@ -331,7 +339,8 @@ class IRCDisentanglementDataset(Dataset):
         )
 
     def _create_samples_for_conversation(self, conv: IRCConversation, conv_idx: int):
-        """Create multiclass samples for a conversation (one sample per child message)"""
+        """Tested: tests/test_create_samples.py
+        Create multiclass samples for a conversation (one sample per child message)"""
         messages = conv.messages
         gold_links = conv.gold_links
 
@@ -363,7 +372,7 @@ class IRCDisentanglementDataset(Dataset):
             # Collect candidates within max_dist
             candidates = []
             candidate_indices = []  # (conv_idx, msg_i_idx, candidate_idx)
-            
+
             for j in range(max(0, i - self.max_dist + 1), i + 1):
                 msg_j = messages[j]
 
@@ -380,7 +389,9 @@ class IRCDisentanglementDataset(Dataset):
             # Find gold parent index
             gold_parent_idx = -1
             if i in gold_links:
-                for candidate_idx, (conv_idx_c, i_c, j_c) in enumerate(candidate_indices):
+                for candidate_idx, (conv_idx_c, i_c, j_c) in enumerate(
+                    candidate_indices
+                ):
                     if j_c in gold_links[i]:
                         gold_parent_idx = candidate_idx
                         break
@@ -409,7 +420,9 @@ class IRCDisentanglementDataset(Dataset):
             all_features = torch.tensor(per_candidate_features)  # [C, 5]
 
             # Store sample - tokenization happens in __getitem__ (lazy)
-            self.samples.append((parent_text, msg_i.text, all_features, gold_parent_idx))
+            self.samples.append(
+                (parent_text, msg_i.text, all_features, gold_parent_idx)
+            )
             self.conversation_map.append((conv_idx, i, candidate_indices))
 
         samples_added = len(self.samples) - samples_before
@@ -419,18 +432,19 @@ class IRCDisentanglementDataset(Dataset):
         return len(self.samples)
 
     def __getitem__(self, idx):
+        """Tested: tests/test_data_loader.py (Tests 1-7: structure, labels, counts, features, determinism)"""
         # Get sample data: (parent_text, child_text, features, gold_parent_idx)
         parent_text, child_text, features, gold_parent_idx = self.samples[idx]
-        
+
         # Get conversation and message indices from conversation_map
         conv_idx, msg_i_idx, candidate_indices = self.conversation_map[idx]
         conv = self.conversations[conv_idx]
-        msg_i = conv.messages[msg_i_idx] # child message
+        msg_i = conv.messages[msg_i_idx]  # child message
 
         # candidate_indices is a list of (conv_idx, i, j) tuples
         # Extract just the j indices (candidate message indices)
         all_candidate_indices = [j for (_, _, j) in candidate_indices]
-        
+
         # Get candidate texts
         candidate_texts = [conv.messages[j].text for j in all_candidate_indices]
 
@@ -451,30 +465,32 @@ class IRCDisentanglementDataset(Dataset):
         # The model expects input_ids of shape [C, seq_len] where C is number of candidates
         input_ids_list = []
         attention_mask_list = []
-        
+
         # Add all candidate sequences
         for cand_enc in candidate_encodings:
-            input_ids_list.append(cand_enc["input_ids"].squeeze(0)) # Remove batch dim
+            input_ids_list.append(cand_enc["input_ids"].squeeze(0))  # Remove batch dim
             attention_mask_list.append(cand_enc["attention_mask"].squeeze(0))
-        
+
         # Stack all candidate inputs: [C, seq_len]
         all_candidate_input_ids = torch.stack(input_ids_list)
         all_candidate_attention_mask = torch.stack(attention_mask_list)
 
         # Token type IDs might not be necessary for DeBERTa, but include if available
         if "token_type_ids" in candidate_encodings[0]:
-            all_candidate_token_type_ids = torch.stack([enc["token_type_ids"].squeeze(0) for enc in candidate_encodings])
+            all_candidate_token_type_ids = torch.stack(
+                [enc["token_type_ids"].squeeze(0) for enc in candidate_encodings]
+            )
         else:
             all_candidate_token_type_ids = None
 
         # features is already a 2D tensor [C, 5] from _create_samples_for_conversation
         # gold_parent_idx is the index of the correct candidate in the candidate_indices list
-        
+
         item = {
-            "input_ids": all_candidate_input_ids,        # [C, seq_len]
-            "attention_mask": all_candidate_attention_mask, # [C, seq_len]
+            "input_ids": all_candidate_input_ids,  # [C, seq_len]
+            "attention_mask": all_candidate_attention_mask,  # [C, seq_len]
             "features": features,  # Already a torch tensor [C, 5]
-            "labels": torch.tensor(gold_parent_idx, dtype=torch.long)
+            "labels": torch.tensor(gold_parent_idx, dtype=torch.long),
         }
 
         if all_candidate_token_type_ids is not None:
