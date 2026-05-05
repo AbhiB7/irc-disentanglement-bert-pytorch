@@ -505,6 +505,7 @@ def load_dataset_files(
     """
     Load file paths for a given split.
     Returns: (ascii_files, annotation_files)
+    Tested: tests/test_load_conversation.py (Test 5: train, dev, invalid split)
     """
     import glob
 

@@ -14,7 +14,7 @@ import logging
 logging.basicConfig(level=logging.WARNING)
 logging.getLogger('data_loader').setLevel(logging.WARNING)
 
-from data_loader import load_conversation
+from data_loader import load_conversation, load_dataset_files
 
 
 def create_temp_file(content, suffix):
@@ -201,6 +201,57 @@ def test_load_self_link():
     return all_pass
 
 
+def test_load_dataset_files_tiny():
+    """Test load_dataset_files finds files in data/tiny/ correctly."""
+    print("\n" + "=" * 60)
+    print("TEST: load_dataset_files — tiny dataset")
+    print("=" * 60)
+
+    data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+    tiny_dir = os.path.join(data_dir, 'tiny')
+
+    if not os.path.exists(tiny_dir):
+        print(f"  SKIP: {tiny_dir} not found (run create_tiny.py first)")
+        print(f"\n>>> SKIPPED <<<")
+        return True
+
+    all_pass = True
+
+    # Test train split — use tiny dir to keep it fast
+    ascii_files, ann_files = load_dataset_files(tiny_dir, "train")
+    passed = len(ascii_files) == 1 and len(ann_files) == 1
+    print(f"  Train split: PASS={passed} (found {len(ascii_files)} ascii + {len(ann_files)} ann files)")
+    if not passed:
+        print(f"    ascii_files={ascii_files}")
+    all_pass = all_pass and passed
+
+    # Check that files actually exist on disk
+    for ascii_f, ann_f in zip(ascii_files, ann_files):
+        if not os.path.exists(ascii_f):
+            print(f"    FAIL: ascii file missing: {ascii_f}")
+            all_pass = False
+        if not os.path.exists(ann_f):
+            print(f"    FAIL: ann file missing: {ann_f}")
+            all_pass = False
+
+    # Test dev split — tiny has a dev file too
+    ascii_dev, ann_dev = load_dataset_files(tiny_dir, "dev")
+    passed = len(ascii_dev) == 1 and len(ann_dev) == 1
+    print(f"  Dev split:   PASS={passed} (found {len(ascii_dev)} ascii + {len(ann_dev)} ann files)")
+    all_pass = all_pass and passed
+
+    # Test invalid split raises error
+    try:
+        load_dataset_files(tiny_dir, "invalid_split")
+        print(f"  Invalid split: FAIL (should have raised ValueError)")
+        all_pass = False
+    except ValueError:
+        print(f"  Invalid split: PASS (raised ValueError as expected)")
+
+    print(f"\n>>> {'ALL PASSED' if all_pass else 'SOME FAILED'} <<<")
+    return all_pass
+
+
 def test_load_real_tiny_file():
     """Test loading an actual file from data/tiny/ to catch real-world edge cases."""
     print("\n" + "=" * 60)
@@ -265,7 +316,8 @@ if __name__ == "__main__":
     t2 = test_load_system_messages()
     t3 = test_load_no_annotation()
     t4 = test_load_self_link()
-    t5 = test_load_real_tiny_file()
+    t5 = test_load_dataset_files_tiny()
+    t6 = test_load_real_tiny_file()
 
     print("\n" + "=" * 60)
     print("SUMMARY")
@@ -274,5 +326,6 @@ if __name__ == "__main__":
     print(f"Test 2 (System Messages):    {'PASS' if t2 else 'FAIL'}")
     print(f"Test 3 (Empty Annotation):   {'PASS' if t3 else 'FAIL'}")
     print(f"Test 4 (Self-link):          {'PASS' if t4 else 'FAIL'}")
-    print(f"Test 5 (Real tiny file):     {'PASS' if t5 else 'FAIL'}")
-    print(f"\nOverall: {'ALL PASSED' if all([t1, t2, t3, t4, t5]) else 'SOME FAILED'}")
+    print(f"Test 5 (load_dataset_files): {'PASS' if t5 else 'FAIL'}")
+    print(f"Test 6 (Real tiny file):     {'PASS' if t6 else 'FAIL'}")
+    print(f"\nOverall: {'ALL PASSED' if all([t1, t2, t3, t4, t5, t6]) else 'SOME FAILED'}")
