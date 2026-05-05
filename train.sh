@@ -32,7 +32,7 @@ python src/train.py \
     --learning-rate 5e-5 \
     --max-length 128 \
     --max-dist 30 \
-    --warmup-steps 1000 \
+    --warmup-ratio 0.1 \
     --patience 3 \
     --eval-every 1 \
     --save-every 1 \

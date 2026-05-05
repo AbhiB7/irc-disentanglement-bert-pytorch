@@ -1,3 +1,40 @@
+## Hyperparameter Defaults (with Literature Sources)
+
+### `--model-name`: `microsoft/deberta-v3-base`
+ROCLING 2025 (Lam & Yang): Evaluated 6 transformer models for IRC disentanglement. DeBERTa-v3 (He et al., 2021) achieved SOTA performance. Alternatives: BERT-base (Devlin et al., 2019), RoBERTa (Liu et al., 2019).
+
+### `--max-length`: 128
+Devlin et al. (2019): BERT uses 128 tokens for 90% of pretraining, 512 for remaining 10%. IRC messages are short (<50 tokens typically). 128 captures >95% without wasted padding.
+
+### `--max-dist`: 50
+ROCLING 2025 (Lam & Yang): StructBERT uses kh=50. ALT 2021 (Zhu et al.): kc=60 past utterances as candidates. Trade-off: larger values increase recall but also memory/noise.
+
+### `--batch-size`: 64
+ALT 2021 (Zhu et al.): BERT+MF uses batch-size=64 for IRC disentanglement. Devlin et al. (2019): 32 for GLUE tasks. 64 is feasible on 12GB GPUs (RTX 5070 verified ~7GB VRAM usage).
+
+### `--learning-rate`: 5e-5
+Devlin et al. (2019): recommends 2e-5 to 5e-5 for fine-tuning. ALT 2021: uses Adamax with 5e-5. Bi-CL (Huang et al., 2024): uses Adam with 5e-5.
+
+### `--epochs`: 3
+Devlin et al. (2019): 3 epochs for all GLUE tasks. General practice: 3-5 for classification fine-tuning. More epochs risk overfitting.
+
+### `--warmup-ratio`: 0.1 (10%)
+Standard practice from BERT paper and HuggingFace defaults. Linear warmup over 10% of total steps prevents early training instability.
+
+### `--dropout`: 0.1
+Devlin et al. (2019): dropout=0.1 on classification head. Confirmed by ACL 2025 SemEval and Stanford CS224n 2024 projects. Increase for small datasets.
+
+### `--patience`: 3
+Standard early stopping hyperparameter. If validation F1 doesn't improve for 3 consecutive epochs, stop training to prevent overfitting.
+
+## Bugs Fixed (2026-05-05)
+
+### 1. `num_features=4` in train.py (was `main()`)
+The model was being created with `num_features=4` in `main()` (line 753) while the data loader output 5 features. This caused a shape mismatch at `combined = torch.cat([cls_embedding, expanded_features], dim=-1)` — the model expected a concatenated vector of size 772 (768+4) but received size 773 (768+5) from the data loader. Fixed to `num_features=5`.
+
+### 2. `warmup-steps=100` (hardcoded) replaced with `--warmup-ratio 0.1`
+The original `--warmup-steps 100` was a fixed integer that should scale with dataset size. Standard practice is 10% of total training steps (BERT paper; HuggingFace default). Changed to `--warmup-ratio 0.1` so it scales automatically: e.g., for ~270K total steps (full data, batch=64, 3 epochs) → 27K warmup steps instead of 100.
+
 ## Dropout = 0.1
 
 Standard for BERT classification heads. Devlin et al. (2019) original BERT paper uses dropout=0.1 on the classification head. Confirmed in practice: ACL 2025 SemEval paper (dropout=0.1 for BERT multi-label classification), Stanford CS224n 2024 projects (hidden dropout probability = 0.1), and common BERT fine-tuning guides (mbrenndoerfer.com: "dropout (0.1): Applied in the classifier head. Increase for small datasets to reduce overfitting.").

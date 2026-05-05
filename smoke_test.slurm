@@ -47,9 +47,8 @@ python src/train.py \
     --learning-rate 5e-5 \
     --max-length 128 \
     --max-dist 5 \
-    --warmup-steps 10 \
+    --warmup-ratio 0.1 \
     --patience 0 \
-    --threshold 0.3 \
     --eval-every 1 \
     --save-every 1 \
     --test-end 500 \

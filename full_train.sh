@@ -20,8 +20,7 @@ mkdir -p checkpoints/vast_overnight
 # --patience 3: Early stopping to save time if model converges early.
 # --max-dist 30: User-specified distance window (Reduced from 101).
 # --learning-rate 5e-5: Stable rate for BERT fine-tuning.
-# --warmup-steps 1000: Increased for the larger pair count (approx 6.6M pairs/epoch).
-# --threshold 0.3: Optimized for recall on imbalanced links
+# --warmup-ratio 0.1: 10% of total steps for LR warmup (scales automatically)
 
 python src/train.py \
     --mode train \
@@ -32,7 +31,7 @@ python src/train.py \
     --learning-rate 5e-5 \
     --max-length 128 \
     --max-dist 30 \
-    --warmup-steps 1000 \
+    --warmup-ratio 0.1 \
     --patience 3 \
     --eval-every 1 \
     --save-every 1 \

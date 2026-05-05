@@ -41,6 +41,14 @@ This file tracks the dynamic working state, recent completions, and immediate ne
   - **Evaluation**: [`src/evaluate.py`](src/evaluate.py) - Removed `--threshold` argument, updated defaults to DeBERTa-v3-base and max_dist=50.
   - **Status**: ✅ Ready for training
 
+## Bug Fixes (2026-05-05)
+
+### 1. `num_features=4` bug in `train.py:main()`
+Model was created with `num_features=4` while data loader outputs 5 features. This caused a shape mismatch (772 vs 773) at the `torch.cat` in `forward()`. Fixed to `num_features=5`.
+
+### 2. Hardcoded `warmup-steps=100` replaced with `--warmup-ratio 0.1`
+Warmup should scale with dataset size (standard practice: 10% of total steps). Old fixed value of 100 steps was negligible for full training (~0.04% of 270K steps). Now computes `int(total_steps * 0.1)` automatically.
+
 ## Recent Completions (2026-05-05)
 - **Test Coverage of `src/data_loader.py`**: Comprehensive test suite covering every function and class:
   - **`tests/test_create_samples.py`** (5 tests): `_create_samples_for_conversation`, `compute_features`
