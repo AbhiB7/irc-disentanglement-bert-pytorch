@@ -46,7 +46,7 @@ module load cuda 2>/dev/null || echo "  (CUDA module already loaded or unavailab
 
 # Install dependencies (idempotent: pip skips already-satisfied packages)
 echo "Installing PyTorch >= 2.6 with CUDA 12.4 (required for CVE-2025-32434 fix)..."
-pip install torch --index-url https://download.pytorch.org/whl/cu124
+pip install --upgrade torch --index-url https://download.pytorch.org/whl/cu124
 
 echo "Installing other dependencies..."
 pip install transformers datasets sentence-transformers accelerate
