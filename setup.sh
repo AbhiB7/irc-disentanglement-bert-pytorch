@@ -10,12 +10,12 @@
 #   - module load: idempotent by design
 
 # ---- Scratch storage paths (belt-and-braces for non-interactive jobs) ----
-export CONDA_ENVS_PATH="${CONDA_ENVS_PATH:-/scratch/user/\$USER/conda-envs}"
-export CONDA_PKGS_DIRS="${CONDA_PKGS_DIRS:-/scratch/user/\$USER/conda-pkgs}"
-export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/scratch/user/\$USER/pip-cache}"
-export HF_HOME="${HF_HOME:-/scratch/user/\$USER/huggingface}"
-export SINGULARITY_CACHEDIR="${SINGULARITY_CACHEDIR:-/scratch/user/\$USER}"
-export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-/scratch/user/\$USER}"
+export CONDA_ENVS_PATH="${CONDA_ENVS_PATH:-/scratch/user/$USER/conda-envs}"
+export CONDA_PKGS_DIRS="${CONDA_PKGS_DIRS:-/scratch/user/$USER/conda-pkgs}"
+export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/scratch/user/$USER/pip-cache}"
+export HF_HOME="${HF_HOME:-/scratch/user/$USER/huggingface}"
+export SINGULARITY_CACHEDIR="${SINGULARITY_CACHEDIR:-/scratch/user/$USER}"
+export SINGULARITY_TMPDIR="${SINGULARITY_TMPDIR:-/scratch/user/$USER}"
 
 # Create scratch directories if they don't exist
 mkdir -p \

@@ -25,16 +25,8 @@ export CHECKPOINT_DIR=$RUN_ROOT/checkpoints
 # Create all required directories
 mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 
-# Run setup
+# Run setup (handles conda env creation/activation + dependency installation)
 bash setup.sh
-
-# Load Conda module and activate environment
-module load miniconda3/23.9.0-0
-
-# Source Conda shell init using environment variable path
-source "$EBROOTMINICONDA3/etc/profile.d/conda.sh"
-
-conda activate ircbert
 
 # Run the training Python script with reduced smoke test parameters
 #
