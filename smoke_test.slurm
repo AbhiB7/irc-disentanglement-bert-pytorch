@@ -25,8 +25,9 @@ export CHECKPOINT_DIR=$RUN_ROOT/checkpoints
 # Create all required directories
 mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 
-# Run setup (handles conda env creation/activation + dependency installation)
-bash setup.sh
+# Run setup (handles conda env creation + activation + dependency installation)
+# Use 'source' so conda activation and env vars persist in the current shell
+source setup.sh
 
 # Run the training Python script with reduced smoke test parameters
 #

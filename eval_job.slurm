@@ -32,7 +32,9 @@ echo "=========================================="
 echo "Checkpoint: $CHECKPOINT"
 echo ""
 
-bash setup.sh
+# Run setup (handles conda env creation + activation + dependency installation)
+# Use 'source' so conda activation and env vars persist in the current shell
+source setup.sh
 
 python src/evaluate.py --checkpoint "$CHECKPOINT"
 

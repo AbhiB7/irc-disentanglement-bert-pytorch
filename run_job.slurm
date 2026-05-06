@@ -28,8 +28,9 @@ export CHECKPOINT_DIR=$RUN_ROOT/checkpoints
 # Create directories (including repo-local logs for slurm output/error files)
 mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 
-# Run setup (idempotent)
-bash setup.sh
+# Run setup (handles conda env creation + activation + dependency installation)
+# Use 'source' so conda activation and env vars persist in the current shell
+source setup.sh
 
 # Run training
 bash train.sh
