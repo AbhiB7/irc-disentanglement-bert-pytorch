@@ -40,12 +40,13 @@ conda activate ircbert
 
 # ---- CUDA-aware PyTorch ----
 # Bunya requires CUDA module loaded on compute node before installing GPU packages
+# PyTorch >= 2.6 required for CVE-2025-32434 fix (torch.load weights_only enforcement)
 echo "Loading CUDA module..."
 module load cuda 2>/dev/null || echo "  (CUDA module already loaded or unavailable — continuing)"
 
 # Install dependencies (idempotent: pip skips already-satisfied packages)
-echo "Installing PyTorch with CUDA 12.1..."
-pip install torch --index-url https://download.pytorch.org/whl/cu121
+echo "Installing PyTorch >= 2.6 with CUDA 12.4 (required for CVE-2025-32434 fix)..."
+pip install torch --index-url https://download.pytorch.org/whl/cu124
 
 echo "Installing other dependencies..."
 pip install transformers datasets sentence-transformers accelerate
