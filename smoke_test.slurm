@@ -47,7 +47,7 @@ python src/train.py \
     --epochs 1 \
     --learning-rate 5e-5 \
     --max-length 128 \
-    --max-dist 20 \
+    --max-dist 50 \
     --warmup-ratio 0.1 \
     --patience 0 \
     --eval-every 1 \
