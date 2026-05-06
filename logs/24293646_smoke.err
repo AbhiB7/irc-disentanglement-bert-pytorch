@@ -1,0 +1,30 @@
+mkdir: cannot create directory ‘/scratch/user/$USER’: Permission denied
+mkdir: cannot create directory ‘/scratch/user/$USER’: Permission denied
+mkdir: cannot create directory ‘/scratch/user/$USER’: Permission denied
+mkdir: cannot create directory ‘/scratch/user/$USER’: Permission denied
+
+
+==> WARNING: A newer version of conda exists. <==
+  current version: 23.9.0
+  latest version: 26.3.2
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+Or to minimize the number of packages updated during conda update use
+
+     conda install conda=26.3.2
+
+
+WARNING: The directory '/scratch/user/$USER/pip-cache' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+WARNING: The directory '/scratch/user/$USER/pip-cache' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+WARNING: The directory '/scratch/user/$USER/pip-cache' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+WARNING: The directory '/scratch/user/$USER/pip-cache' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+WARNING: huggingface-hub 1.13.0 does not provide the extra 'cli'
+WARNING: The directory '/scratch/user/$USER/pip-cache' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+
+EnvironmentNameNotFound: Could not find conda environment: ircbert
+You can list all discoverable environments with `conda info --envs`.
+
+
