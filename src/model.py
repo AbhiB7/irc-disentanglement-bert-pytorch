@@ -126,9 +126,10 @@ class CrossEncoderWithFeatures(nn.Module):
         # Apply dropout
         cls_embedding = self.dropout(cls_embedding)
         
-        # Reshape features to match cls_embedding: [batch_size, num_features] -> [batch_size, C, num_features] -> [batch_size * C, num_features]
+        # Reshape features to match cls_embedding: [batch_size, C, num_features] -> [batch_size * C, num_features]
         if features is not None:
-            expanded_features = features.unsqueeze(1).expand(-1, num_candidates, -1).reshape(-1, self.num_features)
+            # features from collate_fn is [batch_size, C, num_features] (per-candidate)
+            expanded_features = features.reshape(-1, self.num_features)
             combined = torch.cat([cls_embedding, expanded_features], dim=-1)
         else:
             zero_features = torch.zeros(

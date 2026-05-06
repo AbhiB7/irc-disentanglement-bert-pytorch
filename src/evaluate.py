@@ -109,7 +109,7 @@ def load_checkpoint_for_eval(checkpoint_path, device):
     
     model = create_model(
         model_name="microsoft/deberta-v3-base",
-        num_features=4,
+        num_features=5,
         dropout=0.1,
     )
     model.load_state_dict(checkpoint["model_state_dict"])

@@ -82,7 +82,7 @@ def parse_args():
         type=str,
         default="microsoft/deberta-v3-base",
         help="Pretrained BERT model. Default: DeBERTa-v3-base (ROCLING 2025 SOTA for IRC disentanglement). "
-             "Alternatives: bert-base-uncased (Devlin et al., 2019), roberta-base (Liu et al., 2019).",
+        "Alternatives: bert-base-uncased (Devlin et al., 2019), roberta-base (Liu et al., 2019).",
     )
 
     parser.add_argument(
@@ -90,7 +90,7 @@ def parse_args():
         type=int,
         default=128,
         help="Maximum token length per message (Devlin et al., 2019: BERT uses 128 for 90%% of pretraining). "
-             "IRC messages are short; 128 captures >95%% of utterances. Increase to 256 or 512 for longer texts.",
+        "IRC messages are short; 128 captures >95%% of utterances. Increase to 256 or 512 for longer texts.",
     )
 
     parser.add_argument(
@@ -98,8 +98,8 @@ def parse_args():
         type=int,
         default=50,
         help="Maximum window of previous messages to consider as candidates. "
-             "ROCKLING 2025 (Lam & Yang): StructBERT uses kh=50. ALT 2021: kc=60. "
-             "Larger values increase recall but also memory usage and noise.",
+        "ROCKLING 2025 (Lam & Yang): StructBERT uses kh=50. ALT 2021: kc=60. "
+        "Larger values increase recall but also memory usage and noise.",
     )
 
     # Training hyperparameters
@@ -108,8 +108,8 @@ def parse_args():
         type=int,
         default=64,
         help="Samples per batch. 64 matches ALT 2021 (BERT+MF for IRC disentanglement). "
-             "Reduce (e.g., 16-32) if GPU runs out of memory. "
-             "BERT original: 32 for GLUE tasks (Devlin et al., 2019).",
+        "Reduce (e.g., 16-32) if GPU runs out of memory. "
+        "BERT original: 32 for GLUE tasks (Devlin et al., 2019).",
     )
 
     parser.add_argument(
@@ -117,9 +117,9 @@ def parse_args():
         type=float,
         default=5e-5,
         help="Peak learning rate for AdamW optimizer. "
-             "BERT paper reports 2e-5 to 5e-5 for fine-tuning (Devlin et al., 2019). "
-             "IRC disentanglement: ALT 2021 and Bi-CL (Huang et al., 2024) both use 5e-5. "
-             "Lower (2e-5) if fine-tuning on very small datasets.",
+        "BERT paper reports 2e-5 to 5e-5 for fine-tuning (Devlin et al., 2019). "
+        "IRC disentanglement: ALT 2021 and Bi-CL (Huang et al., 2024) both use 5e-5. "
+        "Lower (2e-5) if fine-tuning on very small datasets.",
     )
 
     parser.add_argument(
@@ -127,8 +127,8 @@ def parse_args():
         type=int,
         default=3,
         help="Number of training epochs. BERT paper uses 3 for all GLUE tasks (Devlin et al., 2019). "
-             "General practice: 3-5 epochs for fine-tuning classification. "
-             "More epochs risk overfitting; early stopping via --patience is recommended.",
+        "General practice: 3-5 epochs for fine-tuning classification. "
+        "More epochs risk overfitting; early stopping via --patience is recommended.",
     )
 
     parser.add_argument(
@@ -136,8 +136,8 @@ def parse_args():
         type=float,
         default=0.1,
         help="Fraction of total training steps used for linear LR warmup. "
-             "Standard practice: 10%% of total steps (Devlin et al., 2019; HuggingFace default). "
-             "E.g., 270K total steps → 27K warmup steps. Scales automatically with dataset size.",
+        "Standard practice: 10%% of total steps (Devlin et al., 2019; HuggingFace default). "
+        "E.g., 270K total steps → 27K warmup steps. Scales automatically with dataset size.",
     )
 
     parser.add_argument(
@@ -145,9 +145,9 @@ def parse_args():
         type=float,
         default=0.1,
         help="Dropout probability applied to [CLS] embedding before the classifier. "
-             "Dropout=0.1 is standard for BERT classification heads (Devlin et al., 2019). "
-             "Confirmed by ACL 2025 SemEval and Stanford CS224n 2024 projects. "
-             "Increase (0.2-0.3) for small datasets to reduce overfitting.",
+        "Dropout=0.1 is standard for BERT classification heads (Devlin et al., 2019). "
+        "Confirmed by ACL 2025 SemEval and Stanford CS224n 2024 projects. "
+        "Increase (0.2-0.3) for small datasets to reduce overfitting.",
     )
 
     parser.add_argument(
@@ -227,21 +227,34 @@ def parse_args():
 
 
 def collate_fn(batch):
-    """Custom collate function to handle variable-sized candidate lists per item"""
-    # batch is a list of dictionaries from __getitem__
-    # Each item has: input_ids [C, seq_len], attention_mask [C, seq_len], features [num_features], labels [1]
+    """
+    Custom collate function to handle variable-sized candidate lists per item.
+
+    Tested: tests/test_train_pipeline.py::TestCollateFn (6 tests)
+
+    Problem: Each sample has a different number of candidates (C varies).
+    PyTorch requires rectangular batches.
+
+    Solution: Find max C in the batch, pad all samples to that size with zeros.
+    Zero-padded candidates are then masked out in model.forward() via attention_mask.
+
+    Input batch item:  input_ids [C_i, seq_len], features [C_i, num_features], labels [1]
+    Output batch dict:  input_ids [batch, max_C, seq_len], features [batch, max_C, num_features], labels [batch]
+    """
 
     # Find the maximum number of candidates in this batch
     max_candidates = max(item["input_ids"].shape[0] for item in batch)
     seq_len = batch[0]["input_ids"].shape[1]
-    num_features = batch[0]["features"].shape[0]
+    num_features = batch[0]["features"].shape[1]  # features is [C, num_features]
 
     # Initialize padded tensors
     batch_input_ids = torch.zeros(len(batch), max_candidates, seq_len, dtype=torch.long)
     batch_attention_mask = torch.zeros(
         len(batch), max_candidates, seq_len, dtype=torch.long
     )
-    batch_features = torch.zeros(len(batch), num_features, dtype=torch.float32)
+    batch_features = torch.zeros(
+        len(batch), max_candidates, num_features, dtype=torch.float32
+    )
     batch_labels = torch.zeros(len(batch), dtype=torch.long)
 
     # Fill batch
@@ -249,14 +262,14 @@ def collate_fn(batch):
         # Get current item's data
         input_ids = item["input_ids"]  # [C_curr, seq_len]
         attention_mask = item["attention_mask"]  # [C_curr, seq_len]
-        features = item["features"]  # [num_features]
+        features = item["features"]  # [C_curr, num_features]
         labels = item["labels"]  # [scalar]
 
         # Copy data to batch tensors (padding with 0s for extra candidates)
         actual_candidates = input_ids.shape[0]
         batch_input_ids[i, :actual_candidates] = input_ids
         batch_attention_mask[i, :actual_candidates] = attention_mask
-        batch_features[i] = features
+        batch_features[i, :actual_candidates] = features
         batch_labels[i] = labels
 
     return {
@@ -268,7 +281,18 @@ def collate_fn(batch):
 
 
 def create_dataloaders(args, tokenizer):
-    """Create train and dev dataloaders"""
+    """
+    Create train and dev dataloaders.
+
+    Tested: tests/test_train_pipeline.py::TestCreateDataloaders (3 tests)
+
+    1. Calls load_dataset_files() to find .txt/.ann file pairs
+    2. Creates IRCDisentanglementDataset for each split (lazy tokenization, on-the-fly in __getitem__)
+    3. Wraps in DataLoader with collate_fn for variable-C candidate padding
+
+    Returns:
+        (train_loader, dev_loader)  — either may be None depending on mode
+    """
 
     if args.mode == "dev-only":
         # Use only dev set
@@ -408,7 +432,7 @@ def evaluate(model, dataloader, device, fp16=False):
                     token_type_ids = token_type_ids.to(device)
 
                 # Forward pass
-                with torch.cuda.amp.autocast(enabled=fp16):
+                with torch.amp.autocast("cuda", enabled=fp16):
                     outputs = model(
                         input_ids=input_ids,
                         attention_mask=attention_mask,
@@ -421,10 +445,10 @@ def evaluate(model, dataloader, device, fp16=False):
                 probs = outputs["probs"]
                 predictions = torch.argmax(probs, dim=-1)
 
-                # Store results
-                all_predictions.extend(predictions.cpu().numpy())
-                all_labels.extend(labels.cpu().numpy())
-                all_probs.extend(probs.cpu().numpy())
+                # Store results (keep as tensors, concat at the end)
+                all_predictions.append(predictions.cpu())
+                all_labels.append(labels.cpu())
+                all_probs.append(probs.cpu())
 
                 # Accumulate loss
                 if "loss" in outputs:
@@ -454,25 +478,55 @@ def evaluate(model, dataloader, device, fp16=False):
                     f"  Evaluation progress: {batch_idx + 1}/{len(dataloader)} batches ({batches_per_sec:.2f} batches/s)"
                 )
 
-    # Calculate metrics
-    all_predictions = torch.tensor(all_predictions)
-    all_labels = torch.tensor(all_labels)
-    all_probs = torch.tensor(all_probs)
+    # Calculate metrics (concatenate accumulated tensors)
+    all_predictions = torch.cat(all_predictions) if all_predictions else torch.tensor([], dtype=torch.long)
+    all_labels = torch.cat(all_labels) if all_labels else torch.tensor([], dtype=torch.long)
+    all_probs = torch.cat(all_probs) if all_probs else torch.tensor([])
 
-    # Multiclass metrics: accuracy is the primary metric
-    accuracy = (all_predictions == all_labels).float().mean().item()
+    # Multiclass metrics
+    accuracy = (all_predictions == all_labels).float().mean().item() if len(all_predictions) > 0 else 0.0
+
+    # Macro-averaged precision, recall, F1 across all candidate classes
+    num_classes = 0
+    precision = 0.0
+    recall = 0.0
+    f1 = 0.0
+
+    if len(all_predictions) > 0:
+        num_classes = max(all_labels.max().item(), all_predictions.max().item()) + 1
+        per_class_precision = []
+        per_class_recall = []
+        per_class_f1 = []
+
+        for c in range(num_classes):
+            tp = ((all_predictions == c) & (all_labels == c)).sum().item()
+            fp = ((all_predictions == c) & (all_labels != c)).sum().item()
+            fn = ((all_predictions != c) & (all_labels == c)).sum().item()
+
+            precision_c = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            recall_c = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            f1_c = 2 * precision_c * recall_c / (precision_c + recall_c) if (precision_c + recall_c) > 0 else 0.0
+
+            per_class_precision.append(precision_c)
+            per_class_recall.append(recall_c)
+            per_class_f1.append(f1_c)
+
+        precision = sum(per_class_precision) / num_classes
+        recall = sum(per_class_recall) / num_classes
+        f1 = sum(per_class_f1) / num_classes
 
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
 
     elapsed = (datetime.now() - start_time).total_seconds()
     logger.info(f"Evaluation complete in {elapsed:.2f}s")
-    logger.info(
-        f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}"
-    )
+    logger.info(f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}")
 
     return {
         "loss": avg_loss,
         "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
         "predictions": all_predictions,
         "labels": all_labels,
         "probs": all_probs,
@@ -491,7 +545,7 @@ def train_epoch(
     total_loss = 0.0
     num_batches = 0
 
-    progress_bar = tqdm(train_loader, desc=f"Epoch {epoch}", leave=True)
+    progress_bar = tqdm(train_loader, desc=f"Epoch {epoch}", leave=True, disable=True)
 
     for batch_idx, batch in enumerate(progress_bar):
         try:
@@ -507,7 +561,7 @@ def train_epoch(
                 token_type_ids = token_type_ids.to(device)
 
             # Forward pass
-            with torch.cuda.amp.autocast(enabled=fp16):
+            with torch.amp.autocast("cuda", enabled=fp16):
                 outputs = model(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
@@ -816,7 +870,7 @@ def main():
         scheduler = None
 
     # Mixed precision scaler
-    scaler = torch.cuda.amp.GradScaler(enabled=args.fp16) if args.fp16 else None
+    scaler = torch.amp.GradScaler("cuda", enabled=args.fp16) if args.fp16 else None
 
     # Resume from checkpoint if specified
     start_epoch = 1
@@ -858,19 +912,15 @@ def main():
             # Evaluate
             if dev_loader and epoch % args.eval_every == 0:
                 logger.info("Evaluating on dev set...")
-                metrics = evaluate(
-                    model, dev_loader, device, fp16=args.fp16
-                )
+                metrics = evaluate(model, dev_loader, device, fp16=args.fp16)
 
                 logger.info(f"Dev Loss: {metrics['loss']:.4f}")
                 logger.info(f"Dev Accuracy: {metrics['accuracy']:.4f}")
-                logger.info(f"Dev Precision: {metrics['precision']:.4f}")
-                logger.info(f"Dev Recall: {metrics['recall']:.4f}")
-                logger.info(f"Dev F1: {metrics['f1']:.4f}")
 
-                # Track best model
-                if metrics["f1"] > best_f1:
-                    best_f1 = metrics["f1"]
+                # Track best model (accuracy is the multiclass metric)
+                current_score = metrics.get("accuracy", 0.0)
+                if current_score > best_f1:
+                    best_f1 = current_score
                     best_epoch = epoch
                     no_improve_count = 0
                     logger.info(f"  New best F1! Saving best model...")
@@ -914,9 +964,7 @@ def main():
         logger.info("=" * 80)
 
         if dev_loader:
-            metrics = evaluate(
-                model, dev_loader, device, fp16=args.fp16
-            )
+            metrics = evaluate(model, dev_loader, device, fp16=args.fp16)
 
             logger.info("Test Results:")
             logger.info(f"Loss: {metrics['loss']:.4f}")

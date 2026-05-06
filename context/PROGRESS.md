@@ -70,6 +70,12 @@ Warmup should scale with dataset size (standard practice: 10% of total steps). O
   | `__getitem__` | ✅ Directly | `test_data_loader.py` |
   | `load_dataset_files()` | ✅ Directly | `test_load_conversation.py` |
 
+- **Test Coverage of `src/train.py` pipeline functions**: collate_fn + create_dataloaders verified:
+  - **`tests/test_train_pipeline.py`** (9 tests):
+    - `TestCollateFn` (6): Padding, zero-fill, feature/label preservation, dtype — catches variable-C batch mismatch
+    - `TestCreateDataloaders` (3): real data/ files → train/dev loaders created, batch shapes match model.forward()
+  - **Bug caught**: collate_fn expected features [batch, 5] but data loader returns per-candidate [batch, C, 5]. Fixed collate_fn and model.forward() to use [batch, C, 5] consistently.
+
 - **Test Coverage of `src/model.py`**: Complete multiclass test suite with 23 tests:
   - **`tests/test_model.py`** (23 tests across 6 classes):
     - Init (7): Default, DeBERTa-v3-base, custom params, device, freeze_bert, params count, combined_size

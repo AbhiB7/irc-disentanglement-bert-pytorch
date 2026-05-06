@@ -40,7 +40,7 @@ class TestMulticlassModelInit:
         seq_len = 16  # Small for speed
         input_ids = torch.randint(0, 1000, (batch_size, C, seq_len))
         attention_mask = torch.ones((batch_size, C, seq_len), dtype=torch.long)
-        features = torch.randn((batch_size, 5))
+        features = torch.randn((batch_size, C, 5))
         labels = torch.zeros(batch_size, dtype=torch.long)
 
         outputs = model(
@@ -107,7 +107,7 @@ class TestMulticlassForward:
 
         self.input_ids = torch.randint(0, 1000, (self.batch_size, self.num_candidates, self.seq_len))
         self.attention_mask = torch.ones((self.batch_size, self.num_candidates, self.seq_len), dtype=torch.long)
-        self.features = torch.randn((self.batch_size, 5))
+        self.features = torch.randn((self.batch_size, self.num_candidates, 5))
         self.labels = torch.tensor([2, 4], dtype=torch.long)
 
     def test_forward_with_labels(self):
@@ -200,7 +200,7 @@ class TestMulticlassForward:
         for C in [1, 3, 10]:
             input_ids = torch.randint(0, 1000, (2, C, 32))
             attention_mask = torch.ones((2, C, 32), dtype=torch.long)
-            features = torch.randn((2, 5))
+            features = torch.randn((2, C, 5))
             labels = torch.zeros(2, dtype=torch.long)
 
             outputs = self.model(
@@ -231,7 +231,7 @@ class TestMulticlassPrediction:
         self.model = create_model(model_name="bert-base-uncased", num_features=5)
         self.input_ids = torch.randint(0, 1000, (2, 5, 32))
         self.attention_mask = torch.ones((2, 5, 32), dtype=torch.long)
-        self.features = torch.randn((2, 5))
+        self.features = torch.randn((2, 5, 5))
 
     def test_predict_returns_argmax(self):
         """Test predict returns argmax with valid indices"""
@@ -284,7 +284,7 @@ class TestMulticlassArchitecture:
 
         input_ids = torch.randint(0, 1000, (2, 3, 32))
         attention_mask = torch.ones((2, 3, 32), dtype=torch.long)
-        features = torch.randn((2, 5))
+        features = torch.randn((2, 3, 5))
 
         model.eval()
         with torch.no_grad():
@@ -304,7 +304,7 @@ class TestMulticlassLoss:
         self.model = create_model(model_name="bert-base-uncased", num_features=5)
         self.input_ids = torch.randint(0, 1000, (4, 5, 32))
         self.attention_mask = torch.ones((4, 5, 32), dtype=torch.long)
-        self.features = torch.randn((4, 5))
+        self.features = torch.randn((4, 5, 5))
 
     def test_loss_non_negative(self):
         """Test loss is non-negative for random predictions"""
@@ -324,7 +324,7 @@ class TestMulticlassLoss:
         C = 3
         input_ids = torch.randint(0, 1000, (batch_size, C, 32))
         attention_mask = torch.ones((batch_size, C, 32), dtype=torch.long)
-        features = torch.zeros((batch_size, 5))
+        features = torch.zeros((batch_size, C, 5))
         labels = torch.zeros(batch_size, dtype=torch.long)  # always candidate 0
 
         # Get loss with random weights
@@ -356,7 +356,7 @@ class TestMulticlassSmokeTest:
 
         input_ids = torch.randint(0, 1000, (batch_size, num_candidates, seq_len))
         attention_mask = torch.ones((batch_size, num_candidates, seq_len), dtype=torch.long)
-        features = torch.randn((batch_size, 5))
+        features = torch.randn((batch_size, num_candidates, 5))
         labels = torch.tensor([2, 4], dtype=torch.long)
 
         outputs = model(
