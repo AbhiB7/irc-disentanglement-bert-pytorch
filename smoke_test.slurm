@@ -42,7 +42,7 @@ source setup.sh
 python src/train.py \
     --mode train \
     --data-dir data/tiny \
-    --batch-size 4 \
+    --batch-size 2 \
     --num-workers 2 \
     --epochs 1 \
     --learning-rate 5e-5 \
