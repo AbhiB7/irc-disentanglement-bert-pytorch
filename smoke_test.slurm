@@ -36,7 +36,7 @@ source setup.sh
 #                   to fall within window, giving meaningful metrics (> random baseline 0.05)
 #   --test-end 500  Limit to 500 samples total (shared across train+dev). If max_dist is
 #                   increased, this may need to increase too so dev set isn't skipped.
-#   --batch-size 32 Reduced from default 64 for faster iteration on tiny dataset
+#   --batch-size 4  Reduced from default 64 for 20GB MIG (no --fp16 due to PyTorch 2.6 GradScaler regression)
 #   --epochs 1      Single epoch — just verify no OOM/NaN and pipeline runs end-to-end
 #
 python src/train.py \
@@ -44,7 +44,6 @@ python src/train.py \
     --data-dir data/tiny \
     --batch-size 4 \
     --num-workers 2 \
-    --fp16 \
     --epochs 1 \
     --learning-rate 5e-5 \
     --max-length 128 \
