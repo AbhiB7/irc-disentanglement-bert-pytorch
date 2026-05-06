@@ -400,6 +400,11 @@ class IRCDisentanglementDataset(Dataset):
             if self.skip_labels:
                 gold_parent_idx = -1  # Placeholder
 
+            # Skip samples where gold parent is outside the search window
+            # (no valid answer to learn from)
+            if not self.skip_labels and gold_parent_idx < 0:
+                continue
+
             # Compute features for each candidate and store per-candidate features
             per_candidate_features = []
             for candidate_idx, (conv_idx_c, i_c, j_c) in enumerate(candidate_indices):

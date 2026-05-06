@@ -49,6 +49,17 @@ Model was created with `num_features=4` while data loader outputs 5 features. Th
 ### 2. Hardcoded `warmup-steps=100` replaced with `--warmup-ratio 0.1`
 Warmup should scale with dataset size (standard practice: 10% of total steps). Old fixed value of 100 steps was negligible for full training (~0.04% of 270K steps). Now computes `int(total_steps * 0.1)` automatically.
 
+## Bug Fixes (2026-05-06)
+
+### 3. `label=-1` crash in `data_loader.py`
+Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which crashes `CrossEntropyLoss` (target -1 is out of bounds). Fixed by skipping those samples during training with `if not self.skip_labels and gold_parent_idx < 0: continue`.
+
+### 4. Hardcoded model name in `evaluate.py`
+`load_checkpoint_for_eval()` hardcoded `microsoft/deberta-v3-base` instead of reading `model_name` from the checkpoint's saved args. This caused a shape mismatch when loading a `bert-base-uncased` checkpoint. Fixed to read from `checkpoint["args"]`.
+
+### 5. Variable-C probs concatenation in `evaluate()`
+`evaluate()` tried to `torch.cat(all_probs)` but different batches have different numbers of candidates (C varies), so probs tensors have different shapes. Fixed by keeping `all_probs` as a list instead of concatenating.
+
 ## Recent Completions (2026-05-05)
 - **Test Coverage of `src/data_loader.py`**: Comprehensive test suite covering every function and class:
   - **`tests/test_create_samples.py`** (5 tests): `_create_samples_for_conversation`, `compute_features`
@@ -88,6 +99,24 @@ Warmup should scale with dataset size (standard practice: 10% of total steps). O
   - Updated module docstring with architecture description and test annotation
   - All 23 tests run in ~30s on CPU with bert-base-uncased and tiny inputs (seq=32, batch=2, C=5)
 
+## Recent Completions (2026-05-06)
+- **Test Coverage of `src/train.py` remaining functions**: evaluate(), save_checkpoint(), load_checkpoint(), parse_args():
+  - **`tests/test_evaluate.py`** (12 tests): Return keys, metric values (accuracy/precision/recall/F1), loss behavior, edge cases (empty predictions, all same class)
+  - **`tests/test_checkpoint.py`** (14 tests): Save creates file with expected keys, epoch/metrics values, best_model.pt logic (saves when F1 present, skips when absent, overwrites on subsequent saves), load returns correct epoch/metrics, weights match after save/load, load without optimizer/scheduler, nonexistent file raises error, save without scheduler/optimizer, multiple epochs saved separately
+  - **`tests/test_parse_args.py`** (20 tests): All 20 CLI args verified — defaults match expected values, custom values parsed with correct types (int/float/str), boolean flags (--freeze-bert, --fp16), mode choices enforced (invalid mode raises SystemExit), device parsing
+  - **Bug caught and fixed**: `save_checkpoint()` crashed with `AttributeError: 'NoneType' object has no attribute 'state_dict'` when `optimizer=None` (test mode). Fixed with guard: `optimizer.state_dict() if optimizer else None`.
+  - **Total test count**: 99 tests across 5 test files, all passing in ~40s on CPU.
+
+- **Local Smoke Test (train.py + evaluate.py)**: Full pipeline verified end-to-end on `data/tiny` with `bert-base-uncased`:
+  - **Training**: 31 batches, avg_loss=0.8456, 34.91s on CPU
+  - **Evaluation**: 33 batches, Loss=0.4081, **Accuracy=0.8615**, Precision=0.7813, Recall=0.8911, F1=0.8007
+  - **Checkpoints saved**: `checkpoints_tiny/checkpoint_epoch_1.pt` + `checkpoints_tiny/best/checkpoint_epoch_1.pt`
+  - **evaluate.py** loaded checkpoint correctly and produced identical metrics
+  - **Bugs caught and fixed**:
+    1. `data_loader.py`: Messages with gold parent outside `max_dist` got `label=-1`, crashing `CrossEntropyLoss`. Fixed by skipping those samples during training.
+    2. `evaluate.py`: `load_checkpoint_for_eval()` hardcoded `microsoft/deberta-v3-base` instead of reading `model_name` from checkpoint's saved args. Fixed to read from `checkpoint["args"]`.
+  - **Pipeline is ready for Bunya smoke test**.
+
 ## Recent Completions (2026-04-23)
 - **Class Imbalance Fix (pos_weight cap)**: Raised `pos_weight` cap from 300 to 1500 in [`src/model.py:154`](src/model.py:154). With ~746:1 negative-to-positive ratio, the old cap of 300 was insufficient (negatives still dominated loss 746 > 300). New cap of 1500 allows proper loss weighting for the imbalance.
 
@@ -105,7 +134,11 @@ Warmup should scale with dataset size (standard practice: 10% of total steps). O
     - **Fix**: Changed default threshold to 0.5 in `src/train.py:173`, removed explicit --threshold from all scripts
 
 ## Next Steps
-- **Current Priority**: Run training with proper multiclass architecture. Expected F1 improvement from 0.0137 to ~0.10-0.15.
+- **Immediate Priority**: Submit Bunya smoke test with multiclass architecture:
+  1. `sbatch smoke_test.slurm` — 30 min test on A100 with DeBERTa-v3-base, max_dist=50, batch_size=64
+  2. Check logs for: no OOM, no NaN loss, loss decreasing, accuracy > 0.10 (random baseline)
+  3. If smoke test passes → `sbatch train.sh` for full training (3-8 hours)
+  4. After training → `python src/evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt` on dev set
 - **Post-Training**: Evaluate on full dev set using `src/evaluate.py`.
 - **Future: Improve Convergence Detection**: Current early stopping uses patience-based heuristic. Consider implementing more robust convergence detection:
   - **Gradient-based convergence**: Monitor gradient norms approaching zero
@@ -142,11 +175,12 @@ Warmup should scale with dataset size (standard practice: 10% of total steps). O
 - **Context Audit**: Consolidated redundant documentation and separated behavioral rules from project knowledge.
 - **Code Explanation**: Clarified `data_loader.py` entry points and `args` object usage for the user.
 
-## Active Task: Full Dataset Training on Bunya
-- [ ] Submit full training job on Bunya A100 with threshold=0.5
-- [ ] Monitor training progress and logs
-- [ ] Evaluate best checkpoint on dev set
-- [ ] Compare results against Study 1 DyNet baseline (~62.6% F1)
+## Active Task: Bunya Smoke Test (Multiclass Architecture)
+- [ ] Step 1: `sbatch smoke_test.slurm` — 30 min test on A100 with DeBERTa-v3-base, max_dist=50, batch_size=64
+- [ ] Step 2: Check logs for: no OOM, no NaN loss, loss decreasing, accuracy > 0.10
+- [ ] Step 3: If passes → `sbatch train.sh` for full training (3-8 hours)
+- [ ] Step 4: `python src/evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt` on dev set
+- [ ] Step 5: Compare results against Study 1 DyNet baseline (~62.6% F1)
 
 ## Next Steps (Archived/Completed)
 - ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)

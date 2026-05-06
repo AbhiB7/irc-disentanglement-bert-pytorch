@@ -232,7 +232,15 @@ sbatch train.sh
 - `src/model.py`: Defines `CrossEncoderWithFeatures` and model initialization (multiclass output).
 - `src/train.py`: Main entry point for training, evaluation, and checkpointing. Includes **Smart Logging** for imbalanced data diagnostics.
 - `src/evaluate.py`: Evaluation script for multiclass predictions.
-- `tests/`: Comprehensive unit tests for data and model logic.
+- `tests/`: Comprehensive unit tests — 99 tests across 5 files, all passing in ~40s on CPU:
+  - `tests/test_data_loader.py` (8): `__getitem__`, `parse_irc_line`
+  - `tests/test_create_samples.py` (5): `_create_samples_for_conversation`, `compute_features`
+  - `tests/test_load_conversation.py` (6): `load_conversation`, `load_dataset_files`
+  - `tests/test_model.py` (44): Model init, forward, prediction, architecture, loss
+  - `tests/test_train_pipeline.py` (9): `collate_fn`, `create_dataloaders`
+  - `tests/test_evaluate.py` (12): `evaluate()` metrics, loss, edge cases
+  - `tests/test_checkpoint.py` (14): `save_checkpoint`, `load_checkpoint`
+  - `tests/test_parse_args.py` (20): All 20 CLI argument defaults and parsing
 
 ### Setup Instructions
 - **Windows**: Run [`setup.bat`](../setup.bat). Requires Python 3.13.11+.

@@ -481,7 +481,9 @@ def evaluate(model, dataloader, device, fp16=False):
     # Calculate metrics (concatenate accumulated tensors)
     all_predictions = torch.cat(all_predictions) if all_predictions else torch.tensor([], dtype=torch.long)
     all_labels = torch.cat(all_labels) if all_labels else torch.tensor([], dtype=torch.long)
-    all_probs = torch.cat(all_probs) if all_probs else torch.tensor([])
+    # Probs have variable C per batch, can't concatenate directly.
+    # Keep as list for debugging; metrics use predictions/labels only.
+    all_probs = all_probs if all_probs else []
 
     # Multiclass metrics
     accuracy = (all_predictions == all_labels).float().mean().item() if len(all_predictions) > 0 else 0.0
@@ -683,7 +685,7 @@ def save_checkpoint(model, optimizer, scheduler, epoch, args, metrics, checkpoin
     checkpoint = {
         "epoch": epoch,
         "model_state_dict": model.state_dict(),
-        "optimizer_state_dict": optimizer.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict() if optimizer else None,
         "scheduler_state_dict": scheduler.state_dict() if scheduler else None,
         "args": vars(args),
         "metrics": metrics,

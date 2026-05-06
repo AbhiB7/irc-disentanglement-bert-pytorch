@@ -107,16 +107,22 @@ def load_checkpoint_for_eval(checkpoint_path, device):
     logger.info(f"Loading checkpoint from {checkpoint_path}")
     checkpoint = torch.load(checkpoint_path, map_location=device)
     
+    # Read model name from checkpoint args, fall back to DeBERTa-v3-base
+    ckpt_args = checkpoint.get("args", {})
+    model_name = ckpt_args.get("model_name", "microsoft/deberta-v3-base")
+    num_features = ckpt_args.get("num_features", 5)
+    dropout = ckpt_args.get("dropout", 0.1)
+    
     model = create_model(
-        model_name="microsoft/deberta-v3-base",
-        num_features=5,
-        dropout=0.1,
+        model_name=model_name,
+        num_features=num_features,
+        dropout=dropout,
     )
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
     model.eval()
     
-    logger.info(f"Loaded checkpoint from epoch {checkpoint.get('epoch', 'unknown')}")
+    logger.info(f"Loaded checkpoint from epoch {checkpoint.get('epoch', 'unknown')} (model={model_name})")
     return model
 
 
