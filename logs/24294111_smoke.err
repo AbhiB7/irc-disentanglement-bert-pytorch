@@ -1,0 +1,129 @@
+WARNING: huggingface-hub 1.13.0 does not provide the extra 'cli'
+2026-05-06 22:52:32,796 - __main__ - INFO - ================================================================================
+2026-05-06 22:52:32,796 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-05-06 22:52:32,796 - __main__ - INFO - ================================================================================
+2026-05-06 22:52:32,796 - __main__ - INFO - --- System Diagnostics ---
+2026-05-06 22:52:32,796 - __main__ - INFO - OS: Linux 5.14.0-611.24.1.el9_7.x86_64
+2026-05-06 22:52:32,796 - __main__ - INFO - Python: 3.10.20
+2026-05-06 22:52:32,796 - __main__ - INFO - RAM: 2003.11 GB total, 1932.83 GB available
+2026-05-06 22:52:32,813 - __main__ - INFO - GPU 0: NVIDIA A100 80GB PCIe MIG 2g.20gb
+2026-05-06 22:52:32,813 - __main__ - INFO -   Total Memory: 19968 MB
+2026-05-06 22:52:32,813 - __main__ - INFO -   Compute Capability: 8.0
+2026-05-06 22:52:32,813 - __main__ - INFO - --------------------------
+2026-05-06 22:52:32,814 - __main__ - INFO - Mode: train
+2026-05-06 22:52:32,814 - __main__ - INFO - Device: cuda
+2026-05-06 22:52:32,814 - __main__ - INFO - Model: microsoft/deberta-v3-base
+2026-05-06 22:52:32,814 - __main__ - INFO - Batch size: 32
+2026-05-06 22:52:32,814 - __main__ - INFO - Learning rate: 5e-05
+2026-05-06 22:52:32,814 - __main__ - INFO - Epochs: 1
+2026-05-06 22:52:32,814 - __main__ - INFO - Max dist: 20
+2026-05-06 22:52:32,814 - __main__ - INFO - Max length: 128
+2026-05-06 22:52:32,814 - __main__ - INFO - Output dir: /scratch/user/s4901673/ircbert_runs/checkpoints
+2026-05-06 22:52:32,814 - __main__ - INFO - Using device: cuda
+2026-05-06 22:52:32,814 - __main__ - INFO - Loading tokenizer: microsoft/deberta-v3-base
+2026-05-06 22:52:33,067 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-06 22:52:33,067 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-06 22:52:33,074 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-06 22:52:33,314 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-06 22:52:33,320 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-06 22:52:33,550 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-06 22:52:33,781 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-06 22:52:34,302 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-06 22:52:34,303 - __main__ - INFO - Tokenizer loaded: DebertaV2Tokenizer
+2026-05-06 22:52:34,303 - __main__ - INFO - Creating dataloaders...
+2026-05-06 22:52:34,307 - __main__ - INFO - Loading 1 train files...
+2026-05-06 22:52:34,307 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-06 22:52:34,307 - data_loader - INFO -   max_dist=20, max_length=128, skip_labels=False
+2026-05-06 22:52:34,307 - data_loader - INFO -   test_start=0, test_end=500
+2026-05-06 22:52:34,307 - data_loader - INFO - Loading conversation from data/tiny/train/tiny.train.ascii.txt
+2026-05-06 22:52:34,308 - data_loader - INFO -   Read 300 lines from ASCII file
+2026-05-06 22:52:34,313 - data_loader - INFO -   Parsed 300 messages, found 32 unique users
+2026-05-06 22:52:34,329 - data_loader - INFO -   Loaded 212 gold links from annotation file
+2026-05-06 22:52:34,332 - data_loader - INFO -   Conversation 'tiny.train' loaded in 0.02s
+2026-05-06 22:52:34,333 - data_loader - INFO -   Creating samples for tiny.train: messages 0 to 300 (limited)
+2026-05-06 22:52:34,339 - data_loader - INFO -   Created 61 samples for tiny.train
+2026-05-06 22:52:34,339 - data_loader - INFO -   File 1/1: tiny.train - 300 messages, 61 total samples so far
+2026-05-06 22:52:34,339 - data_loader - INFO - Dataset initialization complete: 61 samples from 1 conversations in 0.03s
+2026-05-06 22:52:34,339 - __main__ - INFO -   Train dataset created: 61 samples
+2026-05-06 22:52:34,339 - __main__ - INFO - Loading 1 dev files...
+2026-05-06 22:52:34,340 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-06 22:52:34,340 - data_loader - INFO -   max_dist=20, max_length=128, skip_labels=False
+2026-05-06 22:52:34,340 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-06 22:52:34,340 - data_loader - INFO - Loading conversation from data/tiny/dev/tiny.dev.ascii.txt
+2026-05-06 22:52:34,341 - data_loader - INFO -   Read 250 lines from ASCII file
+2026-05-06 22:52:34,342 - data_loader - INFO -   Parsed 250 messages, found 30 unique users
+2026-05-06 22:52:34,354 - data_loader - INFO -   Loaded 188 gold links from annotation file
+2026-05-06 22:52:34,354 - data_loader - INFO -   Conversation 'tiny.dev' loaded in 0.01s
+2026-05-06 22:52:34,354 - data_loader - INFO -   Creating samples for tiny.dev: all 250 messages
+2026-05-06 22:52:34,360 - data_loader - INFO -   Created 65 samples for tiny.dev
+2026-05-06 22:52:34,360 - data_loader - INFO -   File 1/1: tiny.dev - 250 messages, 65 total samples so far
+2026-05-06 22:52:34,360 - data_loader - INFO - Dataset initialization complete: 65 samples from 1 conversations in 0.02s
+2026-05-06 22:52:34,360 - __main__ - INFO -   Dev dataset created: 65 samples
+2026-05-06 22:52:34,360 - __main__ - INFO -   Train dataset: 61 samples
+2026-05-06 22:52:34,360 - __main__ - INFO -   Dev dataset: 65 samples
+2026-05-06 22:52:34,360 - __main__ - INFO - Creating model...
+2026-05-06 22:52:34,586 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-06 22:52:34,592 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-06 22:52:35,258 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-06 22:52:35,490 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/198 [00:00<?, ?it/s]Loading weights: 100%|██████████| 198/198 [00:00<00:00, 21651.69it/s]
+2026-05-06 22:52:35,740 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+2026-05-06 22:52:36,004 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+[transformers] [1mDebertaV2Model LOAD REPORT[0m from: microsoft/deberta-v3-base
+Key                                     | Status     |  | 
+----------------------------------------+------------+--+-
+mask_predictions.classifier.bias        | UNEXPECTED |  | 
+mask_predictions.dense.bias             | UNEXPECTED |  | 
+lm_predictions.lm_head.bias             | UNEXPECTED |  | 
+mask_predictions.dense.weight           | UNEXPECTED |  | 
+mask_predictions.LayerNorm.bias         | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.bias       | UNEXPECTED |  | 
+mask_predictions.LayerNorm.weight       | UNEXPECTED |  | 
+mask_predictions.classifier.weight      | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.weight     | UNEXPECTED |  | 
+lm_predictions.lm_head.LayerNorm.bias   | UNEXPECTED |  | 
+lm_predictions.lm_head.LayerNorm.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+2026-05-06 22:52:36,456 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-06 22:52:36,598 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-06 22:52:36,604 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-06 22:52:36,687 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-06 22:52:36,922 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
+2026-05-06 22:52:37,166 - __main__ - INFO -   Parameters: 183,832,326 trainable, 183,832,326 total
+2026-05-06 22:52:37,166 - __main__ - INFO -   BERT hidden size: 768
+2026-05-06 22:52:37,166 - __main__ - INFO -   Combined size: 773
+2026-05-06 22:52:37,167 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
+2026-05-06 22:52:37,168 - __main__ - INFO - Created scheduler with 0 warmup steps (10% of 2 total steps)
+2026-05-06 22:52:37,168 - __main__ - INFO - Starting training from epoch 1...
+2026-05-06 22:52:37,168 - __main__ - INFO - ================================================================================
+2026-05-06 22:52:37,168 - __main__ - INFO - Epoch 1/1
+2026-05-06 22:52:37,168 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-05-06 22:52:37,169 - __main__ - INFO - Starting epoch 1 with 2 batches
+2026-05-06 22:52:38,224 - __main__ - ERROR -   Batch 1: CUDA Out of Memory (OOM) during forward pass!
+2026-05-06 22:52:38,225 - __main__ - ERROR -   Memory at OOM: 19523/19642MB
+2026-05-06 22:52:38,580 - __main__ - ERROR -   Batch 2: CUDA Out of Memory (OOM) during forward pass!
+2026-05-06 22:52:38,581 - __main__ - ERROR -   Memory at OOM: 18055/19642MB
+2026-05-06 22:52:38,616 - __main__ - INFO - Epoch 1 complete in 1.45s, avg_loss=0.0000
+2026-05-06 22:52:38,616 - __main__ - INFO - Train Loss: 0.0000
+2026-05-06 22:52:38,616 - __main__ - INFO - Evaluating on dev set...
+2026-05-06 22:52:38,617 - __main__ - INFO - Starting evaluation on 65 samples
+Evaluating:   0%|          | 0/3 [00:00<?, ?it/s]                                                 2026-05-06 22:52:39,869 - __main__ - ERROR - Fatal error during training:
+Traceback (most recent call last):
+  File "/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py", line 1003, in <module>
+    main()
+  File "/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py", line 917, in main
+    metrics = evaluate(model, dev_loader, device, fp16=args.fp16)
+  File "/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py", line 471, in evaluate
+    raise e
+  File "/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/train.py", line 436, in evaluate
+    outputs = model(
+  File "/scratch/user/s4901673/conda-envs/ircbert/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/scratch/user/s4901673/conda-envs/ircbert/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/s4901673/workspace/irc-disentanglement-bert-pytorch/src/model.py", line 152, in forward
+    logits = logits.masked_fill(~candidate_mask, -1e9)
+RuntimeError: value cannot be converted to type at::Half without overflow
