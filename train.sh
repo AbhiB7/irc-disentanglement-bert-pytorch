@@ -22,12 +22,12 @@ mkdir -p "$LOG_DIR" "$CHECKPOINT_DIR"
 
 # Run the main training Python script
 # Entry point: src/train.py
-# Optimized for A100 (80GB/40GB) on Bunya
+# Optimized for L40 (48GB) on Bunya
+# --fp16 removed: PyTorch 2.6 GradScaler regression (ValueError: Attempting to unscale FP16 gradients)
 python src/train.py \
     --mode train \
-    --batch-size 128 \
+    --batch-size 32 \
     --num-workers 4 \
-    --fp16 \
     --epochs 3 \
     --learning-rate 5e-5 \
     --max-length 128 \
