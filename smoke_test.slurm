@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ircbert_smoke
 #SBATCH --partition=gpu_cuda
-#SBATCH --gres=gpu:a100:1         # Bunya requires explicit GPU type
+#SBATCH --gres=gpu:1         # Bunya requires explicit GPU type
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4
@@ -9,7 +9,7 @@
 #SBATCH --time=00:30:00
 #SBATCH --output=logs/%j_smoke.out
 #SBATCH --error=logs/%j_smoke.err
-#SBATCH --qos=gpu
+#SBATCH --qos=debug
 #SBATCH --account=a_hcc
 set -e
 
