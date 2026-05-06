@@ -37,6 +37,15 @@ source "$EBROOTMINICONDA3/etc/profile.d/conda.sh"
 conda activate ircbert
 
 # Run the training Python script with reduced smoke test parameters
+#
+# Parameter rationale:
+#   --max-dist 20   Small candidate window for speed but large enough for ~80% of gold links
+#                   to fall within window, giving meaningful metrics (> random baseline 0.05)
+#   --test-end 500  Limit to 500 samples total (shared across train+dev). If max_dist is
+#                   increased, this may need to increase too so dev set isn't skipped.
+#   --batch-size 32 Reduced from default 64 for faster iteration on tiny dataset
+#   --epochs 1      Single epoch — just verify no OOM/NaN and pipeline runs end-to-end
+#
 python src/train.py \
     --mode train \
     --data-dir data/tiny \
@@ -46,7 +55,7 @@ python src/train.py \
     --epochs 1 \
     --learning-rate 5e-5 \
     --max-length 128 \
-    --max-dist 5 \
+    --max-dist 20 \
     --warmup-ratio 0.1 \
     --patience 0 \
     --eval-every 1 \
