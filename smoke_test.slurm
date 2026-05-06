@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ircbert_smoke
 #SBATCH --partition=gpu_cuda
-#SBATCH --gres=gpu:1              # any GPU, not locked to a100
+#SBATCH --gres=gpu:a100:1         # Bunya requires explicit GPU type
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4

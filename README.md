@@ -22,7 +22,7 @@ sinfo -O Partition,NodeList,Nodes,Gres,CPUs
 
 --- 2. ALLOCATE A COMPUTE CPU (not login node) ---
 # debug QoS (1 hr max, higher priority):
-salloc --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 --mem=5G --job-name=CHANGE-ME --time=01:00:00 --partition=general --qos=debug --account=a_YourAccount srun --export=PATH,TERM,HOME,LANG --pty /bin/bash -l
+salloc --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 --mem=5G --job-name=CHANGE-ME --time=01:00:00 --partition=general --qos=debug --account=a_hcc srun --export=PATH,TERM,HOME,LANG --pty /bin/bash -l
 
 # Verify you are on a compute node (NOT bunya1 or bunya2):
 hostname

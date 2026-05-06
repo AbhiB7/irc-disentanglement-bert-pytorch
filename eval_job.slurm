@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ircbert_eval
 #SBATCH --partition=gpu_cuda
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:a100:1
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4
@@ -33,10 +33,6 @@ echo "Checkpoint: $CHECKPOINT"
 echo ""
 
 bash setup.sh
-
-module load miniconda3/23.9.0-0
-source "$EBROOTMINICONDA3/etc/profile.d/conda.sh"
-conda activate ircbert
 
 python src/evaluate.py --checkpoint "$CHECKPOINT"
 
