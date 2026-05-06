@@ -56,9 +56,14 @@ Conversation disentanglement is the task of separating interleaved chat messages
 
 ## 3. Architecture & Implementation
 
-### Cross-Encoder Model
-Input: `[CLS] message_i [SEP] message_j [SEP]` → BERT → [CLS] embedding → Linear Head → Sigmoid.
-BERT can attend across both messages, which is the standard approach for high-accuracy link prediction.
+### Multiclass Model (Current Architecture)
+The problem is framed as "which of C candidates is the parent of message i?":
+- **Input**: Child message encoded once, C candidate parents processed independently
+- **Shape**: `input_ids [batch, C, seq_len]` — C candidates per sample, padded to max C in batch
+- **Processing**: Flatten to `[batch*C, seq_len]` for BERT, reshape back to `[batch, C, hidden]`
+- **Output**: Softmax over C candidates — probability distribution over candidate parents
+- **Loss**: `CrossEntropyLoss` — no pos_weight needed, no threshold needed
+- **Prediction**: Argmax over C candidates
 
 ### Handcrafted Feature Augmentation
 Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
@@ -70,23 +75,11 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 **Integration**: Features are concatenated to the 768-dim [CLS] vector, resulting in a 773-dim input to the classification head.
 
-### Pair Generation & Class Imbalance
-- **Window**: `MAX_DIST` (default 30). Reduced from 101 to optimize for local 4070 GPU memory/speed.
-  - **Gap**: StructBERT and ROCLING 2025 use `kh=50`. At max_dist=30, the model cannot predict replies more than 30 messages back — this sets a hard ceiling on recall.
-- **Imbalance**: Handled via dynamic `pos_weight` in `BCEWithLogitsLoss`.
-- **Solution**: Compute `pos_weight = (num_neg / (num_pos + 1e-8)).clamp(min=10.0, max=1500.0)` per batch to adapt to actual label distribution.
-- **Gap**: SOTA methods reframe as **multiclass** (which candidate is the parent?) instead of binary, eliminating class imbalance entirely.
-
 ### Structural Features (from StructBERT ACL 2022)
 - **Speaker-masked MHSA**: Attention is masked so tokens only attend within same-speaker utterances (M[i,j]=0 if same speaker, -∞ otherwise). Boosts F1 from 33.5 → 45.0.
 - **r-GCN (Reference Dependency)**: Graph where edges connect utterances containing @username mentions to all prior utterances by that user. Boosts F1 to 47.4.
 - **Combined**: Both together → 52.6 F1 (vs 33.5 for plain BERT).
 - **Current Implementation**: `msg.targets` set in `IRCMessage` already contains the reference dependency graph needed for r-GCN.
-
-### Multiclass vs. Binary Framing
-- **Current**: Binary classification "is pair (i, j) linked?" with BCE loss and pos_weight.
-- **SOTA**: Multiclass over window "which of C candidates is the parent of message i?" with cross-entropy loss.
-- **Benefits**: Eliminates class imbalance, produces probability distribution over candidates.
 
 ### Proper Multiclass Architecture (Implemented 2026-05-04)
 - **Data Loader**: Creates C separate samples (one per candidate) instead of concatenated input.
@@ -106,24 +99,18 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ## 4. Hardware & Training Strategy
 
-### GPU Selection & Local Optimization
-| GPU                        | VRAM      | Price (USD/hr)  | Notes                                     |
-| -------------------------- | --------- | --------------- | ----------------------------------------- |
-| **RTX 4090 (Recommended)** | **24 GB** | **~$0.29–0.39** | Fits BERT-base with batch_size=64.        |
-| RTX 4070 (Local)           | 12 GB     | -               | Requires `max_dist=30` for feasibility.   |
-| A100 40GB                  | 40 GB     | ~$0.63          | Overkill for BERT-base but very stable.   |
+### Available GPUs (UQ Bunya HPC)
+| GPU         | VRAM    | Notes                                                       |
+|-------------|---------|-------------------------------------------------------------|
+| **A100**    | 40 GB   | Reliable, widely available. Default for smoke tests.        |
+| **L40S**    | 48 GB   | Newer architecture, faster. Available on `gpu_cuda` queue.  |
+| **H100**    | 80 GB   | Highest throughput. Use for full training runs.             |
 
 ### Training Hyperparameters
-- **Learning Rate**: 5e-5 (Increased from 2e-5 to overcome majority-class bias).
+- **Learning Rate**: 5e-5 (Standard for BERT fine-tuning).
 - **Epochs**: 3 (BERT typically converges in 2-4 epochs).
-- **Batch Size**: 64 (Optimized for RTX 5070 12GB; uses ~6-7GB VRAM).
-- **Threshold**: 0.1 (Lowered from 0.3 to handle 748:1 class imbalance where sigmoid outputs are calibrated low).
+- **Batch Size**: 64 (Feasible on all Bunya GPUs; adjust up for H100 if needed).
 - **Early Stopping**: Implemented via `--patience` (default 3) to monitor Dev F1.
-
-### Multi-Stage Testing Plan
-- **Test 1 (5 min)**: Stability and logic check. Uses `train` mode on the **Tiny Dataset** (`data/tiny`). Verifies OOM logging, NaN detection, and positive sample handling (guaranteed links).
-- **Test 2 (1 hour)**: Mid-range stability run. Verified pipeline on RTX 5070 with ~50K pairs.
-- **Test 3 (3-6 hours)**: Large-scale stability run. Uses **1 Million pairs** and **Batch Size 64** to refine Precision and verify long-term convergence.
 
 ## 5. Priority Improvement Roadmap (vs. SOTA)
 
@@ -134,98 +121,22 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 | 3 | **Multiclass reframing** | Restructure loss in `model.py` | Eliminates pos_weight heuristic | ✅ Complete |
 | 4 | **Union-Find clustering + thread metrics** | New module needed | Required for VI/ARI in thesis | ⏳ Pending |
 
----
-
-## 9. 🚀 Successful Training Run Guide (2026-05-04)
-
-This section provides the verified instructions for running the multiclass architecture.
-
-### ✅ Verification Status
-- **Architecture**: Multiclass Cross-Entropy over search window.
-- **Data Model**: Child message encoded once, paired with multiple candidate parents in batch via custom `collate_fn`.
-- **Validation**: Pipeline verified locally with `data/tiny`.
-
-### 📊 1. Local Verification (Tiny Test)
-Run this to ensure the logic and environment are stable (takes ~15 mins on CPU).
-```bash
-python src/train.py --data-dir data/tiny --epochs 1 --batch-size 16 --test-end 100
-```
-
-### ⚡ 2. HPC Full Run (UQ Bunya)
-This is the recommended path for a "successful today" result using A100 GPUs.
-
-#### 🔍 HPC Resource Monitoring (Are GPUs free?)
-Use these commands on Bunya to check the queue and GPU availability:
-
-#### 🛠️ Interactive Debug Session (General Partition)
-If you need to troubleshoot `ls` issues or run small Python tests interactively:
-1.  **Request allocation**: 
-    `salloc --partition=general --nodes=1 --ntasks-per-node=1 --cpus-per-task=1 --mem=4G --time=01:00:00 --account=a_hcc --qos=debug`
-2.  **Drop into the node**: 
-    `srun --pty bash`
-3.  **Verify**: 
-    `hostname` (should show `bunXXX` instead of `bunya3`)
-
-*   **Check GPU availability**: 
-    `sinfo -p gpu_cuda -o "%P %G %D %t"` 
-    (Look for `idle` under the `STATE` column—that means there are free GPUs ready to take your job!)
-*   **Check your specific queue status**: 
-    `squeue -u $USER` 
-    (If `ST` is `PD`, your job is Pending. If `R`, it is Running.)
-*   **See why a job is pending**: 
-    `squeue -j [JOB_ID] -o %r` 
-    (Common reasons: `Resources` = waiting for GPU, `Priority` = waiting in line.)
-*   **Check GPU stats while running**: 
-    `srun --jobid [JOB_ID] nvidia-smi` 
-    (Check if your model is actually using the GPU VRAM).
-
-**Step A: Submit Smoke Test (30 mins)**
-Ensure the Bunya environment handles the new multiclass logic.
-```bash
-sbatch smoke_test.slurm
-```
-*Check logs with `tail -f logs/[job_id]_smoke.out`*
-
-**Step B: Submit Full Training (3-8 hours)**
-Execute the primary thesis baseline training.
-```bash
-sbatch train.sh
-```
-
-### 📈 Metrics for Success
-- **Baseline Accuracy**: Should exceed 0.10 immediately (random). 
-- **Link F1**: Target is >0.70 (per ROCLING 2025 benchmarks).
-- **Behavior**: Monitor `[POSITIVE BATCH]` tags in the log to verify parent-child link detection.
-
-| Priority | Improvement | Effort | Expected Gain | Status |
-|----------|-------------|--------|---------------|--------|
-| 1 | **DeBERTa-v3-base backbone** | Change 1 string in `model.py` | ~+1% F1 | ✅ Complete |
-| 2 | **Increase max_dist to 50** | Change 1 default argument | Improves recall | ✅ Complete |
-| 3 | **Multiclass reframing** | Restructure loss in `model.py` | Eliminates pos_weight heuristic | ✅ Complete |
-| 4 | **Union-Find clustering + thread metrics** | New module needed | Required for VI/ARI in thesis | ⏳ Pending |
-| 5 | **Speaker-masked MHSA** | Add structural module to `model.py` | ~+11 F1 points over BERT baseline | ⏳ Pending |
-| 6 | **@mention r-GCN** | Use existing `msg.targets` | ~+5 F1 points | ⏳ Pending |
-
-**Items 1–3** are complete. **Items 4–6** remain for future implementation.
-
-**Summary**: Current architecture leaves ~14+ F1 points on the table vs. StructBERT (ACL 2022 SOTA). Biggest gains come from structural modules (speaker MHSA + reference r-GCN).
-
 ## 6. Robustness & Diagnostics
 - **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.
 - **Numerical Safety**: NaN/Inf loss detection triggers batch skipping to prevent weight corruption.
-- **Smart Logging**: Automatic logging of any batch containing a positive sample (`label=1`) to monitor minority class behavior.
+- **Smart Logging**: Logs probability distribution stats every 50 batches (avg/min/max prob) to monitor model calibration.
 - **Data Starvation Prevention**: Test runs must use message offsets (e.g., 300+ or 1000+) or the `tiny` dataset to avoid the link-less "join/quit" noise at the start of IRC logs.
 - **Atomic Checkpointing**: Checkpoints are saved to `.tmp` files and renamed to avoid Windows file-locking conflicts (Error 1224).
 
 ---
 
-## 6. Clustering & Thread-Level Metrics
+## 7. Clustering & Thread-Level Metrics
 - **Current**: Only link-level F1 is computed.
 - **Gap**: Actual task is conversation disentanglement (grouping messages into threads). Needs a **clustering step** after link prediction.
 - **Methods**: Union-Find (simple) or bipartite graph matching.
 - **Metrics Needed**: VI (Variational Inference), ARI (Adjusted Rand Index), MCF (Message Clustering F1) for thesis visualization component.
 
-## 7. Technical Reference
+## 8. Technical Reference
 
 ### Project Structure
 - `src/data_loader.py`: Handles file discovery, message parsing, and multiclass sample generation.
@@ -249,7 +160,7 @@ sbatch train.sh
 
 ### HPC Setup (UQ Bunya)
 - **Cluster**: UQ Bunya HPC (SLURM scheduler)
-- **GPU**: NVIDIA A100 40GB (full job uses H100)
+- **Available GPUs**: A100 40GB, L40S 48GB, H100 80GB (all on `gpu_cuda` partition)
 - **Required SLURM directives**: `--qos=gpu` and `--account=a_hcc` for all GPU jobs on `gpu_cuda` partition
 - **Conda Module**: `miniconda3/23.9.0-0` (via `$EBROOTMINICONDA3`)
 - **Smoke Test**: [`smoke_test.slurm`](../smoke_test.slurm) — minimal end-to-end test (30 min, 500 pairs)
@@ -262,7 +173,7 @@ sbatch train.sh
 
 ---
 
-## 8. Key References
+## 9. Key References
 1. Kummerfeld et al. (2019). "A Large-Scale Corpus for Conversation Disentanglement." ACL 2019.
 2. Zhu et al. (2021). "BERT for Conversation Disentanglement." (Key feature comparison paper).
 3. Huang et al. (2022). "Bi-Level Contrastive Learning for Conversation Disentanglement."

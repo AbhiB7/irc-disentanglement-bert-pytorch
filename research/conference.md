@@ -1,3 +1,28 @@
+## Binary Architecture History (Replaced 2026-05-04)
+
+The project originally used a **binary classification** framing before switching to multiclass. This section documents the old approach for historical reference.
+
+### Old Architecture
+- **Input**: `[CLS] message_i [SEP] message_j [SEP]` — concatenated parent-child pair
+- **Output**: Sigmoid probability (0 or 1) — "is this pair linked?"
+- **Loss**: `BCEWithLogitsLoss` with dynamic `pos_weight` to handle class imbalance
+- **Threshold**: 0.5 (default) — predictions above threshold classified as positive
+- **Features**: 5 handcrafted features concatenated to 768-dim [CLS] → 773-dim input to classifier head
+
+### Why It Was Replaced
+1. **Class imbalance**: ~746:1 negative-to-positive ratio required fragile `pos_weight` tuning (capped at 1500)
+2. **Threshold sensitivity**: Small changes in threshold (0.3 vs 0.5) caused massive F1 swings
+3. **No probability distribution**: Binary sigmoid gives independent probabilities per candidate, not a distribution
+
+### Multiclass Replacement
+- **Input**: Child message encoded once, C candidates processed independently
+- **Output**: Softmax over C candidates — "which candidate is the parent?"
+- **Loss**: `CrossEntropyLoss` — no pos_weight needed
+- **Prediction**: Argmax — no threshold needed
+- **Features**: Per-candidate features `[C, 5]` concatenated per-candidate in model
+
+---
+
 ## Hyperparameter Defaults (with Literature Sources)
 
 ### `--model-name`: `microsoft/deberta-v3-base`
