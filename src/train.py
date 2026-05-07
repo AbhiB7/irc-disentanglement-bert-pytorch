@@ -716,6 +716,26 @@ def train_epoch(
         try:
             optimizer.zero_grad()
             loss.backward()
+
+            # Check for NaN/Inf gradients before optimizer step
+            grad_has_nan = False
+            for p in model.parameters():
+                if p.grad is not None:
+                    if torch.isnan(p.grad).any() or torch.isinf(p.grad).any():
+                        grad_has_nan = True
+                        break
+
+            if grad_has_nan:
+                logger.error(
+                    f"  Batch {batch_idx + 1}: NaN/Inf gradient detected! Skipping batch."
+                )
+                optimizer.zero_grad()
+                continue
+
+            # Gradient clipping (max_norm=10.0): prevents any single batch from
+            # destabilizing model parameters. Healthy norm for DeBERTa fine-tuning
+            # is ~0.5-5.0. The batch 0 gradient norm on the Ubuntu dataset was 4.0.
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=10.0)
             optimizer.step()
 
             # Gradient norm logging (first batch of each epoch)

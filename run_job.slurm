@@ -49,5 +49,4 @@ python src/train.py \
     --test-end 1000000000 \
     --output-dir "$CHECKPOINT_DIR" \
     --device cuda \
-    --fp16 \
     --gradient-checkpointing
