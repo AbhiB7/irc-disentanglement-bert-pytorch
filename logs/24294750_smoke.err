@@ -1,187 +1,0 @@
-WARNING: huggingface-hub 1.13.0 does not provide the extra 'cli'
-2026-05-06 23:22:50,442 - __main__ - INFO - ================================================================================
-2026-05-06 23:22:50,446 - __main__ - INFO - IRC Conversation Disentanglement Training
-2026-05-06 23:22:50,447 - __main__ - INFO - ================================================================================
-2026-05-06 23:22:50,447 - __main__ - INFO - --- System Diagnostics ---
-2026-05-06 23:22:50,447 - __main__ - INFO - OS: Linux 5.14.0-611.24.1.el9_7.x86_64
-2026-05-06 23:22:50,447 - __main__ - INFO - Python: 3.10.20
-2026-05-06 23:22:50,447 - __main__ - INFO - RAM: 2003.11 GB total, 1825.24 GB available
-2026-05-06 23:22:50,466 - __main__ - INFO - GPU 0: NVIDIA A100 80GB PCIe MIG 2g.20gb
-2026-05-06 23:22:50,467 - __main__ - INFO -   Total Memory: 19968 MB
-2026-05-06 23:22:50,467 - __main__ - INFO -   Compute Capability: 8.0
-2026-05-06 23:22:50,467 - __main__ - INFO - --------------------------
-2026-05-06 23:22:50,467 - __main__ - INFO - Mode: train
-2026-05-06 23:22:50,467 - __main__ - INFO - Device: cuda
-2026-05-06 23:22:50,467 - __main__ - INFO - Model: microsoft/deberta-v3-base
-2026-05-06 23:22:50,467 - __main__ - INFO - Batch size: 1
-2026-05-06 23:22:50,467 - __main__ - INFO - Learning rate: 5e-05
-2026-05-06 23:22:50,467 - __main__ - INFO - Epochs: 1
-2026-05-06 23:22:50,467 - __main__ - INFO - Max dist: 50
-2026-05-06 23:22:50,467 - __main__ - INFO - Max length: 128
-2026-05-06 23:22:50,467 - __main__ - INFO - Output dir: /scratch/user/s4901673/ircbert_runs/checkpoints
-2026-05-06 23:22:50,467 - __main__ - INFO - Using device: cuda
-2026-05-06 23:22:50,467 - __main__ - INFO - Loading tokenizer: microsoft/deberta-v3-base
-2026-05-06 23:22:50,739 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-2026-05-06 23:22:50,740 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-2026-05-06 23:22:50,745 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
-2026-05-06 23:22:50,985 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
-2026-05-06 23:22:50,991 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
-2026-05-06 23:22:51,219 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
-2026-05-06 23:22:51,452 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
-2026-05-06 23:22:51,987 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
-2026-05-06 23:22:51,988 - __main__ - INFO - Tokenizer loaded: DebertaV2Tokenizer
-2026-05-06 23:22:51,988 - __main__ - INFO - Creating dataloaders...
-2026-05-06 23:22:51,994 - __main__ - INFO - Loading 1 train files...
-2026-05-06 23:22:51,994 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
-2026-05-06 23:22:51,994 - data_loader - INFO -   max_dist=50, max_length=128, skip_labels=False
-2026-05-06 23:22:51,994 - data_loader - INFO -   test_start=0, test_end=500
-2026-05-06 23:22:51,995 - data_loader - INFO - Loading conversation from data/tiny/train/tiny.train.ascii.txt
-2026-05-06 23:22:51,997 - data_loader - INFO -   Read 300 lines from ASCII file
-2026-05-06 23:22:52,002 - data_loader - INFO -   Parsed 300 messages, found 32 unique users
-2026-05-06 23:22:52,017 - data_loader - INFO -   Loaded 212 gold links from annotation file
-2026-05-06 23:22:52,021 - data_loader - INFO -   Conversation 'tiny.train' loaded in 0.03s
-2026-05-06 23:22:52,021 - data_loader - INFO -   Creating samples for tiny.train: messages 0 to 300 (limited)
-2026-05-06 23:22:52,034 - data_loader - INFO -   Created 61 samples for tiny.train
-2026-05-06 23:22:52,034 - data_loader - INFO -   File 1/1: tiny.train - 300 messages, 61 total samples so far
-2026-05-06 23:22:52,034 - data_loader - INFO - Dataset initialization complete: 61 samples from 1 conversations in 0.04s
-2026-05-06 23:22:52,034 - __main__ - INFO -   Train dataset created: 61 samples
-2026-05-06 23:22:52,035 - __main__ - INFO - Loading 1 dev files...
-2026-05-06 23:22:52,035 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
-2026-05-06 23:22:52,035 - data_loader - INFO -   max_dist=50, max_length=128, skip_labels=False
-2026-05-06 23:22:52,035 - data_loader - INFO -   test_start=0, test_end=1000000000
-2026-05-06 23:22:52,035 - data_loader - INFO - Loading conversation from data/tiny/dev/tiny.dev.ascii.txt
-2026-05-06 23:22:52,037 - data_loader - INFO -   Read 250 lines from ASCII file
-2026-05-06 23:22:52,038 - data_loader - INFO -   Parsed 250 messages, found 30 unique users
-2026-05-06 23:22:52,050 - data_loader - INFO -   Loaded 188 gold links from annotation file
-2026-05-06 23:22:52,050 - data_loader - INFO -   Conversation 'tiny.dev' loaded in 0.02s
-2026-05-06 23:22:52,050 - data_loader - INFO -   Creating samples for tiny.dev: all 250 messages
-2026-05-06 23:22:52,062 - data_loader - INFO -   Created 65 samples for tiny.dev
-2026-05-06 23:22:52,062 - data_loader - INFO -   File 1/1: tiny.dev - 250 messages, 65 total samples so far
-2026-05-06 23:22:52,062 - data_loader - INFO - Dataset initialization complete: 65 samples from 1 conversations in 0.03s
-2026-05-06 23:22:52,062 - __main__ - INFO -   Dev dataset created: 65 samples
-2026-05-06 23:22:52,062 - __main__ - INFO -   Train dataset: 61 samples
-2026-05-06 23:22:52,063 - __main__ - INFO -   Dev dataset: 65 samples
-2026-05-06 23:22:52,063 - __main__ - INFO - Creating model...
-2026-05-06 23:22:52,292 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
-2026-05-06 23:22:52,298 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
-2026-05-06 23:22:53,130 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
-2026-05-06 23:22:53,359 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
-2026-05-06 23:22:53,603 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
-Loading weights:   0%|          | 0/198 [00:00<?, ?it/s]Loading weights: 100%|██████████| 198/198 [00:00<00:00, 27440.93it/s]
-2026-05-06 23:22:53,852 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
-2026-05-06 23:22:54,096 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
-2026-05-06 23:22:54,326 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
-2026-05-06 23:22:54,557 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
-[transformers] [1mDebertaV2Model LOAD REPORT[0m from: microsoft/deberta-v3-base
-Key                                     | Status     |  | 
-----------------------------------------+------------+--+-
-mask_predictions.classifier.weight      | UNEXPECTED |  | 
-lm_predictions.lm_head.dense.bias       | UNEXPECTED |  | 
-mask_predictions.LayerNorm.weight       | UNEXPECTED |  | 
-lm_predictions.lm_head.bias             | UNEXPECTED |  | 
-mask_predictions.classifier.bias        | UNEXPECTED |  | 
-lm_predictions.lm_head.LayerNorm.weight | UNEXPECTED |  | 
-mask_predictions.dense.weight           | UNEXPECTED |  | 
-lm_predictions.lm_head.dense.weight     | UNEXPECTED |  | 
-mask_predictions.LayerNorm.bias         | UNEXPECTED |  | 
-mask_predictions.dense.bias             | UNEXPECTED |  | 
-lm_predictions.lm_head.LayerNorm.bias   | UNEXPECTED |  | 
-
-Notes:
-- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-2026-05-06 23:22:55,569 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
-2026-05-06 23:22:55,575 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
-2026-05-06 23:22:56,125 - __main__ - INFO -   Parameters: 183,832,326 trainable, 183,832,326 total
-2026-05-06 23:22:56,126 - __main__ - INFO -   BERT hidden size: 768
-2026-05-06 23:22:56,126 - __main__ - INFO -   Combined size: 773
-2026-05-06 23:22:56,127 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
-2026-05-06 23:22:56,127 - __main__ - INFO - Created scheduler with 6 warmup steps (10% of 61 total steps)
-2026-05-06 23:22:56,127 - __main__ - INFO - Starting training from epoch 1...
-2026-05-06 23:22:56,127 - __main__ - INFO - ================================================================================
-2026-05-06 23:22:56,127 - __main__ - INFO - Epoch 1/1
-2026-05-06 23:22:56,127 - __main__ - INFO - --------------------------------------------------------------------------------
-2026-05-06 23:22:56,128 - __main__ - INFO - Starting epoch 1 with 61 batches
-2026-05-06 23:22:57,669 - __main__ - ERROR -   Batch 2: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:57,743 - __main__ - ERROR -   Batch 3: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:57,815 - __main__ - ERROR -   Batch 4: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:57,887 - __main__ - ERROR -   Batch 5: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:57,963 - __main__ - ERROR -   Batch 6: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,034 - __main__ - ERROR -   Batch 7: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,103 - __main__ - ERROR -   Batch 8: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,142 - __main__ - ERROR -   Batch 9: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,175 - __main__ - ERROR -   Batch 10: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,241 - __main__ - ERROR -   Batch 11: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,315 - __main__ - ERROR -   Batch 12: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,387 - __main__ - ERROR -   Batch 13: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,458 - __main__ - ERROR -   Batch 14: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,491 - __main__ - ERROR -   Batch 15: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,546 - __main__ - ERROR -   Batch 16: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,617 - __main__ - ERROR -   Batch 17: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,688 - __main__ - ERROR -   Batch 18: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,759 - __main__ - ERROR -   Batch 19: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,832 - __main__ - ERROR -   Batch 20: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,898 - __main__ - ERROR -   Batch 21: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:58,969 - __main__ - ERROR -   Batch 22: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,037 - __main__ - ERROR -   Batch 23: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,103 - __main__ - ERROR -   Batch 24: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,169 - __main__ - ERROR -   Batch 25: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,239 - __main__ - ERROR -   Batch 26: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,307 - __main__ - ERROR -   Batch 27: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,374 - __main__ - ERROR -   Batch 28: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,406 - __main__ - ERROR -   Batch 29: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,478 - __main__ - ERROR -   Batch 30: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,546 - __main__ - ERROR -   Batch 31: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,611 - __main__ - ERROR -   Batch 32: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,676 - __main__ - ERROR -   Batch 33: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,748 - __main__ - ERROR -   Batch 34: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,815 - __main__ - ERROR -   Batch 35: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,883 - __main__ - ERROR -   Batch 36: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:22:59,952 - __main__ - ERROR -   Batch 37: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,024 - __main__ - ERROR -   Batch 38: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,096 - __main__ - ERROR -   Batch 39: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,143 - __main__ - ERROR -   Batch 40: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,213 - __main__ - ERROR -   Batch 41: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,284 - __main__ - ERROR -   Batch 42: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,358 - __main__ - ERROR -   Batch 43: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,426 - __main__ - ERROR -   Batch 44: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,491 - __main__ - ERROR -   Batch 45: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,565 - __main__ - ERROR -   Batch 46: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,631 - __main__ - ERROR -   Batch 47: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,700 - __main__ - ERROR -   Batch 48: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,769 - __main__ - ERROR -   Batch 49: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,841 - __main__ - ERROR -   Batch 50: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,909 - __main__ - ERROR -   Batch 51: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:00,977 - __main__ - ERROR -   Batch 52: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,047 - __main__ - ERROR -   Batch 53: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,114 - __main__ - ERROR -   Batch 54: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,186 - __main__ - ERROR -   Batch 55: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,249 - __main__ - ERROR -   Batch 56: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,315 - __main__ - ERROR -   Batch 57: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,389 - __main__ - ERROR -   Batch 58: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,457 - __main__ - ERROR -   Batch 59: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,484 - __main__ - ERROR -   Batch 60: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,554 - __main__ - ERROR -   Batch 61: NaN or Inf loss detected! Skipping batch.
-2026-05-06 23:23:01,593 - __main__ - INFO - Epoch 1 complete in 5.46s, avg_loss=3.6852
-2026-05-06 23:23:01,595 - __main__ - INFO - Train Loss: 3.6852
-2026-05-06 23:23:01,596 - __main__ - INFO - Evaluating on dev set...
-2026-05-06 23:23:01,596 - __main__ - INFO - Starting evaluation on 65 samples
-Evaluating:   0%|          | 0/65 [00:00<?, ?it/s]Evaluating:   2%|▏         | 1/65 [00:00<00:08,  7.75it/s]Evaluating:   8%|▊         | 5/65 [00:00<00:02, 24.21it/s]2026-05-06 23:23:01,958 - __main__ - INFO -   Evaluation progress: 10/65 batches (27.66 batches/s)
-Evaluating:  15%|█▌        | 10/65 [00:00<00:01, 31.33it/s]Evaluating:  22%|██▏       | 14/65 [00:00<00:01, 29.47it/s]Evaluating:  26%|██▌       | 17/65 [00:00<00:01, 26.43it/s]2026-05-06 23:23:02,407 - __main__ - INFO -   Evaluation progress: 20/65 batches (24.69 batches/s)
-Evaluating:  31%|███       | 20/65 [00:00<00:01, 23.48it/s]Evaluating:  35%|███▌      | 23/65 [00:00<00:01, 21.06it/s]Evaluating:  40%|████      | 26/65 [00:01<00:01, 19.68it/s]Evaluating:  45%|████▍     | 29/65 [00:01<00:01, 19.17it/s]2026-05-06 23:23:02,979 - __main__ - INFO -   Evaluation progress: 30/65 batches (21.69 batches/s)
-Evaluating:  48%|████▊     | 31/65 [00:01<00:01, 18.75it/s]Evaluating:  51%|█████     | 33/65 [00:01<00:01, 17.34it/s]Evaluating:  54%|█████▍    | 35/65 [00:01<00:01, 16.31it/s]Evaluating:  57%|█████▋    | 37/65 [00:01<00:01, 15.75it/s]Evaluating:  60%|██████    | 39/65 [00:02<00:01, 15.47it/s]2026-05-06 23:23:03,666 - __main__ - INFO -   Evaluation progress: 40/65 batches (19.33 batches/s)
-Evaluating:  63%|██████▎   | 41/65 [00:02<00:01, 15.43it/s]Evaluating:  66%|██████▌   | 43/65 [00:02<00:01, 15.46it/s]Evaluating:  69%|██████▉   | 45/65 [00:02<00:01, 15.67it/s]Evaluating:  72%|███████▏  | 47/65 [00:02<00:01, 15.90it/s]Evaluating:  75%|███████▌  | 49/65 [00:02<00:00, 16.07it/s]2026-05-06 23:23:04,287 - __main__ - INFO -   Evaluation progress: 50/65 batches (18.59 batches/s)
-Evaluating:  78%|███████▊  | 51/65 [00:02<00:00, 16.13it/s]Evaluating:  82%|████████▏ | 53/65 [00:02<00:00, 16.15it/s]Evaluating:  85%|████████▍ | 55/65 [00:03<00:00, 16.06it/s]Evaluating:  88%|████████▊ | 57/65 [00:03<00:00, 16.19it/s]Evaluating:  91%|█████████ | 59/65 [00:03<00:00, 16.48it/s]2026-05-06 23:23:04,896 - __main__ - INFO -   Evaluation progress: 60/65 batches (18.19 batches/s)
-Evaluating:  94%|█████████▍| 61/65 [00:03<00:00, 16.57it/s]Evaluating:  97%|█████████▋| 63/65 [00:03<00:00, 16.80it/s]Evaluating: 100%|██████████| 65/65 [00:03<00:00, 16.88it/s]                                                           2026-05-06 23:23:05,248 - __main__ - INFO - Evaluation complete in 3.65s
-2026-05-06 23:23:05,249 - __main__ - INFO -   Loss: nan, Accuracy: 0.0154, Precision: 0.0003, Recall: 0.0208, F1: 0.0006
-2026-05-06 23:23:05,249 - __main__ - INFO - Dev Loss: nan
-2026-05-06 23:23:05,249 - __main__ - INFO - Dev Accuracy: 0.0154
-2026-05-06 23:23:05,249 - __main__ - INFO -   New best F1! Saving best model...
-2026-05-06 23:23:06,826 - __main__ - INFO - Saved checkpoint to /scratch/user/s4901673/ircbert_runs/checkpoints/best/checkpoint_epoch_1.pt
-2026-05-06 23:23:08,624 - __main__ - INFO - Saved checkpoint to /scratch/user/s4901673/ircbert_runs/checkpoints/checkpoint_epoch_1.pt
-2026-05-06 23:23:08,624 - __main__ - INFO - Training complete in 12.50s!
-2026-05-06 23:23:08,624 - __main__ - INFO - Best F1: 0.0154 at epoch 1
-2026-05-06 23:23:08,625 - __main__ - INFO - ================================================================================
-2026-05-06 23:23:08,625 - __main__ - INFO - Done!
-2026-05-06 23:23:08,625 - __main__ - INFO - ================================================================================
-2026-05-06 23:23:08,625 - __main__ - INFO - Log file: /scratch/user/s4901673/ircbert_runs/logs/train_20260506_232250.log
