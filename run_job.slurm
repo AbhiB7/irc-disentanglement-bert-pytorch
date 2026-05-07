@@ -48,4 +48,5 @@ python src/train.py \
     --save-every 1 \
     --test-end 1000000000 \
     --output-dir "$CHECKPOINT_DIR" \
-    --device cuda
+    --device cuda \
+    --fp16
