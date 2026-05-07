@@ -32,5 +32,20 @@ mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 # Use 'source' so conda activation and env vars persist in the current shell
 source setup.sh
 
-# Run training
-bash train.sh
+# Run training directly (not via train.sh) to avoid double conda activation
+# which can cause "ModuleNotFoundError: No module named 'psutil'" errors.
+python src/train.py \
+    --mode train \
+    --batch-size 32 \
+    --num-workers 4 \
+    --epochs 3 \
+    --learning-rate 5e-5 \
+    --max-length 128 \
+    --max-dist 30 \
+    --warmup-ratio 0.1 \
+    --patience 3 \
+    --eval-every 1 \
+    --save-every 1 \
+    --test-end 1000000000 \
+    --output-dir "$CHECKPOINT_DIR" \
+    --device cuda
