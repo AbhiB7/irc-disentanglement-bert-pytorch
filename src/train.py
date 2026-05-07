@@ -542,6 +542,29 @@ def evaluate(model, dataloader, device, fp16=False):
 
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
 
+    # Prediction vs. label scatter sample (first 20)
+    if len(all_predictions) > 0:
+        sample_n = min(20, len(all_predictions))
+        pred_sample = all_predictions[:sample_n].tolist()
+        label_sample = all_labels[:sample_n].tolist()
+        logger.info(f"  Prediction sample (first {sample_n}):")
+        logger.info(f"    Predicted: {pred_sample}")
+        logger.info(f"    Gold:      {label_sample}")
+        errors = [abs(p - l) for p, l in zip(pred_sample, label_sample)]
+        logger.info(f"    Abs error: {errors} (mean={sum(errors)/len(errors):.2f})")
+
+    # Per-candidate-position accuracy breakdown (top 10 classes)
+    if len(all_predictions) > 0 and len(all_labels) > 0:
+        num_pos_classes = max(all_labels.max().item(), all_predictions.max().item()) + 1
+        logger.info(f"  Per-position accuracy (top 10 classes):")
+        for c in range(min(num_pos_classes, 10)):
+            mask = (all_labels == c)
+            if mask.sum() == 0:
+                continue
+            class_acc = (all_predictions[mask] == c).float().mean().item()
+            count = mask.sum().item()
+            logger.info(f"    Position {c:2d}: {class_acc:.3f} accuracy ({count} samples)")
+
     elapsed = (datetime.now() - start_time).total_seconds()
     logger.info(f"Evaluation complete in {elapsed:.2f}s")
     logger.info(
@@ -566,6 +589,11 @@ def train_epoch(
     """Train for one epoch"""
     model.train()
 
+    # Reset peak memory stats for accurate per-epoch high-watermark
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats(device)
+        logger.info(f"Epoch {epoch}: Peak memory stats reset.")
+
     logger.info(f"Starting epoch {epoch} with {len(train_loader)} batches")
     start_time = datetime.now()
 
@@ -586,6 +614,23 @@ def train_epoch(
             token_type_ids = batch.get("token_type_ids", None)
             if token_type_ids is not None:
                 token_type_ids = token_type_ids.to(device)
+
+            # Log first batch of each epoch for data sanity check
+            if batch_idx == 0:
+                b, max_c, seq_len = input_ids.shape
+                actual_candidates = (batch["attention_mask"].sum(dim=-1) > 0).sum(dim=-1)
+                logger.info(f"  [Epoch {epoch} Batch 0 SANITY CHECK]")
+                logger.info(f"    input_ids shape : {list(input_ids.shape)}  (batch x max_C x seq_len)")
+                logger.info(f"    features shape  : {list(features.shape)}")
+                logger.info(f"    labels shape    : {list(labels.shape)}")
+                logger.info(f"    Candidate counts per sample: min={actual_candidates.min().item()} "
+                            f"max={actual_candidates.max().item()} "
+                            f"mean={actual_candidates.float().mean().item():.1f}")
+                logger.info(f"    Label values: {labels.tolist()[:16]}{'...' if b > 16 else ''}")
+                label_dist = {}
+                for lbl in labels.tolist():
+                    label_dist[lbl] = label_dist.get(lbl, 0) + 1
+                logger.info(f"    Label distribution (this batch): {dict(sorted(label_dist.items()))}")
 
             # Forward pass
             with torch.amp.autocast("cuda", enabled=fp16):
@@ -624,7 +669,7 @@ def train_epoch(
                 torch.cuda.empty_cache()
 
                 # Track consecutive OOM failures — if cascading, abort early
-                if not hasattr(train_epoch, '_consecutive_oom'):
+                if not hasattr(train_epoch, "_consecutive_oom"):
                     train_epoch._consecutive_oom = 0
                 train_epoch._consecutive_oom += 1
                 if train_epoch._consecutive_oom >= 10:
@@ -642,24 +687,48 @@ def train_epoch(
             max_prob = probs.max().item()
             min_prob = probs.min().item()
 
-            log_msg = (
+            # Prediction diversity: what candidate indices is the model picking?
+            preds = torch.argmax(probs, dim=-1)  # [batch]
+            pred_counts = {}
+            for p in preds.tolist():
+                pred_counts[p] = pred_counts.get(p, 0) + 1
+            top_pred = max(pred_counts, key=pred_counts.get)
+            top_pred_pct = 100.0 * pred_counts[top_pred] / len(preds)
+
+            # Confidence: max prob per sample (how sure is the model?)
+            confidence = probs.max(dim=-1).values  # [batch]
+            avg_confidence = confidence.mean().item()
+
+            logger.info(
                 f"  Batch {batch_idx + 1} Stats: "
                 f"Prob Range: [{min_prob:.4f}, {max_prob:.4f}], "
-                f"Avg Prob: {avg_prob:.4f}"
+                f"Avg Prob: {avg_prob:.4f}, "
+                f"Avg Confidence: {avg_confidence:.4f}, "
+                f"Top Predicted Index: {top_pred} ({top_pred_pct:.0f}% of batch)"
             )
-
-            logger.info(log_msg)
+            if top_pred_pct > 80:
+                logger.warning(
+                    f"  WARNING: Model predicting index {top_pred} for {top_pred_pct:.0f}% of this batch. "
+                    f"Possible mode collapse or positional bias."
+                )
 
         # Backward pass
         try:
             optimizer.zero_grad()
-            if scaler:
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-            else:
-                loss.backward()
-                optimizer.step()
+            loss.backward()
+            optimizer.step()
+
+            # Gradient norm logging (first batch of each epoch)
+            if batch_idx == 0:
+                total_norm = 0.0
+                for p in model.parameters():
+                    if p.grad is not None:
+                        total_norm += p.grad.data.norm(2).item() ** 2
+                total_norm = total_norm ** 0.5
+                logger.info(f"  Epoch {epoch} Batch 0 gradient norm: {total_norm:.4f}")
+                if total_norm > 10.0:
+                    logger.warning(f"  WARNING: High gradient norm ({total_norm:.4f}). "
+                                   f"Consider gradient clipping (torch.nn.utils.clip_grad_norm_).")
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
                 logger.error(
@@ -675,7 +744,7 @@ def train_epoch(
                 torch.cuda.empty_cache()
 
                 # Track consecutive OOM failures — if cascading, abort early
-                if not hasattr(train_epoch, '_consecutive_oom'):
+                if not hasattr(train_epoch, "_consecutive_oom"):
                     train_epoch._consecutive_oom = 0
                 train_epoch._consecutive_oom += 1
                 if train_epoch._consecutive_oom >= 10:
@@ -695,7 +764,7 @@ def train_epoch(
             torch.cuda.empty_cache()
 
         # Reset consecutive OOM counter on successful batch
-        if hasattr(train_epoch, '_consecutive_oom'):
+        if hasattr(train_epoch, "_consecutive_oom"):
             train_epoch._consecutive_oom = 0
 
         # Update metrics
@@ -727,7 +796,18 @@ def train_epoch(
 
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
     elapsed = (datetime.now() - start_time).total_seconds()
-    logger.info(f"Epoch {epoch} complete in {elapsed:.2f}s, avg_loss={avg_loss:.4f}")
+
+    # Succeeded vs. skipped batch counter
+    skipped_batches = (batch_idx + 1) - num_batches
+    logger.info(
+        f"Epoch {epoch} complete in {elapsed:.2f}s | "
+        f"avg_loss={avg_loss:.4f} | "
+        f"batches: {num_batches} succeeded, {skipped_batches} skipped (OOM/NaN)"
+    )
+    if skipped_batches > 0:
+        skip_pct = 100.0 * skipped_batches / (batch_idx + 1)
+        logger.warning(f"  WARNING: {skip_pct:.1f}% of batches were skipped this epoch!")
+
     return avg_loss
 
 
@@ -883,8 +963,19 @@ def main():
 
     if train_loader:
         logger.info(f"  Train dataset: {len(train_loader.dataset)} samples")
+        logger.info(
+            f"Training: {len(train_loader.dataset)} samples | "
+            f"{len(train_loader)} batches/epoch | "
+            f"batch_size={args.batch_size} | "
+            f"max_dist={args.max_dist} | "
+            f"max_length={args.max_length}"
+        )
     if dev_loader:
         logger.info(f"  Dev dataset: {len(dev_loader.dataset)} samples")
+        logger.info(
+            f"Validation: {len(dev_loader.dataset)} samples | "
+            f"{len(dev_loader)} batches"
+        )
 
     # Create model
     logger.info("Creating model...")
@@ -926,8 +1017,26 @@ def main():
         optimizer = None
         scheduler = None
 
-    # Mixed precision scaler
-    scaler = torch.amp.GradScaler("cuda", enabled=args.fp16) if args.fp16 else None
+    # Mixed precision scaler — DISABLED.
+    #
+    # What GradScaler normally does: When training in fp16, very small gradient
+    # values (e.g. 0.0000001) can't be represented in 16-bit and become zero
+    # ("underflow"). GradScaler prevents this by multiplying the loss by a large
+    # constant before backward, then dividing gradients back down before the
+    # optimizer step. Like turning up the volume on a quiet recording.
+    #
+    # Why it's disabled: PyTorch 2.5.1's GradScaler raises "ValueError: Attempting
+    # to unscale FP16 gradients" when used with gradient_checkpointing_enable().
+    # Gradient checkpointing recomputes intermediate activations during backward
+    # instead of storing them, which creates a different autograd graph structure
+    # that the scaler doesn't understand.
+    #
+    # Why that's fine: Autocast (torch.amp.autocast) still runs the forward pass
+    # in fp16 for memory savings. Gradient underflow isn't a problem for BERT
+    # fine-tuning — gradients are large enough that they don't vanish in 16-bit.
+    # GradScaler is mainly needed for training from scratch on huge datasets
+    # (ImageNet, etc.), not for fine-tuning a pretrained model.
+    scaler = None
 
     # Resume from checkpoint if specified
     start_epoch = 1
@@ -947,6 +1056,7 @@ def main():
         best_epoch = 0
         no_improve_count = 0
         training_start_time = datetime.now()
+        epoch_losses = []
 
         for epoch in range(start_epoch, args.epochs + 1):
             logger.info(f"Epoch {epoch}/{args.epochs}")
@@ -964,6 +1074,11 @@ def main():
                     fp16=args.fp16,
                     scaler=scaler,
                 )
+                epoch_losses.append(train_loss)
+                if len(epoch_losses) >= 2:
+                    delta = epoch_losses[-1] - epoch_losses[-2]
+                    trend = "↓ improving" if delta < 0 else "↑ diverging"
+                    logger.info(f"  Loss trend: {epoch_losses[-2]:.4f} → {epoch_losses[-1]:.4f} ({delta:+.4f}) {trend}")
                 logger.info(f"Train Loss: {train_loss:.4f}")
 
             # Evaluate
