@@ -38,12 +38,20 @@ class CrossEncoderWithFeatures(nn.Module):
         num_features: int = 5,
         dropout: float = 0.1,
         freeze_bert: bool = False,
+        gradient_checkpointing: bool = False,
     ):
         super().__init__()
 
         # Load BERT model for CrossEncoder
         self.bert = AutoModel.from_pretrained(model_name)
         self.config = AutoConfig.from_pretrained(model_name)
+
+        # Enable gradient checkpointing if requested
+        # HuggingFace transformers: only stores inputs/outputs per transformer block,
+        # recomputes intermediate activations during backward. Cuts activation memory
+        # by ~80% at the cost of ~30% slower training.
+        if gradient_checkpointing:
+            self.bert.gradient_checkpointing_enable()
 
         # Freeze BERT layers if requested
         if freeze_bert:
@@ -206,6 +214,7 @@ def create_model(
     num_features: int = 5,
     dropout: float = 0.1,
     freeze_bert: bool = False,
+    gradient_checkpointing: bool = False,
     device: str = None,
 ) -> CrossEncoderWithFeatures:
     """
@@ -216,6 +225,7 @@ def create_model(
         num_features: Number of handcrafted features
         dropout: Dropout probability
         freeze_bert: Whether to freeze BERT parameters
+        gradient_checkpointing: Enable gradient checkpointing (trades ~30% speed for ~80% less VRAM)
         device: Device to load model on (cuda/cpu)
 
     Returns:
@@ -226,6 +236,7 @@ def create_model(
         num_features=num_features,
         dropout=dropout,
         freeze_bert=freeze_bert,
+        gradient_checkpointing=gradient_checkpointing,
     )
 
     # Move to device if specified

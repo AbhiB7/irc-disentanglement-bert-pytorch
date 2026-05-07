@@ -200,6 +200,12 @@ def parse_args():
         help="Use mixed precision training (FP16)",
     )
 
+    parser.add_argument(
+        "--gradient-checkpointing",
+        action="store_true",
+        help="Enable gradient checkpointing on BERT backbone (trades ~30%% speed for ~80%% less activation VRAM)",
+    )
+
     # Test mode options
     parser.add_argument(
         "--test-start",
@@ -244,6 +250,9 @@ def collate_fn(batch):
 
     # Find the maximum number of candidates in this batch
     max_candidates = max(item["input_ids"].shape[0] for item in batch)
+    # Hard cap at 15 to prevent outlier padding spikes from saturating GPU memory.
+    # Must match --max-dist in the SLURM script.
+    max_candidates = min(max_candidates, 15)
     seq_len = batch[0]["input_ids"].shape[1]
     num_features = batch[0]["features"].shape[1]  # features is [C, num_features]
 
@@ -479,14 +488,24 @@ def evaluate(model, dataloader, device, fp16=False):
                 )
 
     # Calculate metrics (concatenate accumulated tensors)
-    all_predictions = torch.cat(all_predictions) if all_predictions else torch.tensor([], dtype=torch.long)
-    all_labels = torch.cat(all_labels) if all_labels else torch.tensor([], dtype=torch.long)
+    all_predictions = (
+        torch.cat(all_predictions)
+        if all_predictions
+        else torch.tensor([], dtype=torch.long)
+    )
+    all_labels = (
+        torch.cat(all_labels) if all_labels else torch.tensor([], dtype=torch.long)
+    )
     # Probs have variable C per batch, can't concatenate directly.
     # Keep as list for debugging; metrics use predictions/labels only.
     all_probs = all_probs if all_probs else []
 
     # Multiclass metrics
-    accuracy = (all_predictions == all_labels).float().mean().item() if len(all_predictions) > 0 else 0.0
+    accuracy = (
+        (all_predictions == all_labels).float().mean().item()
+        if len(all_predictions) > 0
+        else 0.0
+    )
 
     # Macro-averaged precision, recall, F1 across all candidate classes
     num_classes = 0
@@ -507,7 +526,11 @@ def evaluate(model, dataloader, device, fp16=False):
 
             precision_c = tp / (tp + fp) if (tp + fp) > 0 else 0.0
             recall_c = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-            f1_c = 2 * precision_c * recall_c / (precision_c + recall_c) if (precision_c + recall_c) > 0 else 0.0
+            f1_c = (
+                2 * precision_c * recall_c / (precision_c + recall_c)
+                if (precision_c + recall_c) > 0
+                else 0.0
+            )
 
             per_class_precision.append(precision_c)
             per_class_recall.append(recall_c)
@@ -521,7 +544,9 @@ def evaluate(model, dataloader, device, fp16=False):
 
     elapsed = (datetime.now() - start_time).total_seconds()
     logger.info(f"Evaluation complete in {elapsed:.2f}s")
-    logger.info(f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}")
+    logger.info(
+        f"  Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}"
+    )
 
     return {
         "loss": avg_loss,
@@ -597,6 +622,16 @@ def train_epoch(
                     if p.grad is not None:
                         del p.grad
                 torch.cuda.empty_cache()
+
+                # Track consecutive OOM failures — if cascading, abort early
+                if not hasattr(train_epoch, '_consecutive_oom'):
+                    train_epoch._consecutive_oom = 0
+                train_epoch._consecutive_oom += 1
+                if train_epoch._consecutive_oom >= 10:
+                    raise RuntimeError(
+                        f"OOM cascade: {train_epoch._consecutive_oom} consecutive OOM batches. "
+                        f"Reduce --batch-size or --max-dist and resubmit."
+                    )
                 continue
             else:
                 raise e
@@ -638,12 +673,30 @@ def train_epoch(
                 # Clear cache and skip batch
                 optimizer.zero_grad()
                 torch.cuda.empty_cache()
+
+                # Track consecutive OOM failures — if cascading, abort early
+                if not hasattr(train_epoch, '_consecutive_oom'):
+                    train_epoch._consecutive_oom = 0
+                train_epoch._consecutive_oom += 1
+                if train_epoch._consecutive_oom >= 10:
+                    raise RuntimeError(
+                        f"OOM cascade: {train_epoch._consecutive_oom} consecutive OOM batches. "
+                        f"Reduce --batch-size or --max-dist and resubmit."
+                    )
                 continue
             else:
                 raise e
 
         if scheduler is not None:
             scheduler.step()
+
+        # Periodic defrag: prevents allocator fragmentation buildup
+        if batch_idx % 50 == 0 and torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        # Reset consecutive OOM counter on successful batch
+        if hasattr(train_epoch, '_consecutive_oom'):
+            train_epoch._consecutive_oom = 0
 
         # Update metrics
         total_loss += loss.item()
@@ -664,7 +717,8 @@ def train_epoch(
                 allocated = torch.cuda.memory_allocated(device) / (1024**2)
                 reserved = torch.cuda.memory_reserved(device) / (1024**2)
                 max_allocated = torch.cuda.max_memory_allocated(device) / (1024**2)
-                mem_msg = f", GPU Mem: {allocated:.0f}/{reserved:.0f}MB (max: {max_allocated:.0f}MB)"
+                max_c = batch["input_ids"].shape[1]
+                mem_msg = f", max_C={max_c}, GPU Mem: {allocated:.0f}/{reserved:.0f}MB (max: {max_allocated:.0f}MB)"
 
             logger.info(
                 f"  Epoch {epoch} progress: {batch_idx + 1}/{len(train_loader)} batches "
@@ -839,6 +893,7 @@ def main():
         num_features=5,
         dropout=args.dropout,
         freeze_bert=args.freeze_bert,
+        gradient_checkpointing=args.gradient_checkpointing,
         device=device,
     )
 

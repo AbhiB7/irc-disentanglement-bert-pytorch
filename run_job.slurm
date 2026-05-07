@@ -36,12 +36,12 @@ source setup.sh
 # which can cause "ModuleNotFoundError: No module named 'psutil'" errors.
 python src/train.py \
     --mode train \
-    --batch-size 32 \
+    --batch-size 8 \
     --num-workers 4 \
     --epochs 3 \
     --learning-rate 5e-5 \
     --max-length 128 \
-    --max-dist 30 \
+    --max-dist 15 \
     --warmup-ratio 0.1 \
     --patience 3 \
     --eval-every 1 \
@@ -49,4 +49,5 @@ python src/train.py \
     --test-end 1000000000 \
     --output-dir "$CHECKPOINT_DIR" \
     --device cuda \
-    --fp16
+    --fp16 \
+    --gradient-checkpointing

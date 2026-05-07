@@ -1,140 +1,111 @@
-# IRC Conversation Disentanglement - Research Handover (2026-05-04) - UPDATED
+# IRC Conversation Disentanglement - OOM Diagnosis & Fix (2026-05-07)
 
-## ⚠️ CRITICAL UPDATE: Multiclass Architecture Shift
-The project has recently undergone a major architectural shift from **Binary Classification** to **Multiclass Classification** (Priority 3 in the roadmap). 
+## 1. The Problem
 
-**STATUS**: The implementation is now **FUNCTIONAL in `src/`** but **BROKEN in `tests/`**. The following fixes have been applied:
+Training on an **NVIDIA L40 (45.5 GB VRAM)** with `--batch-size 32 --max-dist 30 --max-length 128 --fp16` was OOMing immediately. This was surprising given the L40 is a very powerful GPU.
 
-### ✅ COMPLETED FIXES:
-1. **`src/model.py`**: Updated `test_model()` function to test multiclass `[batch, C, seq]` architecture
-2. **`src/evaluate.py`**: Fixed invalid `create_model()` arguments, added `collate_fn` import, corrected dataset loading
-3. **`src/train.py`**: Already had proper multiclass metrics (macro-averaging) and no threshold arguments
-4. **`src/data_loader.py`**: Already has index-based refactoring in `__getitem__` (no fragile string matching)
+**Error log**: `logs/24337978.err` — CUDA OOM during the very first forward pass.
 
-### ❌ REMAINING ISSUES:
-1. **`tests/test_model.py`**: Still uses old binary architecture (2D tensors instead of 3D)
-2. **`tests/test_data_loader.py`**: Needs updates for multiclass dataset structure verification
+## 2. Root Cause Analysis
 
-**PROGRESS**: 80% of critical fixes completed. Training/evaluation logic is functional with multiclass architecture.
+The OOM is caused by **activation memory explosion** in the DeBERTa-v3-base transformer backbone. Here's the detailed breakdown:
 
----
+### Memory per batch (batch=32, max_dist=30, max_length=128):
+- Each sample has up to C=30 candidates → **32 × 30 = 960 sequences** per batch
+- Each sequence is 128 tokens → **960 × 128 = 122,880 tokens** per batch
+- DeBERTa-v3-base has **12 transformer layers** with hidden_size=768
+- Each layer stores activations: ~122,880 × 768 × 4 bytes × 12 layers ≈ **4.5 GB** in fp32
+- Plus: embeddings, attention matrices (O(n²) per sequence), classifier head, optimizer states (2× for AdamW), gradients
+- **Total estimate: ~20-30 GB** — which should fit in 45.5 GB, but the real killer is the **attention computation** for 960 sequences × 128 tokens each, and the **memory fragmentation** from variable-length candidate padding
 
-## 1. Architectural Changes
+### Why `--fp16` alone wasn't enough:
+- `--fp16` (torch.amp.autocast) primarily reduces:
+  - Weight/gradient storage (2 bytes instead of 4)
+  - Matrix multiply compute (Tensor Cores)
+- But it does NOT reduce:
+  - **Activation memory** (softmax, layer norms, residuals stay fp32 internally)
+  - **Memory fragmentation** from variable-C padding in collate_fn
+  - **Optimizer states** (AdamW stores fp32 copies of weights + momentum + variance = 3× fp32 copies)
 
-### Data Loader (`src/data_loader.py`)
-- **Shift**: Instead of generating negative/positive pairs, it now frames the problem as "Which of these $C$ candidates is the parent of message $i$?".
-- **Mechanism**: 
-    - `IRCDisentanglementDataset` generates samples where each sample contains a child message and ALL its potential parents within `max_dist`.
-    - `__getitem__` returns a batch of candidate encodings of shape `[C, seq_len]`.
-- **✅ STATUS**: Already has index-based refactoring in `__getitem__` (no fragile string matching). The fix was already implemented.
+## 3. The Fix (Three Changes)
 
-### Model (`src/model.py`)
-- **Shift**: Replaced Sigmoid/BCE loss with **Softmax/CrossEntropy loss**.
-- **Input**: Expects `input_ids` of shape `[batch_size, C, seq_len]`.
-- **Head**: The classifier now outputs a probability distribution over the $C$ candidates for each sample in the batch.
-- **✅ STATUS**: `test_model()` function has been updated to test multiclass `[batch, C, seq]` architecture with proper assertions.
+### 3.1 Gradient Checkpointing (`src/model.py`)
 
-### Training & Evaluation (`src/train.py` & `src/evaluate.py`)
-- **Complexity**: Variable candidate counts ($C$) are handled via a custom `collate_fn` that pads the candidate dimension to the maximum $C$ in the batch.
-- **Metrics**: Accuracy is now the primary metric for the "parent picking" task.
-- **✅ STATUS**: 
-    - `src/evaluate.py`: Fixed invalid `create_model()` arguments, added `collate_fn` import, corrected dataset loading
-    - `src/train.py`: Already had proper multiclass metrics (macro-averaging) and no threshold arguments
-    - `src/train.py`: No TP/FP/FN calculations found - uses proper multiclass macro-averaging
-    - `src/train.py`: "Smart Logging" condition is correct (`(batch_idx + 1) % 50 == 0`)
+Added `gradient_checkpointing` parameter to `CrossEncoderWithFeatures.__init__` and `create_model()` factory function.
 
----
+When enabled, HuggingFace's `self.bert.gradient_checkpointing_enable()` stores only inputs/outputs per transformer block and recomputes intermediate activations during backward. This cuts **activation memory by ~80%** at the cost of ~30% slower training.
 
-## 2. File Status Audit (UPDATED)
-
-| File | Status | Action Needed |
-| :--- | :--- | :--- |
-| `src/data_loader.py` | ✅ Fixed | Already has index-based refactoring in `__getitem__` |
-| `src/model.py` | ✅ Fixed | `test_model()` updated for multiclass `[batch, C, seq]` |
-| `src/train.py` | ✅ Working | Proper multiclass metrics, no threshold arguments |
-| `src/evaluate.py` | ✅ Fixed | Fixed `create_model()` arguments, added `collate_fn` |
-| `tests/test_model.py` | ❌ Broken | Still uses old binary architecture (2D tensors) |
-| `tests/test_data_loader.py`| ❌ Broken | Needs updates for multiclass dataset structure |
-| `context/CONTEXT.md` | ✅ Up-to-date | Stable knowledge base |
-| `context/PROGRESS.md` | ✅ Up-to-date | Tracks current run status |
-
----
-
-## 3. Immediate Next Steps for the AI Successor (UPDATED)
-
-### **✅ COMPLETED FIXES:**
-1. **`src/data_loader.py`**: Fixed critical bug where dataset stored 1 sample per candidate instead of per child message. Now stores per-candidate features `[C, 4]` tensor.
-2. **`src/evaluate.py`**: Fixed `tokenizer=None` bug by instantiating tokenizer in `main()` and passing it to `load_dev_dataset`.
-3. **`src/train.py`**: Removed meaningless macro F1 over candidate indices, now only tracks accuracy for multiclass classification.
-4. **`tests/test_data_loader.py`**: Updated shape assertions from 1D to 2D/3D tensors for multiclass architecture.
-5. **`tests/test_model.py`**: Already correct (uses 3D tensors `[batch, C, seq]`).
-
-### **REMAINING TASKS:**
-1. **Run smoke tests**: Ensure the entire pipeline works end-to-end with multiclass architecture.
-2. **Test the updated data loader**: Verify that features are correctly stored as `[C, 4]` tensors and dataset size is correct.
-3. **Test evaluation script**: Ensure `evaluate.py` runs without errors with the tokenizer fix.
-
----
-
-## 4. Technical Implementation Snippets
-
-To help the next model hit the ground running, here are the key data shapes and logic blocks currently in the `src/`.
-
-### 4.1 Data Shape Mismatch (The `[batch, C, seq]` logic)
-The model now expects a 3D tensor for input IDs because it encodes $C$ candidates for every batch item.
-
-**Current `src/data_loader.py` logic:**
 ```python
-# Returns:
-item = {
-    "input_ids": all_candidate_input_ids,        # [C, seq_len]
-    "attention_mask": all_candidate_attention_mask, # [C, seq_len]
-    "features": torch.tensor(features),          # [num_features]
-    "labels": torch.tensor(gold_parent_idx)      # Single integer index
-}
+# In __init__:
+if gradient_checkpointing:
+    self.bert.gradient_checkpointing_enable()
+
+# In create_model():
+model = CrossEncoderWithFeatures(
+    ...,
+    gradient_checkpointing=gradient_checkpointing,
+)
 ```
 
-**Current `src/model.py` forward pass:**
+### 3.2 CLI Flag (`src/train.py`)
+
+Added `--gradient-checkpointing` flag to argument parser:
+
 ```python
-def forward(self, input_ids, attention_mask, ...):
-    batch_size, num_candidates, seq_len = input_ids.shape
-    # Flattening for BERT processing
-    flat_input_ids = input_ids.view(-1, seq_len) # [batch_size * C, seq_len]
-    bert_outputs = self.bert(input_ids=flat_input_ids, ...)
-    # Reshaping back for multiclass logits
-    logits = self.classifier(combined).view(batch_size, num_candidates)
-    return {"logits": logits, "probs": torch.softmax(logits, dim=-1)}
+parser.add_argument(
+    "--gradient-checkpointing",
+    action="store_true",
+    help="Enable gradient checkpointing on BERT backbone (trades ~30%% speed for ~80%% less activation VRAM)",
+)
 ```
 
-### 4.2 The String-Matching Fragility
-The `data_loader.py:__getitem__` contains this block which must be replaced with index-based lookup:
-```python
-candidate_texts = []
-# ... logic to find candidates ...
-for i, c_text in enumerate(candidate_texts):
-    if c_text == parent_text: # <--- FRAGILE: Fails on duplicate messages
-        current_candidate_idx_in_full_list = i
+This is passed through to `create_model()` in `main()`.
+
+### 3.3 SLURM Script (`run_job.slurm`)
+
+Two changes to the training invocation:
+- Reduced `--batch-size` from **32 → 16** (halves peak memory)
+- Added `--gradient-checkpointing` flag
+
+```bash
+python src/train.py \
+    --mode train \
+    --batch-size 16 \
+    --num-workers 4 \
+    --epochs 3 \
+    --learning-rate 5e-5 \
+    --max-length 128 \
+    --max-dist 30 \
+    --warmup-ratio 0.1 \
+    --patience 3 \
+    --eval-every 1 \
+    --save-every 1 \
+    --test-end 1000000000 \
+    --output-dir "$CHECKPOINT_DIR" \
+    --device cuda \
+    --fp16 \
+    --gradient-checkpointing
 ```
 
----
+## 4. Verification
 
-## 5. Source File Requirements
-*Note for the successor model:* To allow for precise, line-by-line code generation and unambiguous instructions, the following files must be examined in their entirety:
+All tests pass after the changes:
+- `tests/test_model.py`: 23/23 passed (model init, forward, prediction, architecture, loss, smoke)
+- `tests/test_parse_args.py`: 41/41 passed (defaults, custom values, flags, choices, device)
 
-1. `src/data_loader.py`
-2. `src/model.py`
-3. `src/train.py`
-4. `src/evaluate.py`
-5. `tests/test_model.py`
-6. `tests/test_data_loader.py`
+## 5. If It Still OOMs
 
-Once these are provided, the goal is to produce a **complete, unambiguous instruction set** for the Cline agent—specific line-by-line changes with exact replacements for all identified bugs.
+Further options in order of aggressiveness:
+1. Reduce `--batch-size` to 8
+2. Reduce `--max-dist` to 20 (fewer candidates per sample)
+3. Use `prajjwal1/bert-tiny` (4.4M params) for smoke tests instead of `bert-base-uncased` (110M) or `microsoft/deberta-v3-base` (184M)
+4. Add `--freeze-bert` to train only the classifier head (dramatically reduces gradient computation)
+5. Request a multi-GPU node and use gradient accumulation with smaller effective batch size
 
-## 6. Current Training Strategy
-- **Backbone**: `microsoft/deberta-v3-base`
-- **Max Distance**: 50 (to match StructBERT/ROCLING 2025)
-- **Loss**: Cross-Entropy (Multiclass)
-- **Hardware**: Targeting A100/H100 on UQ Bunya.
+## 6. Files Modified
 
----
-*End of Handover*
+| File | Change |
+| :--- | :--- |
+| `src/model.py` | Added `gradient_checkpointing` param to `__init__` and `create_model()` |
+| `src/train.py` | Added `--gradient-checkpointing` CLI flag |
+| `run_job.slurm` | Reduced batch-size 32→16, added `--gradient-checkpointing` |
