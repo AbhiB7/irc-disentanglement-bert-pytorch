@@ -163,6 +163,37 @@ class TestCollateFn:
             f"Expected long, got {result['labels'].dtype}"
         assert result["input_ids"].dtype == torch.long
 
+    def test_label_clamp_within_bounds(self):
+        """Test labels are preserved when within candidate range"""
+        seq_len = 4
+        batch = [
+            {
+                "input_ids": torch.randint(0, 1000, (5, seq_len)),
+                "attention_mask": torch.ones(5, seq_len, dtype=torch.long),
+                "features": torch.zeros(5, 5),
+                "labels": torch.tensor(2, dtype=torch.long),  # label=2, max_candidates=5 → stays as 2
+            },
+        ]
+        result = collate_fn(batch)
+        assert result["labels"][0].item() == 2, \
+            f"Expected label 2, got {result['labels'][0].item()}"
+
+    def test_label_clamp_out_of_bounds(self):
+        """Test labels are clamped when label >= max_candidates (prevents NaN cascade)"""
+        seq_len = 4
+        batch = [
+            {
+                "input_ids": torch.randint(0, 1000, (3, seq_len)),  # 3 candidates w/ max_dist=5 → capped at 3
+                "attention_mask": torch.ones(3, seq_len, dtype=torch.long),
+                "features": torch.zeros(3, 5),
+                "labels": torch.tensor(4, dtype=torch.long),  # label=4 > max_candidates-1=2 → clamped to 2
+            },
+        ]
+        # Call with max_dist=5 (same as the test default), but label=4 > 3-1=2
+        result = collate_fn(batch)
+        assert result["labels"][0].item() == 2, \
+            f"Expected clamped label 2 (max_candidates-1), got {result['labels'][0].item()}"
+
     def test_all_same_candidates(self):
         """Test when all items have the same number of candidates (no padding)"""
         seq_len = 8
@@ -218,8 +249,8 @@ class TestCreateDataloaders:
             device = "cpu"
             num_workers = 0
             fp16 = False
-            test_start = 0
-            test_end = 100
+            test_start = 1000
+            test_end = 1300
             resume_from = None
 
         train_loader, dev_loader = create_dataloaders(MockArgs(), tokenizer)
@@ -250,8 +281,8 @@ class TestCreateDataloaders:
             device = "cpu"
             num_workers = 0
             fp16 = False
-            test_start = 0
-            test_end = 50
+            test_start = 1000
+            test_end = 1300
             resume_from = None
 
         train_loader, _ = create_dataloaders(MockArgs(), tokenizer)
@@ -314,8 +345,8 @@ class TestCreateDataloaders:
             device = "cpu"
             num_workers = 0
             fp16 = False
-            test_start = 0
-            test_end = 20
+            test_start = 1000
+            test_end = 1300
             resume_from = None
 
         train_loader, dev_loader = create_dataloaders(MockArgs(), tokenizer)

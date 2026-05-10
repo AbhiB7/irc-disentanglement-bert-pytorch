@@ -70,3 +70,12 @@ sacct -p -a -S now-48hours --format JobID,User,Group,State,AllocCPUS,REQMEM,Tota
 # debug/short = 4 GPUs max
 # gpu QoS     = 4 GPUs, 4 running jobs max
 # sxm         = 4 H100s (approved users only)
+
+
+
+salloc --nodes=1 --ntasks-per-node=1 --cpus-per-task=4 --mem=16G \
+  --job-name=GPUInteractive --time=01:00:00 \
+  --partition=gpu_cuda --qos=debug \
+  --gres=gpu:1 \
+  --account=a_hcc \
+  srun --export=PATH,TERM,HOME,LANG --pty /bin/bash -l

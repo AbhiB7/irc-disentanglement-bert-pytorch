@@ -232,7 +232,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def collate_fn(batch):
+def collate_fn(batch, max_dist=50):
     """
     Custom collate function to handle variable-sized candidate lists per item.
 
@@ -246,13 +246,19 @@ def collate_fn(batch):
 
     Input batch item:  input_ids [C_i, seq_len], features [C_i, num_features], labels [1]
     Output batch dict:  input_ids [batch, max_C, seq_len], features [batch, max_C, num_features], labels [batch]
+
+    max_dist: Maximum candidate window from --max-dist. Used to cap padding at
+              a predictable size (avoids memory spikes from outlier samples).
+              If max_candidates naturally exceeds max_dist, the difference is
+              dropped (padded away) and labels are clamped to max_candidates-1
+              to prevent CrossEntropyLoss from receiving an out-of-range index.
     """
 
     # Find the maximum number of candidates in this batch
     max_candidates = max(item["input_ids"].shape[0] for item in batch)
-    # Hard cap at 15 to prevent outlier padding spikes from saturating GPU memory.
-    # Must match --max-dist in the SLURM script.
-    max_candidates = min(max_candidates, 15)
+    # Cap at max_dist to prevent outlier padding spikes from saturating GPU memory.
+    # Previously hardcoded at 15, now follows --max-dist (Option B from 2026-05-10 fix).
+    max_candidates = min(max_candidates, max_dist)
     seq_len = batch[0]["input_ids"].shape[1]
     num_features = batch[0]["features"].shape[1]  # features is [C, num_features]
 
@@ -279,7 +285,12 @@ def collate_fn(batch):
         batch_input_ids[i, :actual_candidates] = input_ids
         batch_attention_mask[i, :actual_candidates] = attention_mask
         batch_features[i, :actual_candidates] = features
-        batch_labels[i] = labels
+        # Label clamp: if gold parent index is >= max_candidates (because
+        # max_dist capped the candidate window), clamp to the last available
+        # candidate. This prevents CrossEntropyLoss from receiving an
+        # out-of-range target label, which would produce NaN loss and
+        # cascade-corrupt all subsequent batches. See 2026-05-10 fix in PROGRESS.md.
+        batch_labels[i] = min(int(labels), max_candidates - 1)
 
     return {
         "input_ids": batch_input_ids,
@@ -343,7 +354,7 @@ def create_dataloaders(args, tokenizer):
             shuffle=False,
             num_workers=args.num_workers,
             pin_memory=(args.device == "cuda"),
-            collate_fn=collate_fn,
+            collate_fn=lambda b, md=args.max_dist: collate_fn(b, max_dist=md),
         )
 
         return None, dev_loader
@@ -395,7 +406,7 @@ def create_dataloaders(args, tokenizer):
             shuffle=True,
             num_workers=args.num_workers,
             pin_memory=(args.device == "cuda"),
-            collate_fn=collate_fn,
+            collate_fn=lambda b, md=args.max_dist: collate_fn(b, max_dist=md),
         )
 
         dev_loader = DataLoader(
@@ -404,7 +415,7 @@ def create_dataloaders(args, tokenizer):
             shuffle=False,
             num_workers=args.num_workers,
             pin_memory=(args.device == "cuda"),
-            collate_fn=collate_fn,
+            collate_fn=lambda b, md=args.max_dist: collate_fn(b, max_dist=md),
         )
 
         return train_loader, dev_loader

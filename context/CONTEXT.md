@@ -124,6 +124,10 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 ## 6. Robustness & Diagnostics
 - **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.
 - **Numerical Safety**: NaN/Inf loss detection triggers batch skipping to prevent weight corruption.
+- **NaN Loss Prevention (collate_fn)**: Two fixes prevent NaN from out-of-range labels:
+  1. `max_candidates` cap follows `--max-dist` instead of hardcoded 15 (Option B).
+  2. Labels are clamped to `min(label, max_candidates - 1)` to prevent `CrossEntropyLoss` from receiving an out-of-range target.
+  See [`tests/test_train_pipeline.py`](tests/test_train_pipeline.py) for `test_label_clamp_out_of_bounds`.
 - **Smart Logging**: Logs probability distribution stats every 50 batches (avg/min/max prob) to monitor model calibration.
 - **Data Starvation Prevention**: Test runs must use message offsets (e.g., 300+ or 1000+) or the `tiny` dataset to avoid the link-less "join/quit" noise at the start of IRC logs.
 - **Atomic Checkpointing**: Checkpoints are saved to `.tmp` files and renamed to avoid Windows file-locking conflicts (Error 1224).

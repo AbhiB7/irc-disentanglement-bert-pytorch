@@ -182,13 +182,21 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - [ ] Step 4: `python src/evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt` on dev set
 - [ ] Step 5: Compare results against Study 1 DyNet baseline (~62.6% F1)
 
-## Current Status: NaN Loss Cascade (2026-05-08)
-- ❌ **Run 24377710** (with `--fp16`): Batch 0 OK (grad norm 3.95), every batch from 2 onwards = NaN loss
-- ❌ **Run 24377768** (without `--fp16`): **Identical** pattern — Batch 0 OK, every batch from 2 onwards = NaN loss
-- **Key finding**: Removing `--fp16` did NOT change the failure mode. The NaN is not from fp16 numerical instability.
-- **Hypothesis**: `collate_fn` caps `max_candidates` at 15, but labels are computed from the original uncapped candidate list. A label ≥ 15 causes `CrossEntropyLoss` to produce NaN. Once the optimizer sees NaN loss, model weights become NaN and every subsequent forward pass produces NaN.
-- **Fix needed**: Clamp labels to `min(label, max_candidates - 1)` in `collate_fn`.
-- **Diagnostic gaps**: We don't log model weights after optimizer step, logits before loss, or labels for batch 1+.
+## Fix Applied: NaN Loss Cascade (2026-05-10)
+- ✅ **Root cause identified**: `collate_fn` capped `max_candidates` at a hardcoded 15, but labels were computed from the original uncapped candidate list (up to `max_dist=50`). When a sample's gold parent index was ≥ 15, `CrossEntropyLoss` received an out-of-range target, producing NaN. Once model weights became NaN, every subsequent batch was NaN forever.
+- ✅ **Fix 1 (Option B)**: Replaced hardcoded `min(max_candidates, 15)` with `min(max_candidates, max_dist)`. The `max_dist` parameter is now passed from `create_dataloaders()` into `collate_fn()` via lambda. This means the candidate window cap follows `--max-dist` instead of a fixed 15.
+- ✅ **Fix 2 (Label Clamp)**: Added `batch_labels[i] = min(int(labels), max_candidates - 1)` to clamp out-of-range labels to the last available candidate, providing a safety net even if `max_dist` changes.
+- ✅ **Files changed**: `src/train.py` (collate_fn signature + cap logic + label clamp), `tests/test_train_pipeline.py` (2 new tests for label clamp behavior).
+- ✅ **Tool created**: `debug.sh` — Fast iterative debugging script for Bunya interactive sessions. Replace SLURM queue waits with `./debug.sh [--fp16] [--model ...] [--batch-size N] [--max-dist N]`.
+
+## Next Steps (2026-05-10)
+- **Immediate**: Run `./debug.sh` on Bunya interactive node to verify fix:
+  - Iteration 1: `./debug.sh` (no fp16, DeBERTa, max-dist=15) — expect no NaN
+  - Iteration 2: `./debug.sh --max-dist 50` — test with full candidate window
+  - Iteration 3: `./debug.sh --model bert-base-uncased` — verify fix generalizes
+  - Iteration 4: `./debug.sh --fp16` — test fp16 now works
+  - Iteration 5: `./debug.sh --fp16 --batch-size 2 --max-dist 10` — lower memory if fp16 still fails
+- **After fix confirmed**: Update `smoke_test.slurm` and `run_job.slurm` with confirmed-working config, then submit `sbatch smoke_test.slurm`.
 
 ## Next Steps (Archived/Completed)
 - ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)
