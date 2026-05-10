@@ -58,6 +58,14 @@ def parse_args():
     )
     
     parser.add_argument(
+        "--split",
+        type=str,
+        default="dev",
+        choices=["dev", "test"],
+        help="Which split to evaluate on (dev or test)",
+    )
+    
+    parser.add_argument(
         "--model-name",
         type=str,
         default="microsoft/deberta-v3-base",
@@ -126,9 +134,9 @@ def load_checkpoint_for_eval(checkpoint_path, device):
     return model
 
 
-def load_dev_dataset(data_dir, max_dist, max_length, batch_size, num_workers, device, tokenizer):
-    """Load the dev dataset for evaluation"""
-    dev_ascii, dev_ann = load_dataset_files(data_dir, split="dev")
+def load_dev_dataset(data_dir, split, max_dist, max_length, batch_size, num_workers, device, tokenizer):
+    """Load the dataset for evaluation (dev or test split)"""
+    dev_ascii, dev_ann = load_dataset_files(data_dir, split=split)
     
     dev_dataset = IRCDisentanglementDataset(
         ascii_files=dev_ascii,
@@ -164,10 +172,11 @@ def main():
     # Load checkpoint
     model = load_checkpoint_for_eval(args.checkpoint, device)
     
-    # Load dev dataset
-    logger.info("Loading dev dataset...")
+    # Load dataset
+    logger.info(f"Loading {args.split} dataset...")
     dev_loader = load_dev_dataset(
         args.data_dir,
+        args.split,
         args.max_dist,
         args.max_length,
         args.batch_size,
@@ -175,7 +184,7 @@ def main():
         device,
         tokenizer,
     )
-    logger.info(f"Dev dataset: {len(dev_loader.dataset)} samples")
+    logger.info(f"{args.split} dataset: {len(dev_loader.dataset)} samples")
     
     # Run evaluation (multiclass mode - no threshold needed)
     metrics = evaluate(model, dev_loader, device)
