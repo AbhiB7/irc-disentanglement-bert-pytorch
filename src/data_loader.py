@@ -430,6 +430,29 @@ class IRCDisentanglementDataset(Dataset):
             )
             self.conversation_map.append((conv_idx, i, candidate_indices))
 
+            # LABEL VERIFICATION: Print first 3 samples' candidate indices vs gold index
+            # to verify the label indexing is correct (debugging off-by-one prediction bias).
+            samples_added_so_far = len(self.samples) - samples_before
+            if samples_added_so_far <= 3 and gold_parent_idx >= 0:
+                gold_msg_idx = candidate_indices[gold_parent_idx][2]  # j_c = message index
+                logger.info(
+                    f"  LABEL CHECK [{conv.name} sample #{len(self.samples) - 1}]: "
+                    f"gold_parent_idx={gold_parent_idx}, "
+                    f"gold_msg_idx={gold_msg_idx}, "
+                    f"C={len(candidates)}, "
+                    f"msg_i_idx={i}, "
+                    f"candidate_range=[{candidate_indices[0][2]}, {candidate_indices[-1][2]}]"
+                )
+                # Sanity check: the gold parent should actually be in gold_links[i]
+                if not self.skip_labels:
+                    is_correct = gold_msg_idx in gold_links.get(i, set())
+                    if not is_correct:
+                        logger.error(
+                            f"  LABEL BUG: gold_parent_idx={gold_parent_idx} points to "
+                            f"msg {gold_msg_idx}, but msg {i} has gold links: "
+                            f"{gold_links.get(i, 'NONE')}"
+                        )
+
         samples_added = len(self.samples) - samples_before
         logger.info(f"  Created {samples_added} samples for {conv.name}")
 

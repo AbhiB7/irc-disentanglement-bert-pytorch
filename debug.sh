@@ -29,6 +29,8 @@ TEST_END=${TEST_END:-500}
 DATA_DIR=${DATA_DIR:-data/tiny}
 # --medium shortcut: uses train_small (~10 files, ~10K samples)
 MEDIUM=${MEDIUM:-false}
+# --epochs shortcut: override default 1 epoch (e.g., --epochs 3 for more training)
+EPOCHS=${EPOCHS:-1}
 
 # ── Parse CLI args ─────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -39,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     --max-dist) MAX_DIST="$2"; shift ;;
     --data-dir) DATA_DIR="$2"; shift ;;
     --medium) MEDIUM=true ;;
+    --epochs) EPOCHS="$2"; shift ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
   shift
@@ -77,7 +80,7 @@ python src/train.py \
     --data-dir "$DATA_DIR" \
     --batch-size "$BATCH_SIZE" \
     --num-workers 2 \
-    --epochs 1 \
+    --epochs "$EPOCHS" \
     --learning-rate 5e-5 \
     --max-length 128 \
     --max-dist "$MAX_DIST" \
