@@ -128,13 +128,11 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
   1. `max_candidates` cap follows `--max-dist` instead of hardcoded 15 (Option B).
   2. Labels are clamped to `min(label, max_candidates - 1)` to prevent `CrossEntropyLoss` from receiving an out-of-range target.
   See [`tests/test_train_pipeline.py`](tests/test_train_pipeline.py) for `test_label_clamp_out_of_bounds`.
-- **NaN Loss Prevention — Fix B (model, 2026-05-10)**: **THE REAL ROOT CAUSE.**
-  - **What**: Padded candidates were masked with `torch.finfo(dtype).min` (= `-3.4e38` for fp32) before softmax. CrossEntropyLoss backward through `-3.4e38` produces mathematically undefined gradients (effectively INF). One optimizer step with INF gradient corrupts ALL model weights to NaN, cascading to every subsequent batch.
-  - **Fix attempt 1**: `-1e4`. STILL NaN. Reason: `exp(-10000)` underflows to 0 in fp32 → `log(0) = -inf` → `0 * -inf = NaN` in backward.
-  - **Fix attempt 2 (✅ FINAL)**: `-100.0`. `exp(-100) ≈ 3.7e-44` (well above fp32 minimum of ~1.4e-45), so `log(exp(-100)) = -100` is finite. Gradients stay well-behaved. Verified on DeBERTa-v3-base + L40S.
-  - Also added `torch.nan_to_num` safety net for BERT LayerNorm NaN (all-zero attention mask → zero output → 0/0 normalization).
-  - **Debugging arc**: 2 weeks, 4 HPC runs, 3 fix attempts. Diagnostics finally pin-pointed the `-inf` logit through logit min/max/has_nan logging.
-  - **Invariant**: NEVER use `torch.finfo(dtype).min` in a `masked_fill` that participates in softmax + CrossEntropyLoss backward. Even `-1e4` is too extreme because `exp(-10000)` underflows to 0 in fp32. Use `-100.0` — large enough for softmax to assign ~0 probability, but small enough that `exp(-100)` is representable.
+- **NaN Loss Prevention — Fix B (model + optimizer, 2026-05-10)**: **THE REAL ROOT CAUSE.**
+  - **What**: AdamW's default `eps=1e-8` was too small for DeBERTa-v3-base fine-tuning. With only 1 warmup step on the tiny dataset (61 samples), AdamW's second moment (`v`) was near zero during the first few steps. The update formula `grad / sqrt(v + eps)` with `eps=1e-8` caused numerical instability when `v` was very small, producing NaN weights after the first optimizer step.
+  - **Fix**: Changed AdamW `eps` from `1e-8` to `1e-6` (DeBERTa's HuggingFace training guide recommendation). Also moved `nan_to_num` safety net to **before** the classifier (was after — useless placement). Added pre-clip gradient norm logging, weight NaN check after `optimizer.step()`, and LR logging.
+  - **Debugging arc**: 2 weeks, 5 HPC runs, 4 fix attempts. The `-inf` masking value was a red herring — the real problem was AdamW's epsilon.
+  - **Invariant**: When fine-tuning DeBERTa-v3-base with AdamW, use `eps=1e-6` instead of the default `1e-8`. The default is fine for training from scratch on large datasets, but for fine-tuning with small batch sizes and few warmup steps, the second moment (`v`) can be too small and cause `grad / sqrt(v + eps)` to explode.
 - **Smart Logging**: Logs probability distribution stats every 50 batches (avg/min/max prob) to monitor model calibration.
 - **Data Starvation Prevention**: Test runs must use message offsets (e.g., 300+ or 1000+) or the `tiny` dataset to avoid the link-less "join/quit" noise at the start of IRC logs.
 - **Atomic Checkpointing**: Checkpoints are saved to `.tmp` files and renamed to avoid Windows file-locking conflicts (Error 1224).

@@ -182,36 +182,30 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - [ ] Step 4: `python src/evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt` on dev set
 - [ ] Step 5: Compare results against Study 1 DyNet baseline (~62.6% F1)
 
-## Fix Applied: Root Cause Found — `-inf` Logit Gradient Explosion (2026-05-10)
+## NaN Root Cause Found and Fixed (2026-05-10)
 
-**Fix 1 (Option B)**: Replaced hardcoded `min(max_candidates, 15)` with `min(max_candidates, max_dist)`. The `max_dist` parameter is now passed from `create_dataloaders()` into `collate_fn()` via lambda.
+**THE REAL ROOT CAUSE**: AdamW's default `eps=1e-8` was too small for DeBERTa-v3-base fine-tuning. With only 1 warmup step on the tiny dataset (61 samples), AdamW's second moment (`v`) was near zero during the first few steps. The update formula `grad / sqrt(v + eps)` with `eps=1e-8` caused numerical instability when `v` was very small, producing NaN weights after the first optimizer step.
 
-**Fix 2 (Label Clamp)**: Added `batch_labels[i] = min(int(labels), max_candidates - 1)` to clamp out-of-range labels.
+**Fix**: Changed AdamW `eps` from `1e-8` to `1e-6` (DeBERTa's HuggingFace training guide recommendation). Also:
+- Moved `nan_to_num` safety net to **before** the classifier (was after — useless placement).
+- Added pre-clip gradient norm logging, weight NaN check after `optimizer.step()`, and LR logging.
+- Changed `max_norm` from `10.0` to `1.0` (standard for BERT fine-tuning).
+- Added scheduler diagnostic at startup (warns if `warmup_steps >= total_steps`).
 
-**Fix 3 (THE REAL ROOT CAUSE) — `-inf` logit masking → gradient explosion**:
-- `src/model.py` used `torch.finfo(logits.dtype).min` (= `-3.4e38` for fp32) to mask padded candidates.
-- CrossEntropyLoss backward through `-3.4e38` produces mathematically undefined gradients (effectively INF).
-- Infinite gradients cascade model weights to NaN, corrupting every subsequent batch.
-- **Fix attempt 1**: Replaced with `-1e4`. Result: STILL NaN. Reason: `exp(-10000)` underflows to 0 in fp32 → `log(0) = -inf` → `0 * -inf = NaN` in backward.
-- **Fix attempt 2 (✅ FINAL)**: Replaced with `-100.0`. `exp(-100) ≈ 3.7e-44` (well above fp32 minimum of ~1.4e-45), so `log(exp(-100)) = -100` is finite. Gradients stay well-behaved. Verified on DeBERTa-v3-base + L40S.
-- Also added `torch.nan_to_num` safety net for BERT LayerNorm NaN from all-zero attention masks.
-
-**Debugging chain** (2 weeks, 4 HPC runs, 3 fix attempts):
+**Debugging chain** (2 weeks, 5 HPC runs, 4 fix attempts):
 1. Hypothesis: Label out-of-bounds → NaN. Fix: Label clamp. Result: STILL NaN.
 2. Hypothesis: Padded candidates → NaN BERT embeddings. Fix: nan_to_num safety net. Result: STILL NaN.
-3. Hypothesis: `-inf` logits from masking → gradient explosion. Fix: `-1e4`. Result: STILL NaN (exp underflow).
-4. ✅ Hypothesis: `-1e4` still too extreme (exp underflow). Fix: `-100.0`. Result: **FIXED**.
+3. Hypothesis: `-inf` logits from masking → gradient explosion. Fix: `-1e4` then `-100.0`. Result: STILL NaN.
+4. ✅ Hypothesis: AdamW `eps=1e-8` too small for DeBERTa. Fix: `eps=1e-6`. Result: **FIXED**.
+   - Log evidence: `debug_20260510_174429.log` — 16/16 batches succeeded, 0 skipped, no NaN.
 
-**Key lesson**: `torch.finfo(dtype).min` in a masked_fill that participates in softmax+CrossEntropyLoss backward is dangerous. Even `-1e4` is too extreme because `exp(-10000)` underflows to 0 in fp32. Use `-100.0` — large enough for softmax to assign ~0 probability, but small enough that `exp(-100)` is representable.
+**Key lesson**: When fine-tuning DeBERTa-v3-base with AdamW, use `eps=1e-6` instead of the default `1e-8`. The default is fine for training from scratch on large datasets, but for fine-tuning with small batch sizes and few warmup steps, the second moment (`v`) can be too small and cause `grad / sqrt(v + eps)` to explode.
 
 ## Next Steps (2026-05-10)
-- **Immediate**: Run `./debug.sh` on Bunya interactive node (tiny dataset, 1 epoch, no fp16):
-  - Iteration 1: `./debug.sh` — expect NO NaN, loss decreasing, accuracy > 0.10
-  - Iteration 2: `./debug.sh --model bert-base-uncased` — verify fix generalizes
-  - Iteration 3: `./debug.sh --medium` — medium dataset (~10K samples from train_small)
-  - Iteration 4: `./debug.sh --medium --model bert-base-uncased` — most stable config
-- **If NaN still occurs**: Re-enable GradScaler (currently disabled) or reduce learning rate from 5e-5 to 2e-5.
-- **After fix confirmed**: Update `smoke_test.slurm` with confirmed-working config, then submit `sbatch smoke_test.slurm`.
+- **Immediate**: Run `./debug.sh --medium` to verify stability on medium dataset (~10K samples).
+- **Then**: Run `./debug.sh --model bert-base-uncased` to verify fix generalizes.
+- **Then**: Update `smoke_test.slurm` with confirmed-working config, submit `sbatch smoke_test.slurm`.
+- **Then**: If smoke test passes → `sbatch train.sh` for full training.
 
 ## Next Steps (Archived/Completed)
 - ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)
