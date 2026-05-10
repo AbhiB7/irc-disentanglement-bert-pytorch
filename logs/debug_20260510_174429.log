@@ -1,0 +1,198 @@
+2026-05-10 17:44:38,225 - __main__ - INFO - ================================================================================
+2026-05-10 17:44:38,225 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-05-10 17:44:38,226 - __main__ - INFO - ================================================================================
+2026-05-10 17:44:38,226 - __main__ - INFO - --- System Diagnostics ---
+2026-05-10 17:44:38,226 - __main__ - INFO - OS: Linux 5.14.0-611.24.1.el9_7.x86_64
+2026-05-10 17:44:38,226 - __main__ - INFO - Python: 3.10.20
+2026-05-10 17:44:38,226 - __main__ - INFO - RAM: 2003.13 GB total, 1957.01 GB available
+2026-05-10 17:44:38,243 - __main__ - INFO - GPU 0: NVIDIA L40
+2026-05-10 17:44:38,243 - __main__ - INFO -   Total Memory: 45460 MB
+2026-05-10 17:44:38,243 - __main__ - INFO -   Compute Capability: 8.9
+2026-05-10 17:44:38,243 - __main__ - INFO - --------------------------
+2026-05-10 17:44:38,243 - __main__ - INFO - Mode: train
+2026-05-10 17:44:38,243 - __main__ - INFO - Device: cuda
+2026-05-10 17:44:38,243 - __main__ - INFO - Model: microsoft/deberta-v3-base
+2026-05-10 17:44:38,243 - __main__ - INFO - Batch size: 4
+2026-05-10 17:44:38,243 - __main__ - INFO - Learning rate: 5e-05
+2026-05-10 17:44:38,243 - __main__ - INFO - Epochs: 1
+2026-05-10 17:44:38,244 - __main__ - INFO - Max dist: 15
+2026-05-10 17:44:38,244 - __main__ - INFO - Max length: 128
+2026-05-10 17:44:38,244 - __main__ - INFO - Output dir: /scratch/user/s4901673/ircbert_runs/debug_checkpoints
+2026-05-10 17:44:38,244 - __main__ - INFO - Using device: cuda
+2026-05-10 17:44:38,244 - __main__ - INFO - Loading tokenizer: microsoft/deberta-v3-base
+2026-05-10 17:44:38,615 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-10 17:44:38,616 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-10 17:44:38,622 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 17:44:38,861 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 17:44:38,867 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-10 17:44:39,103 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-10 17:44:39,337 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-10 17:44:39,823 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-10 17:44:39,828 - __main__ - INFO - Tokenizer loaded: DebertaV2Tokenizer
+2026-05-10 17:44:39,828 - __main__ - INFO - Creating dataloaders...
+2026-05-10 17:44:39,830 - __main__ - INFO - Loading 1 train files...
+2026-05-10 17:44:39,830 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-10 17:44:39,830 - data_loader - INFO -   max_dist=15, max_length=128, skip_labels=False
+2026-05-10 17:44:39,830 - data_loader - INFO -   test_start=0, test_end=500
+2026-05-10 17:44:39,831 - data_loader - INFO - Loading conversation from data/tiny/train/tiny.train.ascii.txt
+2026-05-10 17:44:39,832 - data_loader - INFO -   Read 300 lines from ASCII file
+2026-05-10 17:44:39,833 - data_loader - INFO -   Parsed 300 messages, found 32 unique users
+2026-05-10 17:44:39,846 - data_loader - INFO -   Loaded 212 gold links from annotation file
+2026-05-10 17:44:39,849 - data_loader - INFO -   Conversation 'tiny.train' loaded in 0.02s
+2026-05-10 17:44:39,849 - data_loader - INFO -   Creating samples for tiny.train: messages 0 to 300 (limited)
+2026-05-10 17:44:39,854 - data_loader - INFO -   Created 61 samples for tiny.train
+2026-05-10 17:44:39,854 - data_loader - INFO -   File 1/1: tiny.train - 300 messages, 61 total samples so far
+2026-05-10 17:44:39,854 - data_loader - INFO - Dataset initialization complete: 61 samples from 1 conversations in 0.02s
+2026-05-10 17:44:39,854 - __main__ - INFO -   Train dataset created: 61 samples
+2026-05-10 17:44:39,854 - __main__ - INFO - Loading 1 dev files...
+2026-05-10 17:44:39,854 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-10 17:44:39,855 - data_loader - INFO -   max_dist=15, max_length=128, skip_labels=False
+2026-05-10 17:44:39,855 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-10 17:44:39,855 - data_loader - INFO - Loading conversation from data/tiny/dev/tiny.dev.ascii.txt
+2026-05-10 17:44:39,856 - data_loader - INFO -   Read 250 lines from ASCII file
+2026-05-10 17:44:39,856 - data_loader - INFO -   Parsed 250 messages, found 30 unique users
+2026-05-10 17:44:39,867 - data_loader - INFO -   Loaded 188 gold links from annotation file
+2026-05-10 17:44:39,867 - data_loader - INFO -   Conversation 'tiny.dev' loaded in 0.01s
+2026-05-10 17:44:39,867 - data_loader - INFO -   Creating samples for tiny.dev: all 250 messages
+2026-05-10 17:44:39,871 - data_loader - INFO -   Created 65 samples for tiny.dev
+2026-05-10 17:44:39,871 - data_loader - INFO -   File 1/1: tiny.dev - 250 messages, 65 total samples so far
+2026-05-10 17:44:39,871 - data_loader - INFO - Dataset initialization complete: 65 samples from 1 conversations in 0.02s
+2026-05-10 17:44:39,871 - __main__ - INFO -   Dev dataset created: 65 samples
+2026-05-10 17:44:39,871 - __main__ - INFO -   Train dataset: 61 samples
+2026-05-10 17:44:39,871 - __main__ - INFO - Training: 61 samples | 16 batches/epoch | batch_size=4 | max_dist=15 | max_length=128
+2026-05-10 17:44:39,871 - __main__ - INFO -   Dev dataset: 65 samples
+2026-05-10 17:44:39,871 - __main__ - INFO - Validation: 65 samples | 17 batches
+2026-05-10 17:44:39,871 - __main__ - INFO - Creating model...
+2026-05-10 17:44:40,095 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 17:44:40,102 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 17:44:40,731 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-10 17:44:40,963 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+Device: cuda
+Model: microsoft/deberta-v3-base
+Output dir: /scratch/user/s4901673/ircbert_runs/debug_checkpoints
+================================================================================
+Loading weights:   0%|          | 0/198 [00:00<?, ?it/s]Loading weights: 100%|██████████| 198/198 [00:00<00:00, 21894.86it/s]2026-05-10 17:44:41,216 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+
+2026-05-10 17:44:41,471 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-10 17:44:41,708 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-10 17:44:41,937 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-10 17:44:42,176 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
+[transformers] [1mDebertaV2Model LOAD REPORT[0m from: microsoft/deberta-v3-base
+Key                                     | Status     |  | 
+----------------------------------------+------------+--+-
+mask_predictions.LayerNorm.bias         | UNEXPECTED |  | 
+mask_predictions.classifier.bias        | UNEXPECTED |  | 
+mask_predictions.dense.bias             | UNEXPECTED |  | 
+lm_predictions.lm_head.bias             | UNEXPECTED |  | 
+lm_predictions.lm_head.LayerNorm.bias   | UNEXPECTED |  | 
+mask_predictions.dense.weight           | UNEXPECTED |  | 
+lm_predictions.lm_head.LayerNorm.weight | UNEXPECTED |  | 
+mask_predictions.classifier.weight      | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.bias       | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.weight     | UNEXPECTED |  | 
+mask_predictions.LayerNorm.weight       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+2026-05-10 17:44:42,560 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 17:44:42,566 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 17:44:43,062 - __main__ - INFO -   Parameters: 183,832,326 trainable, 183,832,326 total
+2026-05-10 17:44:43,062 - __main__ - INFO -   BERT hidden size: 768
+2026-05-10 17:44:43,062 - __main__ - INFO -   Combined size: 773
+2026-05-10 17:44:43,063 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
+2026-05-10 17:44:43,063 - __main__ - INFO - Scheduler config: total_steps=16, warmup_steps=1, warmup_ratio=0.1
+2026-05-10 17:44:43,063 - __main__ - INFO - Created scheduler with 1 warmup steps (10% of 16 total steps)
+2026-05-10 17:44:43,063 - __main__ - INFO - Starting training from epoch 1...
+2026-05-10 17:44:43,063 - __main__ - INFO - ================================================================================
+2026-05-10 17:44:43,063 - __main__ - INFO - Epoch 1/1
+2026-05-10 17:44:43,063 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-05-10 17:44:43,064 - __main__ - INFO - Epoch 1: Peak memory stats reset.
+2026-05-10 17:44:43,064 - __main__ - INFO - Starting epoch 1 with 16 batches
+2026-05-10 17:44:43,159 - __main__ - INFO -   [Epoch 1 Batch 0 SANITY CHECK]
+2026-05-10 17:44:43,160 - __main__ - INFO -     input_ids shape : [4, 15, 128]  (batch x max_C x seq_len)
+2026-05-10 17:44:43,160 - __main__ - INFO -     features shape  : [4, 15, 5]
+2026-05-10 17:44:43,160 - __main__ - INFO -     labels shape    : [4]
+2026-05-10 17:44:43,160 - __main__ - INFO -     Candidate counts per sample: min=12 max=15 mean=13.0
+2026-05-10 17:44:43,161 - __main__ - INFO -     Label values: [11, 14, 11, 12]
+2026-05-10 17:44:43,161 - __main__ - INFO -     Label distribution (this batch): {11: 2, 12: 1, 14: 1}
+2026-05-10 17:44:43,837 - __main__ - INFO -   [Epoch 1 Batch 0 DIAGNOSTIC] C=15 | logits: min=-100.0000 max=0.5126 mean=-13.3159 has_nan=False | labels=[11, 14, 11, 12] max_label=14
+2026-05-10 17:44:43,983 - __main__ - INFO -   Batch 0 pre-clip grad norm: 4.943244
+2026-05-10 17:44:44,000 - __main__ - INFO -   Batch 0 LR before optimizer.step(): [0.0]
+2026-05-10 17:44:44,076 - __main__ - INFO -   Batch 0 LR after scheduler.step(): [5e-05]
+2026-05-10 17:44:44,348 - __main__ - INFO -   [Epoch 1 Batch 1 DIAGNOSTIC] C=15 | logits: min=-100.0000 max=0.3536 mean=-3.3746 has_nan=False | labels=[12, 14, 14, 14] max_label=14
+2026-05-10 17:44:44,427 - __main__ - INFO -   Batch 1 pre-clip grad norm: 5.045208
+2026-05-10 17:44:44,430 - __main__ - INFO -   Batch 1 LR before optimizer.step(): [5e-05]
+2026-05-10 17:44:44,458 - __main__ - INFO -   Batch 1 LR after scheduler.step(): [4.666666666666667e-05]
+2026-05-10 17:44:44,487 - __main__ - INFO -   [Epoch 1 Batch 2 DIAGNOSTIC] C=14 | logits: min=-100.0000 max=-0.0880 mean=-12.7341 has_nan=False | labels=[8, 13, 13, 12] max_label=13
+2026-05-10 17:44:44,561 - __main__ - INFO -   Batch 2 pre-clip grad norm: 26.856022
+2026-05-10 17:44:44,564 - __main__ - INFO -   Batch 2 LR before optimizer.step(): [4.666666666666667e-05]
+2026-05-10 17:44:44,592 - __main__ - INFO -   Batch 2 LR after scheduler.step(): [4.3333333333333334e-05]
+2026-05-10 17:44:44,696 - __main__ - INFO -   Batch 3 pre-clip grad norm: 10.826721
+2026-05-10 17:44:44,699 - __main__ - INFO -   Batch 3 LR before optimizer.step(): [4.3333333333333334e-05]
+2026-05-10 17:44:44,727 - __main__ - INFO -   Batch 3 LR after scheduler.step(): [4e-05]
+2026-05-10 17:44:44,836 - __main__ - INFO -   Batch 4 pre-clip grad norm: 7.406222
+2026-05-10 17:44:44,839 - __main__ - INFO -   Batch 4 LR before optimizer.step(): [4e-05]
+2026-05-10 17:44:44,867 - __main__ - INFO -   Batch 4 LR after scheduler.step(): [3.6666666666666666e-05]
+2026-05-10 17:44:44,976 - __main__ - INFO -   Batch 5 pre-clip grad norm: 8.876340
+2026-05-10 17:44:44,979 - __main__ - INFO -   Batch 5 LR before optimizer.step(): [3.6666666666666666e-05]
+2026-05-10 17:44:45,007 - __main__ - INFO -   Batch 5 LR after scheduler.step(): [3.3333333333333335e-05]
+2026-05-10 17:44:45,110 - __main__ - INFO -   Batch 6 pre-clip grad norm: 8.632464
+2026-05-10 17:44:45,114 - __main__ - INFO -   Batch 6 LR before optimizer.step(): [3.3333333333333335e-05]
+2026-05-10 17:44:45,142 - __main__ - INFO -   Batch 6 LR after scheduler.step(): [3e-05]
+2026-05-10 17:44:45,250 - __main__ - INFO -   Batch 7 pre-clip grad norm: 7.883455
+2026-05-10 17:44:45,253 - __main__ - INFO -   Batch 7 LR before optimizer.step(): [3e-05]
+2026-05-10 17:44:45,281 - __main__ - INFO -   Batch 7 LR after scheduler.step(): [2.6666666666666667e-05]
+2026-05-10 17:44:45,384 - __main__ - INFO -   Batch 8 pre-clip grad norm: 8.824479
+2026-05-10 17:44:45,387 - __main__ - INFO -   Batch 8 LR before optimizer.step(): [2.6666666666666667e-05]
+2026-05-10 17:44:45,416 - __main__ - INFO -   Batch 8 LR after scheduler.step(): [2.3333333333333336e-05]
+2026-05-10 17:44:45,526 - __main__ - INFO -   Batch 9 pre-clip grad norm: 10.123047
+2026-05-10 17:44:45,529 - __main__ - INFO -   Batch 9 LR before optimizer.step(): [2.3333333333333336e-05]
+2026-05-10 17:44:45,558 - __main__ - INFO -   Batch 9 LR after scheduler.step(): [2e-05]
+2026-05-10 17:44:45,559 - __main__ - INFO -   Epoch 1 progress: 10/16 batches (4.01 batches/s, avg_loss=2.6895, max_C=15, GPU Mem: 1471/9126MB (max: 7965MB))
+2026-05-10 17:44:45,667 - __main__ - INFO -   Batch 10 pre-clip grad norm: 9.397373
+2026-05-10 17:44:45,670 - __main__ - INFO -   Batch 10 LR before optimizer.step(): [2e-05]
+2026-05-10 17:44:45,699 - __main__ - INFO -   Batch 10 LR after scheduler.step(): [1.6666666666666667e-05]
+2026-05-10 17:44:45,808 - __main__ - INFO -   Batch 11 pre-clip grad norm: 7.579081
+2026-05-10 17:44:45,811 - __main__ - INFO -   Batch 11 LR before optimizer.step(): [1.6666666666666667e-05]
+2026-05-10 17:44:45,839 - __main__ - INFO -   Batch 11 LR after scheduler.step(): [1.3333333333333333e-05]
+2026-05-10 17:44:45,934 - __main__ - INFO -   Batch 12 pre-clip grad norm: 10.594794
+2026-05-10 17:44:45,937 - __main__ - INFO -   Batch 12 LR before optimizer.step(): [1.3333333333333333e-05]
+2026-05-10 17:44:45,965 - __main__ - INFO -   Batch 12 LR after scheduler.step(): [1e-05]
+2026-05-10 17:44:46,068 - __main__ - INFO -   Batch 13 pre-clip grad norm: 9.656124
+2026-05-10 17:44:46,071 - __main__ - INFO -   Batch 13 LR before optimizer.step(): [1e-05]
+2026-05-10 17:44:46,099 - __main__ - INFO -   Batch 13 LR after scheduler.step(): [6.666666666666667e-06]
+2026-05-10 17:44:46,208 - __main__ - INFO -   Batch 14 pre-clip grad norm: 10.206363
+2026-05-10 17:44:46,211 - __main__ - INFO -   Batch 14 LR before optimizer.step(): [6.666666666666667e-06]
+2026-05-10 17:44:46,239 - __main__ - INFO -   Batch 14 LR after scheduler.step(): [3.3333333333333333e-06]
+2026-05-10 17:44:46,323 - __main__ - INFO -   Batch 15 pre-clip grad norm: 32.068602
+2026-05-10 17:44:46,326 - __main__ - INFO -   Batch 15 LR before optimizer.step(): [3.3333333333333333e-06]
+2026-05-10 17:44:46,355 - __main__ - INFO -   Batch 15 LR after scheduler.step(): [0.0]
+2026-05-10 17:44:46,398 - __main__ - INFO - Epoch 1 complete in 3.33s | avg_loss=2.8225 | batches: 16 succeeded, 0 skipped (OOM/NaN)
+2026-05-10 17:44:46,399 - __main__ - INFO - Train Loss: 2.8225
+2026-05-10 17:44:46,399 - __main__ - INFO - Evaluating on dev set...
+2026-05-10 17:44:46,400 - __main__ - INFO - Starting evaluation on 65 samples
+Evaluating:   0%|          | 0/17 [00:00<?, ?it/s]Evaluating:   6%|▌         | 1/17 [00:00<00:03,  4.73it/s]Evaluating:  35%|███▌      | 6/17 [00:00<00:00, 21.65it/s]2026-05-10 17:44:46,829 - __main__ - INFO -   Evaluation progress: 10/17 batches (23.33 batches/s)
+Evaluating:  59%|█████▉    | 10/17 [00:00<00:00, 27.92it/s]Evaluating:  88%|████████▊ | 15/17 [00:00<00:00, 33.02it/s]                                                           2026-05-10 17:44:47,056 - __main__ - INFO -   Prediction sample (first 20):
+2026-05-10 17:44:47,056 - __main__ - INFO -     Predicted: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0]
+2026-05-10 17:44:47,056 - __main__ - INFO -     Gold:      [0, 1, 1, 13, 12, 12, 11, 10, 10, 9, 8, 10, 11, 11, 12, 11, 10, 9, 10, 10]
+2026-05-10 17:44:47,056 - __main__ - INFO -     Abs error: [0, 1, 1, 13, 12, 12, 11, 10, 10, 9, 8, 10, 11, 10, 12, 11, 10, 8, 10, 10] (mean=8.95)
+2026-05-10 17:44:47,057 - __main__ - INFO -   Per-position accuracy (top 10 classes):
+2026-05-10 17:44:47,057 - __main__ - INFO -     Position  0: 1.000 accuracy (1 samples)
+2026-05-10 17:44:47,057 - __main__ - INFO -     Position  1: 0.000 accuracy (2 samples)
+2026-05-10 17:44:47,058 - __main__ - INFO -     Position  7: 0.000 accuracy (1 samples)
+2026-05-10 17:44:47,058 - __main__ - INFO -     Position  8: 0.000 accuracy (2 samples)
+2026-05-10 17:44:47,058 - __main__ - INFO -     Position  9: 0.000 accuracy (8 samples)
+2026-05-10 17:44:47,058 - __main__ - INFO - Evaluation complete in 0.66s
+2026-05-10 17:44:47,058 - __main__ - INFO -   Loss: 2.4201, Accuracy: 0.0154, Precision: 0.0011, Recall: 0.0667, F1: 0.0021
+2026-05-10 17:44:47,058 - __main__ - INFO - Dev Loss: 2.4201
+2026-05-10 17:44:47,058 - __main__ - INFO - Dev Accuracy: 0.0154
+2026-05-10 17:44:47,058 - __main__ - INFO -   New best F1! Saving best model...
+2026-05-10 17:44:48,565 - __main__ - INFO - Saved checkpoint to /scratch/user/s4901673/ircbert_runs/debug_checkpoints/best/checkpoint_epoch_1.pt
+2026-05-10 17:44:49,902 - __main__ - INFO - Saved checkpoint to /scratch/user/s4901673/ircbert_runs/debug_checkpoints/checkpoint_epoch_1.pt
+2026-05-10 17:44:49,902 - __main__ - INFO - Training complete in 6.84s!
+2026-05-10 17:44:49,903 - __main__ - INFO - Best F1: 0.0154 at epoch 1
+2026-05-10 17:44:49,903 - __main__ - INFO - ================================================================================
+2026-05-10 17:44:49,903 - __main__ - INFO - Done!
+2026-05-10 17:44:49,903 - __main__ - INFO - ================================================================================
+2026-05-10 17:44:49,903 - __main__ - INFO - Log file: /home/s4901673/workspace/irc-disentanglement-bert-pytorch/logs/train_20260510_174438.log
