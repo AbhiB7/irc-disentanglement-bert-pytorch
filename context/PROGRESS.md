@@ -182,6 +182,14 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - [ ] Step 4: `python src/evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt` on dev set
 - [ ] Step 5: Compare results against Study 1 DyNet baseline (~62.6% F1)
 
+## Current Status: NaN Loss Cascade (2026-05-08)
+- ❌ **Run 24377710** (with `--fp16`): Batch 0 OK (grad norm 3.95), every batch from 2 onwards = NaN loss
+- ❌ **Run 24377768** (without `--fp16`): **Identical** pattern — Batch 0 OK, every batch from 2 onwards = NaN loss
+- **Key finding**: Removing `--fp16` did NOT change the failure mode. The NaN is not from fp16 numerical instability.
+- **Hypothesis**: `collate_fn` caps `max_candidates` at 15, but labels are computed from the original uncapped candidate list. A label ≥ 15 causes `CrossEntropyLoss` to produce NaN. Once the optimizer sees NaN loss, model weights become NaN and every subsequent forward pass produces NaN.
+- **Fix needed**: Clamp labels to `min(label, max_candidates - 1)` in `collate_fn`.
+- **Diagnostic gaps**: We don't log model weights after optimizer step, logits before loss, or labels for batch 1+.
+
 ## Next Steps (Archived/Completed)
 - ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)
 - ~~**GPU Training on Vast.ai**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti.~~ (Completed - now using Bunya A100)

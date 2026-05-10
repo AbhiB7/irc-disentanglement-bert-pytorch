@@ -150,10 +150,60 @@ Further options in order of aggressiveness:
 4. Add `--freeze-bert` to train only the classifier head (dramatically reduces gradient computation)
 5. Request a multi-GPU node and use gradient accumulation with smaller effective batch size
 
-## 8. Files Modified
+## 8. Fourth Round: NaN Loss Cascade (2026-05-08)
+
+Two runs (job IDs 24377710 and 24377768) both show the **exact same failure pattern**:
+
+### Log Evidence (both runs identical)
+
+```
+[Epoch 1 Batch 0 SANITY CHECK]
+  input_ids shape : [8, 15, 128]  (batch x max_C x seq_len)
+  features shape  : [8, 15, 5]
+  labels shape    : [8]
+  Candidate counts per sample: min=1 max=15 mean=8.1
+  Label values: [0, 0, 0, 0, 0, 0, 0, 0]
+  Label distribution: {0: 8}
+  Epoch 1 Batch 0 gradient norm: 3.9544
+  Batch 2: NaN or Inf loss detected! Skipping batch.
+  Batch 3: NaN or Inf loss detected! Skipping batch.
+  ... (every batch from 2 through 584+)
+```
+
+### What We Know
+
+1. **Batch 0 works perfectly** — gradient norm = 3.95 (healthy), no NaN
+2. **Batch 1 is not logged** — no error, no progress log (presumably passes)
+3. **Every batch from 2 onwards** produces NaN loss
+4. **Removing `--fp16` did NOT change the pattern** — same NaN cascade in both runs
+5. **Gradient clipping didn't help** — the NaN is in the forward pass **loss**, not the gradients
+
+### What We DON'T Know (Diagnostic Gaps)
+
+| Question | How to check |
+| :------- | :----------- |
+| Do model **weights** become NaN after the first optimizer step? | Log `torch.isnan(p).any()` on all params after `optimizer.step()` on batch 0 |
+| Are the model's **logits** NaN before the loss function? | Log `torch.isnan(logits).any()` inside the forward pass when loss is NaN |
+| Is batch 1's label valid? | We only log labels at batch 0 (all zeros). Batch 1 might have a label ≥ C |
+| What's the gradient norm for batch 1? | We only log gradient norm at batch 0 |
+
+### Hypothesis
+
+The most likely root cause is **label ≥ C** (out-of-bounds target for CrossEntropyLoss). The collate_fn caps `max_candidates` at 15, but the original label indices are computed based on the uncapped candidate list. If a sample originally had C=20 candidates and the gold parent was at index 17, the label would be 17 — but after capping to 15 candidates, the label 17 is out of bounds. CrossEntropyLoss with an out-of-bounds target produces NaN loss.
+
+This would explain:
+- Why batch 0 works (all labels are 0, which is always in bounds)
+- Why batch 1 might work (random chance of in-bounds labels)
+- Why every batch from 2 onwards fails (once the optimizer sees NaN loss, the model weights become NaN, and every subsequent forward pass produces NaN)
+
+### Fix Needed
+
+In `collate_fn`: after capping `max_candidates` at 15, clamp all labels to `min(label, max_candidates - 1)`.
+
+## 9. Files Modified
 
 | File | Change |
 | :--- | :--- |
 | `src/model.py` | Added `gradient_checkpointing` param to `__init__` and `create_model()` |
-| `src/train.py` | Added `--gradient-checkpointing` CLI flag; collate_fn cap at 15; OOM cascade detection; periodic cache flush; max_C logging; disabled GradScaler |
-| `run_job.slurm` | batch-size 32→16→8, max-dist 30→15, added `--gradient-checkpointing` |
+| `src/train.py` | Added `--gradient-checkpointing` CLI flag; collate_fn cap at 15; OOM cascade detection; periodic cache flush; max_C logging; disabled GradScaler; gradient clipping; NaN gradient check |
+| `run_job.slurm` | batch-size 32→16→8, max-dist 30→15, added `--gradient-checkpointing`, removed `--fp16` |
