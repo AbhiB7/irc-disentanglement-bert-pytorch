@@ -738,12 +738,12 @@ def train_epoch(
                     f"Possible mode collapse or positional bias."
                 )
 
-        # Backward pass
+        # === BACKWARD PASS ===
         try:
             optimizer.zero_grad()
             loss.backward()
 
-            # Check for NaN/Inf gradients before optimizer step
+            # --- NaN gradient check ---
             grad_has_nan = False
             for p in model.parameters():
                 if p.grad is not None:
@@ -753,28 +753,91 @@ def train_epoch(
 
             if grad_has_nan:
                 logger.error(
-                    f"  Batch {batch_idx + 1}: NaN/Inf gradient detected! Skipping batch."
+                    f"  Batch {batch_idx}: NaN/Inf in gradients after backward — skipping batch."
+                )
+                optimizer.zero_grad()
+                torch.cuda.empty_cache()
+                continue
+
+            # --- Pre-clip gradient norm (MUST be before clip_grad_norm_ and optimizer.step) ---
+            pre_clip_norm = 0.0
+            for p in model.parameters():
+                if p.grad is not None:
+                    pre_clip_norm += p.grad.data.norm(2).item() ** 2
+            pre_clip_norm = pre_clip_norm ** 0.5
+
+            logger.info(f"  Batch {batch_idx} pre-clip grad norm: {pre_clip_norm:.6f}")
+
+            if pre_clip_norm == 0.0:
+                logger.error(
+                    f"  CRITICAL: Batch {batch_idx} pre-clip norm is ZERO — "
+                    f"all gradients are zero. Possible cause: all logits are -100 "
+                    f"and CrossEntropyLoss gradient vanished. Skipping batch."
                 )
                 optimizer.zero_grad()
                 continue
 
-            # Gradient clipping (max_norm=10.0): prevents any single batch from
-            # destabilizing model parameters. Healthy norm for DeBERTa fine-tuning
-            # is ~0.5-5.0. The batch 0 gradient norm on the Ubuntu dataset was 4.0.
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=10.0)
+            if pre_clip_norm != pre_clip_norm:  # NaN check (NaN != NaN is always True)
+                logger.error(
+                    f"  CRITICAL: Batch {batch_idx} pre-clip norm is NaN — skipping batch."
+                )
+                optimizer.zero_grad()
+                torch.cuda.empty_cache()
+                continue
+
+            # --- Gradient clipping ---
+            # max_norm=1.0: Standard for BERT fine-tuning. The previous value of 10.0
+            # was too loose — a norm of 5.07 was passing through unclipped.
+            # Bump back to 5.0 for full training once NaN is resolved.
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+            # --- LR BEFORE optimizer step ---
+            if scheduler is not None:
+                lr_before = scheduler.get_last_lr()
+                logger.info(f"  Batch {batch_idx} LR before optimizer.step(): {lr_before}")
+
+            # --- Optimizer step ---
             optimizer.step()
 
-            # Gradient norm logging (first batch of each epoch)
-            if batch_idx == 0:
-                total_norm = 0.0
-                for p in model.parameters():
-                    if p.grad is not None:
-                        total_norm += p.grad.data.norm(2).item() ** 2
-                total_norm = total_norm ** 0.5
-                logger.info(f"  Epoch {epoch} Batch 0 gradient norm: {total_norm:.4f}")
-                if total_norm > 10.0:
-                    logger.warning(f"  WARNING: High gradient norm ({total_norm:.4f}). "
-                                   f"Consider gradient clipping (torch.nn.utils.clip_grad_norm_).")
+            # --- Weight NaN check IMMEDIATELY after optimizer step ---
+            weight_has_nan = False
+            nan_param_name = None
+            for name, p in model.named_parameters():
+                if torch.isnan(p).any() or torch.isinf(p).any():
+                    weight_has_nan = True
+                    nan_param_name = name
+                    break
+
+            if weight_has_nan:
+                logger.error(
+                    f"  CRITICAL: Model weights contain NaN/Inf after optimizer.step() "
+                    f"at batch {batch_idx}! First bad param: {nan_param_name}"
+                )
+                logger.error(
+                    f"  This means the optimizer step itself is corrupting weights."
+                )
+                logger.error(
+                    f"  Likely causes: (1) NaN LR from scheduler, "
+                    f"(2) zero grad norm causing clip_grad_norm_ division by zero, "
+                    f"(3) AdamW second moment (v) going to zero then dividing."
+                )
+                # Do not continue — halt so we can read the logs
+                raise RuntimeError(
+                    f"Model weights NaN after optimizer.step() at batch {batch_idx}. "
+                    f"First bad param: {nan_param_name}. Check logs."
+                )
+
+            # --- Scheduler step + LR AFTER ---
+            if scheduler is not None:
+                scheduler.step()
+                lr_after = scheduler.get_last_lr()
+                logger.info(f"  Batch {batch_idx} LR after scheduler.step(): {lr_after}")
+                if any(lr != lr for lr in lr_after):  # NaN check
+                    logger.error(
+                        f"  CRITICAL: Scheduler produced NaN LR at batch {batch_idx}! "
+                        f"total_steps may equal warmup_steps (division by zero)."
+                    )
+                    raise RuntimeError(f"Scheduler produced NaN LR at batch {batch_idx}.")
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
                 logger.error(
@@ -801,9 +864,6 @@ def train_epoch(
                 continue
             else:
                 raise e
-
-        if scheduler is not None:
-            scheduler.step()
 
         # Periodic defrag: prevents allocator fragmentation buildup
         if batch_idx % 50 == 0 and torch.cuda.is_available():
@@ -1041,14 +1101,45 @@ def main():
 
     # Create optimizer and scheduler
     if args.mode in ["train", "dev-only"]:
+        # eps=1e-6: DeBERTa-v3-base's HuggingFace training guide recommends this
+        # over the default 1e-8 for stability. With only 1 warmup step on debug
+        # runs, AdamW's second moment (v) is near zero initially, and eps=1e-8
+        # can cause grad / sqrt(v + eps) to explode. 1e-6 provides a larger
+        # floor. See 2026-05-10 NaN investigation in research/handover.md.
         optimizer = torch.optim.AdamW(
-            model.parameters(), lr=args.learning_rate, weight_decay=0.01
+            model.parameters(), lr=args.learning_rate, weight_decay=0.01, eps=1e-6
         )
         logger.info(f"Created AdamW optimizer with lr={args.learning_rate}")
 
         if train_loader:
             total_steps = len(train_loader) * args.epochs
             num_warmup_steps = int(total_steps * args.warmup_ratio)
+
+            # === SCHEDULER DIAGNOSTIC ===
+            logger.info(f"Scheduler config: total_steps={total_steps}, "
+                        f"warmup_steps={num_warmup_steps}, "
+                        f"warmup_ratio={args.warmup_ratio}")
+
+            if total_steps == 0:
+                raise RuntimeError("total_steps is 0 — train_loader is empty.")
+
+            if num_warmup_steps >= total_steps:
+                logger.error(
+                    f"CRITICAL: warmup_steps ({num_warmup_steps}) >= total_steps ({total_steps}). "
+                    f"The linear decay scheduler will divide by zero after warmup. "
+                    f"Fix: use --warmup-ratio 0.0 for debug runs, or increase dataset size."
+                )
+                raise RuntimeError(
+                    f"warmup_steps >= total_steps: {num_warmup_steps} >= {total_steps}"
+                )
+
+            if num_warmup_steps == 0:
+                logger.warning(
+                    f"warmup_steps=0. With lr={args.learning_rate} and no warmup, "
+                    f"the first batch sees the full learning rate immediately. "
+                    f"This is fine for debug but may cause instability on full training."
+                )
+
             scheduler = get_linear_schedule_with_warmup(
                 optimizer,
                 num_warmup_steps=num_warmup_steps,

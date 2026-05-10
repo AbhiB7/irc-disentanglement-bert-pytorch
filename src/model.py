@@ -11,11 +11,14 @@ Architecture (multiclass reframing):
 Tested: tests/test_model.py (23 tests: init, forward, predict, architecture, loss, smoke)
 """
 
+import logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers import AutoModel, AutoConfig
 from typing import Optional, Tuple, Dict
+
+logger = logging.getLogger(__name__)
 
 
 class CrossEncoderWithFeatures(nn.Module):
@@ -138,6 +141,30 @@ class CrossEncoderWithFeatures(nn.Module):
         # Apply dropout
         cls_embedding = self.dropout(cls_embedding)
 
+        # === CLS EMBEDDING DIAGNOSTIC (catches NaN from BERT LayerNorm on padded input) ===
+        # This MUST be before the classifier — the old placement was after the classifier
+        # had already used cls_embedding, making the safety net useless.
+        if torch.isnan(cls_embedding).any() or torch.isinf(cls_embedding).any():
+            logger.warning(
+                f"  WARNING: cls_embedding contains NaN/Inf before classifier. "
+                f"Shape: {cls_embedding.shape}, "
+                f"NaN count: {torch.isnan(cls_embedding).sum().item()}, "
+                f"Inf count: {torch.isinf(cls_embedding).sum().item()}. "
+                f"Applying nan_to_num fix."
+            )
+            cls_embedding = torch.nan_to_num(cls_embedding, nan=0.0, posinf=1.0, neginf=-1.0)
+
+        # Log embedding stats every forward pass in debug mode (remove for full training)
+        cls_min = cls_embedding.min().item()
+        cls_max = cls_embedding.max().item()
+        cls_mean = cls_embedding.mean().item()
+        if abs(cls_max) > 100 or abs(cls_min) > 100:
+            logger.warning(
+                f"  WARNING: cls_embedding has large values — "
+                f"min={cls_min:.4f} max={cls_max:.4f} mean={cls_mean:.4f}. "
+                f"May cause gradient explosion through classifier."
+            )
+
         # Reshape features to match cls_embedding: [batch_size, C, num_features] -> [batch_size * C, num_features]
         if features is not None:
             # features from collate_fn is [batch_size, C, num_features] (per-candidate)
@@ -162,12 +189,6 @@ class CrossEncoderWithFeatures(nn.Module):
         # In our case, the collate_fn uses 0 for padding.
         # Check if the whole candidate was padding:
         candidate_mask = attention_mask.sum(dim=-1) > 0  # [batch_size, C]
-
-        # Safety net: replace any NaN/Inf in BERT [CLS] embeddings with 0.
-        # This can happen when an entire candidate's attention mask is zero,
-        # causing LayerNorm to normalize (0 - 0) / 0 = NaN.
-        if torch.isnan(cls_embedding).any() or torch.isinf(cls_embedding).any():
-            cls_embedding = torch.nan_to_num(cls_embedding, nan=0.0, posinf=0.0, neginf=0.0)
 
         # Mask out padded candidates with a FINITE large negative value.
         #
