@@ -42,6 +42,7 @@ while [[ $# -gt 0 ]]; do
     --data-dir) DATA_DIR="$2"; shift ;;
     --medium) MEDIUM=true ;;
     --epochs) EPOCHS="$2"; shift ;;
+    --test-end) TEST_END="$2"; shift ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
   shift
