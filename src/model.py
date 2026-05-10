@@ -171,15 +171,17 @@ class CrossEncoderWithFeatures(nn.Module):
 
         # Mask out padded candidates with a FINITE large negative value.
         #
-        # CRITICAL: Do NOT use torch.finfo(dtype).min (-3.4e38 for fp32).
-        # CrossEntropyLoss backward through such extreme values produces
-        # mathematically undefined gradients (effectively INF), which cascade
-        # the model weights to NaN and corrupt every subsequent batch.
+        # CRITICAL: Do NOT use torch.finfo(dtype).min (-3.4e38 for fp32) or
+        # other extremely negative values like -1e4.
+        # -3.4e38: CrossEntropyLoss backward → INF gradient → NaN weights.
+        # -1e4:   exp(-10000) underflows to 0 in fp32 → log(0) = -inf → 0*-inf = NaN.
         #
-        # -1e4 is large enough that softmax assigns ~0 probability to masked
-        # candidates, but finite enough that gradients remain well-behaved.
+        # -100 is large enough that softmax assigns ~0 probability to masked
+        # candidates (exp(-100) ≈ 3.7e-44, well above fp32 minimum), but finite
+        # enough that exp(-100) is representable and gradients are well-behaved.
+        # Verified on DeBERTa-v3-base + L40S (2026-05-10).
         # See 2026-05-10 fix in PROGRESS.md for the full debugging chain.
-        fill_value = -1e4
+        fill_value = -100.0
         logits = logits.masked_fill(~candidate_mask, fill_value)
 
         candidate_probs = torch.softmax(logits, dim=-1)  # [batch_size, C]

@@ -192,11 +192,13 @@ class TestMulticlassForward:
             labels=self.labels
         )
 
-        # First candidate should have negative logits (masked with -1e4)
-        # NOTE: -1e4 is intentionally finite to prevent gradient explosion.
-        # Previously used torch.finfo().min (-3.4e38) which caused NaN cascade.
+        # First candidate should have negative logits (masked with -100.0)
+        # NOTE: -100.0 is intentionally finite to prevent gradient explosion.
+        # -3.4e38: CrossEntropyLoss backward → INF gradient → NaN weights.
+        # -1e4:   exp(-10000) underflows to 0 in fp32 → log(0) = -inf → NaN.
+        # -100:   exp(-100) ≈ 3.7e-44 (representable in fp32), gradients finite.
         # See 2026-05-10 fix in PROGRESS.md for the full debugging chain.
-        assert torch.all(outputs['logits'][:, 0] == -1e4)
+        assert torch.all(outputs['logits'][:, 0] == -100.0)
 
     def test_different_num_candidates(self):
         """Test forward pass with varying number of candidates"""

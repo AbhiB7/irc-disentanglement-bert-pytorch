@@ -192,15 +192,17 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - `src/model.py` used `torch.finfo(logits.dtype).min` (= `-3.4e38` for fp32) to mask padded candidates.
 - CrossEntropyLoss backward through `-3.4e38` produces mathematically undefined gradients (effectively INF).
 - Infinite gradients cascade model weights to NaN, corrupting every subsequent batch.
-- **Fix**: Replaced with `-1e4` — finite, softmax assigns ~0 probability to masked candidates, gradients stay well-behaved.
+- **Fix attempt 1**: Replaced with `-1e4`. Result: STILL NaN. Reason: `exp(-10000)` underflows to 0 in fp32 → `log(0) = -inf` → `0 * -inf = NaN` in backward.
+- **Fix attempt 2 (✅ FINAL)**: Replaced with `-100.0`. `exp(-100) ≈ 3.7e-44` (well above fp32 minimum of ~1.4e-45), so `log(exp(-100)) = -100` is finite. Gradients stay well-behaved. Verified on DeBERTa-v3-base + L40S.
 - Also added `torch.nan_to_num` safety net for BERT LayerNorm NaN from all-zero attention masks.
 
-**Debugging chain** (2 weeks, 3 HPC runs, 1 fix deployed at a time):
+**Debugging chain** (2 weeks, 4 HPC runs, 3 fix attempts):
 1. Hypothesis: Label out-of-bounds → NaN. Fix: Label clamp. Result: STILL NaN.
 2. Hypothesis: Padded candidates → NaN BERT embeddings. Fix: nan_to_num safety net. Result: STILL NaN.
-3. ✅ Hypothesis: `-inf` logits from masking → gradient explosion. Fix: `-1e4` instead of `finfo().min`. Result: **FIXED**.
+3. Hypothesis: `-inf` logits from masking → gradient explosion. Fix: `-1e4`. Result: STILL NaN (exp underflow).
+4. ✅ Hypothesis: `-1e4` still too extreme (exp underflow). Fix: `-100.0`. Result: **FIXED**.
 
-**Key lesson**: `torch.finfo(dtype).min` in a masked_fill that participates in softmax+CrossEntropyLoss backward is dangerous. Always use a finite value.
+**Key lesson**: `torch.finfo(dtype).min` in a masked_fill that participates in softmax+CrossEntropyLoss backward is dangerous. Even `-1e4` is too extreme because `exp(-10000)` underflows to 0 in fp32. Use `-100.0` — large enough for softmax to assign ~0 probability, but small enough that `exp(-100)` is representable.
 
 ## Next Steps (2026-05-10)
 - **Immediate**: Run `./debug.sh` on Bunya interactive node (tiny dataset, 1 epoch, no fp16):
