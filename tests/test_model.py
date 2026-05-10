@@ -192,8 +192,11 @@ class TestMulticlassForward:
             labels=self.labels
         )
 
-        # First candidate should have very negative logits (masked)
-        assert torch.all(outputs['logits'][:, 0] < -1e8)
+        # First candidate should have negative logits (masked with -1e4)
+        # NOTE: -1e4 is intentionally finite to prevent gradient explosion.
+        # Previously used torch.finfo().min (-3.4e38) which caused NaN cascade.
+        # See 2026-05-10 fix in PROGRESS.md for the full debugging chain.
+        assert torch.all(outputs['logits'][:, 0] == -1e4)
 
     def test_different_num_candidates(self):
         """Test forward pass with varying number of candidates"""

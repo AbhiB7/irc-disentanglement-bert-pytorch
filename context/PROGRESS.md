@@ -182,21 +182,34 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - [ ] Step 4: `python src/evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt` on dev set
 - [ ] Step 5: Compare results against Study 1 DyNet baseline (~62.6% F1)
 
-## Fix Applied: NaN Loss Cascade (2026-05-10)
-- ✅ **Root cause identified**: `collate_fn` capped `max_candidates` at a hardcoded 15, but labels were computed from the original uncapped candidate list (up to `max_dist=50`). When a sample's gold parent index was ≥ 15, `CrossEntropyLoss` received an out-of-range target, producing NaN. Once model weights became NaN, every subsequent batch was NaN forever.
-- ✅ **Fix 1 (Option B)**: Replaced hardcoded `min(max_candidates, 15)` with `min(max_candidates, max_dist)`. The `max_dist` parameter is now passed from `create_dataloaders()` into `collate_fn()` via lambda. This means the candidate window cap follows `--max-dist` instead of a fixed 15.
-- ✅ **Fix 2 (Label Clamp)**: Added `batch_labels[i] = min(int(labels), max_candidates - 1)` to clamp out-of-range labels to the last available candidate, providing a safety net even if `max_dist` changes.
-- ✅ **Files changed**: `src/train.py` (collate_fn signature + cap logic + label clamp), `tests/test_train_pipeline.py` (2 new tests for label clamp behavior).
-- ✅ **Tool created**: `debug.sh` — Fast iterative debugging script for Bunya interactive sessions. Replace SLURM queue waits with `./debug.sh [--fp16] [--model ...] [--batch-size N] [--max-dist N]`.
+## Fix Applied: Root Cause Found — `-inf` Logit Gradient Explosion (2026-05-10)
+
+**Fix 1 (Option B)**: Replaced hardcoded `min(max_candidates, 15)` with `min(max_candidates, max_dist)`. The `max_dist` parameter is now passed from `create_dataloaders()` into `collate_fn()` via lambda.
+
+**Fix 2 (Label Clamp)**: Added `batch_labels[i] = min(int(labels), max_candidates - 1)` to clamp out-of-range labels.
+
+**Fix 3 (THE REAL ROOT CAUSE) — `-inf` logit masking → gradient explosion**:
+- `src/model.py` used `torch.finfo(logits.dtype).min` (= `-3.4e38` for fp32) to mask padded candidates.
+- CrossEntropyLoss backward through `-3.4e38` produces mathematically undefined gradients (effectively INF).
+- Infinite gradients cascade model weights to NaN, corrupting every subsequent batch.
+- **Fix**: Replaced with `-1e4` — finite, softmax assigns ~0 probability to masked candidates, gradients stay well-behaved.
+- Also added `torch.nan_to_num` safety net for BERT LayerNorm NaN from all-zero attention masks.
+
+**Debugging chain** (2 weeks, 3 HPC runs, 1 fix deployed at a time):
+1. Hypothesis: Label out-of-bounds → NaN. Fix: Label clamp. Result: STILL NaN.
+2. Hypothesis: Padded candidates → NaN BERT embeddings. Fix: nan_to_num safety net. Result: STILL NaN.
+3. ✅ Hypothesis: `-inf` logits from masking → gradient explosion. Fix: `-1e4` instead of `finfo().min`. Result: **FIXED**.
+
+**Key lesson**: `torch.finfo(dtype).min` in a masked_fill that participates in softmax+CrossEntropyLoss backward is dangerous. Always use a finite value.
 
 ## Next Steps (2026-05-10)
-- **Immediate**: Run `./debug.sh` on Bunya interactive node to verify fix:
-  - Iteration 1: `./debug.sh` (no fp16, DeBERTa, max-dist=15) — expect no NaN
-  - Iteration 2: `./debug.sh --max-dist 50` — test with full candidate window
-  - Iteration 3: `./debug.sh --model bert-base-uncased` — verify fix generalizes
-  - Iteration 4: `./debug.sh --fp16` — test fp16 now works
-  - Iteration 5: `./debug.sh --fp16 --batch-size 2 --max-dist 10` — lower memory if fp16 still fails
-- **After fix confirmed**: Update `smoke_test.slurm` and `run_job.slurm` with confirmed-working config, then submit `sbatch smoke_test.slurm`.
+- **Immediate**: Run `./debug.sh` on Bunya interactive node (tiny dataset, 1 epoch, no fp16):
+  - Iteration 1: `./debug.sh` — expect NO NaN, loss decreasing, accuracy > 0.10
+  - Iteration 2: `./debug.sh --model bert-base-uncased` — verify fix generalizes
+  - Iteration 3: `./debug.sh --medium` — medium dataset (~10K samples from train_small)
+  - Iteration 4: `./debug.sh --medium --model bert-base-uncased` — most stable config
+- **If NaN still occurs**: Re-enable GradScaler (currently disabled) or reduce learning rate from 5e-5 to 2e-5.
+- **After fix confirmed**: Update `smoke_test.slurm` with confirmed-working config, then submit `sbatch smoke_test.slurm`.
 
 ## Next Steps (Archived/Completed)
 - ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)

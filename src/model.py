@@ -162,8 +162,24 @@ class CrossEncoderWithFeatures(nn.Module):
         # In our case, the collate_fn uses 0 for padding.
         # Check if the whole candidate was padding:
         candidate_mask = attention_mask.sum(dim=-1) > 0  # [batch_size, C]
-        # Use dtype-aware minimum to avoid fp16 overflow (CVE-safe torch.load no longer masks this)
-        fill_value = torch.finfo(logits.dtype).min
+
+        # Safety net: replace any NaN/Inf in BERT [CLS] embeddings with 0.
+        # This can happen when an entire candidate's attention mask is zero,
+        # causing LayerNorm to normalize (0 - 0) / 0 = NaN.
+        if torch.isnan(cls_embedding).any() or torch.isinf(cls_embedding).any():
+            cls_embedding = torch.nan_to_num(cls_embedding, nan=0.0, posinf=0.0, neginf=0.0)
+
+        # Mask out padded candidates with a FINITE large negative value.
+        #
+        # CRITICAL: Do NOT use torch.finfo(dtype).min (-3.4e38 for fp32).
+        # CrossEntropyLoss backward through such extreme values produces
+        # mathematically undefined gradients (effectively INF), which cascade
+        # the model weights to NaN and corrupt every subsequent batch.
+        #
+        # -1e4 is large enough that softmax assigns ~0 probability to masked
+        # candidates, but finite enough that gradients remain well-behaved.
+        # See 2026-05-10 fix in PROGRESS.md for the full debugging chain.
+        fill_value = -1e4
         logits = logits.masked_fill(~candidate_mask, fill_value)
 
         candidate_probs = torch.softmax(logits, dim=-1)  # [batch_size, C]

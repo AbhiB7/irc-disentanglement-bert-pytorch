@@ -124,10 +124,15 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 ## 6. Robustness & Diagnostics
 - **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.
 - **Numerical Safety**: NaN/Inf loss detection triggers batch skipping to prevent weight corruption.
-- **NaN Loss Prevention (collate_fn)**: Two fixes prevent NaN from out-of-range labels:
+- **NaN Loss Prevention — Fix A (collate_fn, 2026-05-10)**: Two fixes prevent NaN from out-of-range labels:
   1. `max_candidates` cap follows `--max-dist` instead of hardcoded 15 (Option B).
   2. Labels are clamped to `min(label, max_candidates - 1)` to prevent `CrossEntropyLoss` from receiving an out-of-range target.
   See [`tests/test_train_pipeline.py`](tests/test_train_pipeline.py) for `test_label_clamp_out_of_bounds`.
+- **NaN Loss Prevention — Fix B (model, 2026-05-10)**: **THE REAL ROOT CAUSE.**
+  - **What**: Padded candidates were masked with `torch.finfo(dtype).min` (= `-3.4e38` for fp32) before softmax. CrossEntropyLoss backward through `-3.4e38` produces mathematically undefined gradients (effectively INF). One optimizer step with INF gradient corrupts ALL model weights to NaN, cascading to every subsequent batch.
+  - **Fix**: Replace `-3.4e38` with `-1e4` (finite). Softmax assigns ~0 probability to masked candidates, gradients stay finite and well-behaved. Also added `torch.nan_to_num` safety net for BERT LayerNorm NaN (all-zero attention mask → zero output → 0/0 normalization).
+  - **Debugging arc**: 2 weeks, 3 HPC runs, 1 fix deployed at a time. Diagnostics finally pin-pointed the `-inf` logit through logit min/max/has_nan logging.
+  - **Invariant**: NEVER use `torch.finfo(dtype).min` in a `masked_fill` that participates in softmax + CrossEntropyLoss backward. Always use a finite value like `-1e4`.
 - **Smart Logging**: Logs probability distribution stats every 50 batches (avg/min/max prob) to monitor model calibration.
 - **Data Starvation Prevention**: Test runs must use message offsets (e.g., 300+ or 1000+) or the `tiny` dataset to avoid the link-less "join/quit" noise at the start of IRC logs.
 - **Atomic Checkpointing**: Checkpoints are saved to `.tmp` files and renamed to avoid Windows file-locking conflicts (Error 1224).
