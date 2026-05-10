@@ -53,8 +53,11 @@ echo "  Test end:  $TEST_END"
 echo "  Data dir:  $DATA_DIR"
 echo "================================================"
 
-# ── Source environment ─────────────────────────────────────────────────────
-source setup.sh
+# ── Activate environment ───────────────────────────────────────────────────
+# IMPORTANT: Activate your conda environment FIRST before running this script.
+#   source setup.sh    (one-time: installs all dependencies)
+#   conda activate irc-bert
+# Do NOT put source setup.sh inside this script — it re-downloads PyTorch.
 
 # ── Run training ───────────────────────────────────────────────────────────
 python src/train.py \
