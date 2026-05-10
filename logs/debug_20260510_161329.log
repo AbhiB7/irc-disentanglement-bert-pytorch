@@ -1,0 +1,165 @@
+2026-05-10 16:13:38,449 - __main__ - INFO - ================================================================================
+2026-05-10 16:13:38,449 - __main__ - INFO - IRC Conversation Disentanglement Training
+2026-05-10 16:13:38,449 - __main__ - INFO - ================================================================================
+2026-05-10 16:13:38,449 - __main__ - INFO - --- System Diagnostics ---
+2026-05-10 16:13:38,449 - __main__ - INFO - OS: Linux 5.14.0-611.24.1.el9_7.x86_64
+2026-05-10 16:13:38,449 - __main__ - INFO - Python: 3.10.20
+2026-05-10 16:13:38,449 - __main__ - INFO - RAM: 754.91 GB total, 690.62 GB available
+2026-05-10 16:13:38,464 - __main__ - INFO - GPU 0: NVIDIA L40S
+2026-05-10 16:13:38,464 - __main__ - INFO -   Total Memory: 45460 MB
+2026-05-10 16:13:38,464 - __main__ - INFO -   Compute Capability: 8.9
+2026-05-10 16:13:38,464 - __main__ - INFO - --------------------------
+2026-05-10 16:13:38,464 - __main__ - INFO - Mode: train
+2026-05-10 16:13:38,464 - __main__ - INFO - Device: cuda
+2026-05-10 16:13:38,464 - __main__ - INFO - Model: microsoft/deberta-v3-base
+2026-05-10 16:13:38,464 - __main__ - INFO - Batch size: 4
+2026-05-10 16:13:38,464 - __main__ - INFO - Learning rate: 5e-05
+2026-05-10 16:13:38,464 - __main__ - INFO - Epochs: 1
+2026-05-10 16:13:38,464 - __main__ - INFO - Max dist: 15
+2026-05-10 16:13:38,464 - __main__ - INFO - Max length: 128
+2026-05-10 16:13:38,464 - __main__ - INFO - Output dir: /scratch/user/s4901673/ircbert_runs/debug_checkpoints
+2026-05-10 16:13:38,465 - __main__ - INFO - Using device: cuda
+2026-05-10 16:13:38,465 - __main__ - INFO - Loading tokenizer: microsoft/deberta-v3-base
+2026-05-10 16:13:38,711 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 16:13:38,717 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 16:13:38,955 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 16:13:38,960 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-10 16:13:39,192 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-10 16:13:39,468 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-10 16:13:39,951 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-10 16:13:39,953 - __main__ - INFO - Tokenizer loaded: DebertaV2Tokenizer
+2026-05-10 16:13:39,953 - __main__ - INFO - Creating dataloaders...
+2026-05-10 16:13:39,955 - __main__ - INFO - Loading 1 train files...
+2026-05-10 16:13:39,955 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-10 16:13:39,955 - data_loader - INFO -   max_dist=15, max_length=128, skip_labels=False
+2026-05-10 16:13:39,955 - data_loader - INFO -   test_start=0, test_end=500
+2026-05-10 16:13:39,955 - data_loader - INFO - Loading conversation from data/tiny/train/tiny.train.ascii.txt
+2026-05-10 16:13:39,956 - data_loader - INFO -   Read 300 lines from ASCII file
+2026-05-10 16:13:39,957 - data_loader - INFO -   Parsed 300 messages, found 32 unique users
+2026-05-10 16:13:39,968 - data_loader - INFO -   Loaded 212 gold links from annotation file
+2026-05-10 16:13:39,968 - data_loader - INFO -   Conversation 'tiny.train' loaded in 0.01s
+2026-05-10 16:13:39,968 - data_loader - INFO -   Creating samples for tiny.train: messages 0 to 300 (limited)
+2026-05-10 16:13:39,973 - data_loader - INFO -   Created 61 samples for tiny.train
+2026-05-10 16:13:39,973 - data_loader - INFO -   File 1/1: tiny.train - 300 messages, 61 total samples so far
+2026-05-10 16:13:39,973 - data_loader - INFO - Dataset initialization complete: 61 samples from 1 conversations in 0.02s
+2026-05-10 16:13:39,973 - __main__ - INFO -   Train dataset created: 61 samples
+2026-05-10 16:13:39,973 - __main__ - INFO - Loading 1 dev files...
+2026-05-10 16:13:39,973 - data_loader - INFO - Initializing IRCDisentanglementDataset with 1 files
+2026-05-10 16:13:39,973 - data_loader - INFO -   max_dist=15, max_length=128, skip_labels=False
+2026-05-10 16:13:39,973 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-10 16:13:39,973 - data_loader - INFO - Loading conversation from data/tiny/dev/tiny.dev.ascii.txt
+2026-05-10 16:13:39,974 - data_loader - INFO -   Read 250 lines from ASCII file
+2026-05-10 16:13:39,975 - data_loader - INFO -   Parsed 250 messages, found 30 unique users
+2026-05-10 16:13:39,983 - data_loader - INFO -   Loaded 188 gold links from annotation file
+2026-05-10 16:13:39,983 - data_loader - INFO -   Conversation 'tiny.dev' loaded in 0.01s
+2026-05-10 16:13:39,983 - data_loader - INFO -   Creating samples for tiny.dev: all 250 messages
+2026-05-10 16:13:39,986 - data_loader - INFO -   Created 65 samples for tiny.dev
+2026-05-10 16:13:39,986 - data_loader - INFO -   File 1/1: tiny.dev - 250 messages, 65 total samples so far
+2026-05-10 16:13:39,987 - data_loader - INFO - Dataset initialization complete: 65 samples from 1 conversations in 0.01s
+2026-05-10 16:13:39,987 - __main__ - INFO -   Dev dataset created: 65 samples
+2026-05-10 16:13:39,987 - __main__ - INFO -   Train dataset: 61 samples
+2026-05-10 16:13:39,987 - __main__ - INFO - Training: 61 samples | 16 batches/epoch | batch_size=4 | max_dist=15 | max_length=128
+2026-05-10 16:13:39,987 - __main__ - INFO -   Dev dataset: 65 samples
+2026-05-10 16:13:39,987 - __main__ - INFO - Validation: 65 samples | 17 batches
+2026-05-10 16:13:39,987 - __main__ - INFO - Creating model...
+2026-05-10 16:13:40,213 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 16:13:40,218 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 16:13:40,753 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-10 16:13:40,753 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-10 16:13:40,980 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+Device: cuda
+Model: microsoft/deberta-v3-base
+Output dir: /scratch/user/s4901673/ircbert_runs/debug_checkpoints
+================================================================================
+Loading weights:   0%|          | 0/198 [00:00<?, ?it/s]Loading weights: 100%|██████████| 198/198 [00:00<00:00, 50025.43it/s]
+2026-05-10 16:13:41,231 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+[transformers] [1mDebertaV2Model LOAD REPORT[0m from: microsoft/deberta-v3-base
+Key                                     | Status     |  | 
+----------------------------------------+------------+--+-
+lm_predictions.lm_head.LayerNorm.weight | UNEXPECTED |  | 
+mask_predictions.classifier.bias        | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.weight     | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.bias       | UNEXPECTED |  | 
+mask_predictions.dense.weight           | UNEXPECTED |  | 
+mask_predictions.LayerNorm.weight       | UNEXPECTED |  | 
+lm_predictions.lm_head.LayerNorm.bias   | UNEXPECTED |  | 
+mask_predictions.dense.bias             | UNEXPECTED |  | 
+mask_predictions.LayerNorm.bias         | UNEXPECTED |  | 
+mask_predictions.classifier.weight      | UNEXPECTED |  | 
+lm_predictions.lm_head.bias             | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+2026-05-10 16:13:41,475 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-10 16:13:41,689 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 16:13:41,695 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 16:13:41,724 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-10 16:13:41,955 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-10 16:13:42,079 - __main__ - INFO -   Parameters: 183,832,326 trainable, 183,832,326 total
+2026-05-10 16:13:42,079 - __main__ - INFO -   BERT hidden size: 768
+2026-05-10 16:13:42,079 - __main__ - INFO -   Combined size: 773
+2026-05-10 16:13:42,080 - __main__ - INFO - Created AdamW optimizer with lr=5e-05
+2026-05-10 16:13:42,080 - __main__ - INFO - Created scheduler with 1 warmup steps (10% of 16 total steps)
+2026-05-10 16:13:42,080 - __main__ - INFO - Starting training from epoch 1...
+2026-05-10 16:13:42,080 - __main__ - INFO - ================================================================================
+2026-05-10 16:13:42,080 - __main__ - INFO - Epoch 1/1
+2026-05-10 16:13:42,080 - __main__ - INFO - --------------------------------------------------------------------------------
+2026-05-10 16:13:42,081 - __main__ - INFO - Epoch 1: Peak memory stats reset.
+2026-05-10 16:13:42,081 - __main__ - INFO - Starting epoch 1 with 16 batches
+2026-05-10 16:13:42,141 - __main__ - INFO -   [Epoch 1 Batch 0 SANITY CHECK]
+2026-05-10 16:13:42,141 - __main__ - INFO -     input_ids shape : [4, 14, 128]  (batch x max_C x seq_len)
+2026-05-10 16:13:42,141 - __main__ - INFO -     features shape  : [4, 14, 5]
+2026-05-10 16:13:42,141 - __main__ - INFO -     labels shape    : [4]
+2026-05-10 16:13:42,141 - __main__ - INFO -     Candidate counts per sample: min=12 max=14 mean=13.0
+2026-05-10 16:13:42,142 - __main__ - INFO -     Label values: [12, 11, 12, 13]
+2026-05-10 16:13:42,142 - __main__ - INFO -     Label distribution (this batch): {11: 1, 12: 2, 13: 1}
+2026-05-10 16:13:42,193 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
+2026-05-10 16:13:42,663 - __main__ - INFO -   [Epoch 1 Batch 0 DIAGNOSTIC] C=14 | logits: min=-340282346638528859811704183484516925440.0000 max=0.7753 mean=-inf has_nan=False | labels=[12, 11, 12, 13] max_label=13
+2026-05-10 16:13:42,840 - __main__ - INFO -   Epoch 1 Batch 0 gradient norm: 5.5513
+2026-05-10 16:13:43,095 - __main__ - INFO -   [Epoch 1 Batch 1 DIAGNOSTIC] C=14 | logits: min=nan max=nan mean=nan has_nan=True | labels=[12, 12, 13, 12] max_label=13
+2026-05-10 16:13:43,095 - __main__ - ERROR -   Batch 2: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,138 - __main__ - INFO -   [Epoch 1 Batch 2 DIAGNOSTIC] C=14 | logits: min=nan max=nan mean=nan has_nan=True | labels=[12, 11, 10, 13] max_label=13
+2026-05-10 16:13:43,138 - __main__ - ERROR -   Batch 3: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,163 - __main__ - ERROR -   Batch 4: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,206 - __main__ - ERROR -   Batch 5: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,231 - __main__ - ERROR -   Batch 6: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,258 - __main__ - ERROR -   Batch 7: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,284 - __main__ - ERROR -   Batch 8: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,311 - __main__ - ERROR -   Batch 9: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,337 - __main__ - ERROR -   Batch 10: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,363 - __main__ - ERROR -   Batch 11: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,389 - __main__ - ERROR -   Batch 12: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,411 - __main__ - ERROR -   Batch 13: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,436 - __main__ - ERROR -   Batch 14: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,462 - __main__ - ERROR -   Batch 15: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,475 - __main__ - ERROR -   Batch 16: NaN or Inf loss detected! Skipping batch.
+2026-05-10 16:13:43,497 - __main__ - INFO - Epoch 1 complete in 1.42s | avg_loss=2.6140 | batches: 1 succeeded, 15 skipped (OOM/NaN)
+2026-05-10 16:13:43,497 - __main__ - WARNING -   WARNING: 93.8% of batches were skipped this epoch!
+2026-05-10 16:13:43,499 - __main__ - INFO - Train Loss: 2.6140
+2026-05-10 16:13:43,500 - __main__ - INFO - Evaluating on dev set...
+2026-05-10 16:13:43,500 - __main__ - INFO - Starting evaluation on 65 samples
+Evaluating:   0%|          | 0/17 [00:00<?, ?it/s]Evaluating:  12%|█▏        | 2/17 [00:00<00:00, 16.41it/s]Evaluating:  41%|████      | 7/17 [00:00<00:00, 34.07it/s]2026-05-10 16:13:43,797 - __main__ - INFO -   Evaluation progress: 10/17 batches (33.71 batches/s)
+Evaluating:  71%|███████   | 12/17 [00:00<00:00, 38.10it/s]                                                           2026-05-10 16:13:43,975 - __main__ - INFO -   Prediction sample (first 20):
+2026-05-10 16:13:43,976 - __main__ - INFO -     Predicted: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+2026-05-10 16:13:43,976 - __main__ - INFO -     Gold:      [0, 1, 1, 13, 12, 12, 11, 10, 10, 9, 8, 10, 11, 11, 12, 11, 10, 9, 10, 10]
+2026-05-10 16:13:43,976 - __main__ - INFO -     Abs error: [0, 1, 1, 13, 12, 12, 11, 10, 10, 9, 8, 10, 11, 11, 12, 11, 10, 9, 10, 10] (mean=9.05)
+2026-05-10 16:13:43,976 - __main__ - INFO -   Per-position accuracy (top 10 classes):
+2026-05-10 16:13:43,976 - __main__ - INFO -     Position  0: 1.000 accuracy (1 samples)
+2026-05-10 16:13:43,976 - __main__ - INFO -     Position  1: 0.000 accuracy (2 samples)
+2026-05-10 16:13:43,976 - __main__ - INFO -     Position  7: 0.000 accuracy (1 samples)
+2026-05-10 16:13:43,977 - __main__ - INFO -     Position  8: 0.000 accuracy (2 samples)
+2026-05-10 16:13:43,977 - __main__ - INFO -     Position  9: 0.000 accuracy (8 samples)
+2026-05-10 16:13:43,977 - __main__ - INFO - Evaluation complete in 0.48s
+2026-05-10 16:13:43,977 - __main__ - INFO -   Loss: nan, Accuracy: 0.0154, Precision: 0.0010, Recall: 0.0667, F1: 0.0020
+2026-05-10 16:13:43,977 - __main__ - INFO - Dev Loss: nan
+2026-05-10 16:13:43,977 - __main__ - INFO - Dev Accuracy: 0.0154
+2026-05-10 16:13:43,977 - __main__ - INFO -   New best F1! Saving best model...
+2026-05-10 16:13:45,249 - __main__ - INFO - Saved checkpoint to /scratch/user/s4901673/ircbert_runs/debug_checkpoints/best/checkpoint_epoch_1.pt
+2026-05-10 16:13:46,361 - __main__ - INFO - Saved checkpoint to /scratch/user/s4901673/ircbert_runs/debug_checkpoints/checkpoint_epoch_1.pt
+2026-05-10 16:13:46,362 - __main__ - INFO - Training complete in 4.28s!
+2026-05-10 16:13:46,362 - __main__ - INFO - Best F1: 0.0154 at epoch 1
+2026-05-10 16:13:46,362 - __main__ - INFO - ================================================================================
+2026-05-10 16:13:46,362 - __main__ - INFO - Done!
+2026-05-10 16:13:46,362 - __main__ - INFO - ================================================================================
+2026-05-10 16:13:46,362 - __main__ - INFO - Log file: /home/s4901673/workspace/irc-disentanglement-bert-pytorch/logs/train_20260510_161338.log
