@@ -27,6 +27,8 @@ BATCH_SIZE=${BATCH_SIZE:-4}
 MAX_DIST=${MAX_DIST:-15}
 TEST_END=${TEST_END:-500}
 DATA_DIR=${DATA_DIR:-data/tiny}
+# --medium shortcut: uses train_small (~10 files, ~10K samples)
+MEDIUM=${MEDIUM:-false}
 
 # ── Parse CLI args ─────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -36,6 +38,7 @@ while [[ $# -gt 0 ]]; do
     --batch-size) BATCH_SIZE="$2"; shift ;;
     --max-dist) MAX_DIST="$2"; shift ;;
     --data-dir) DATA_DIR="$2"; shift ;;
+    --medium) MEDIUM=true ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
   shift
@@ -51,6 +54,7 @@ echo "  Batch:     $BATCH_SIZE"
 echo "  Max dist:  $MAX_DIST"
 echo "  Test end:  $TEST_END"
 echo "  Data dir:  $DATA_DIR"
+echo "  Medium:    $MEDIUM"
 echo "================================================"
 
 # ── Activate environment ───────────────────────────────────────────────────
@@ -59,7 +63,15 @@ echo "================================================"
 #   conda activate irc-bert
 # Do NOT put source setup.sh inside this script — it re-downloads PyTorch.
 
-# ── Run training ───────────────────────────────────────────────────────────
+# ── Apply --medium shortcut ───────────────────────────────────────────────
+if [ "$MEDIUM" = "true" ]; then
+    DATA_DIR="data/train_small"
+    TEST_END=1000000
+    echo "  >> --medium: using data/train_small with test_end=$TEST_END"
+fi
+
+# ── Run training (stdout+stderr tee'd to logs/) ────────────────────────────
+LOG_FILE="logs/debug_$(date +%Y%m%d_%H%M%S).log"
 python src/train.py \
     --mode train \
     --data-dir "$DATA_DIR" \
@@ -76,4 +88,7 @@ python src/train.py \
     --test-end "$TEST_END" \
     --output-dir /scratch/user/$USER/ircbert_runs/debug_checkpoints \
     --device cuda \
-    $( [ "$FP16" = "true" ] && echo "--fp16" )
+    $( [ "$FP16" = "true" ] && echo "--fp16" ) \
+    2>&1 | tee "$LOG_FILE"
+echo ""
+echo "Log saved to: $LOG_FILE"

@@ -655,6 +655,21 @@ def train_epoch(
 
                 loss = outputs["loss"]
 
+            # DIAGNOSTIC: Log logits for first 3 batches (track NaN origin)
+            if batch_idx <= 2:
+                logits = outputs["logits"]
+                num_candidates = logits.shape[1]
+                logger.info(
+                    f"  [Epoch {epoch} Batch {batch_idx} DIAGNOSTIC] "
+                    f"C={num_candidates} | "
+                    f"logits: min={logits.min().item():.4f} "
+                    f"max={logits.max().item():.4f} "
+                    f"mean={logits.mean().item():.4f} "
+                    f"has_nan={torch.isnan(logits).any().item()} | "
+                    f"labels={labels.tolist()} "
+                    f"max_label={labels.max().item()}"
+                )
+
             # Check for NaN/Inf loss
             if torch.isnan(loss) or torch.isinf(loss):
                 logger.error(
