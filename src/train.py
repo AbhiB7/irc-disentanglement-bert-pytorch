@@ -562,25 +562,40 @@ def evaluate(model, dataloader, device, fp16=False):
     # Computes what accuracy a trivial baseline would get by always predicting
     # the last candidate (position C-1). High baseline accuracy indicates the
     # task is too easy (positional bias) and current metrics are misleading.
+    # Uses dynamic last candidate index (no longer hardcoded to 14).
     if len(all_labels) > 0:
-        # "Predict last position" baseline: assumes last candidate is always correct
-        # Since labels are 0-indexed candidate indices and max C = max_dist = 15,
-        # the "last position" baseline predicts 14 for every sample.
-        last_pos_acc = (all_labels == 14).float().mean().item()
-        logger.info(f"  BASELINE: 'Predict last position (14)' accuracy: {last_pos_acc:.4f}")
+        last_candidate = all_labels.max().item()
+        last_pos_acc = (all_labels == last_candidate).float().mean().item()
+        logger.info(f"  BASELINE: 'Predict last candidate (position {last_candidate})' accuracy: {last_pos_acc:.4f}")
         logger.info(f"    (If this is >0.8, the model may be exploiting positional shortcuts)")
 
-    # === DIAGNOSTIC: Gold label distribution ===
+    # === DIAGNOSTIC: Gold label distribution (ALL positions) ===
     if len(all_labels) > 0:
         label_counts = {}
         for lbl in all_labels.tolist():
             label_counts[lbl] = label_counts.get(lbl, 0) + 1
         total = len(all_labels)
-        top_labels = sorted(label_counts.items(), key=lambda x: -x[1])[:5]
-        logger.info(f"  Gold label distribution (top 5 of {len(label_counts)} active positions):")
-        for pos, cnt in top_labels:
+        sorted_labels = sorted(label_counts.items(), key=lambda x: -x[1])
+        logger.info(f"  Gold label distribution (ALL {len(label_counts)} active positions):")
+        for pos, cnt in sorted_labels:
             pct = 100.0 * cnt / total
             logger.info(f"    Position {pos:2d}: {cnt:5d} ({pct:.1f}%)")
+        mode_position = sorted_labels[0][0]
+        mode_count = sorted_labels[0][1]
+        mode_pct = 100.0 * mode_count / total
+
+    # === DIAGNOSTIC: Predict-most-common-position baseline ===
+    if len(all_labels) > 0:
+        mode_acc = (all_labels == mode_position).float().mean().item()
+        logger.info(f"  BASELINE: 'Always predict position {mode_position} (most common)' accuracy: {mode_acc:.4f}")
+        logger.info(f"    (Position {mode_position} has {mode_count}/{total} = {mode_pct:.1f}% of gold labels)")
+
+    # === DIAGNOSTIC: Recency shortcut check ===
+    if len(all_labels) > 0:
+        last4_mask = (all_labels >= 46) & (all_labels <= 49)
+        last4_pct = 100.0 * last4_mask.float().mean().item()
+        logger.info(f"  RECENCY CHECK: {last4_pct:.1f}% of gold labels are in positions 46-49 (last 4 of 50)")
+        logger.info(f"    (If >80%%, the task is dominated by recency bias — model may be shortcutting)")
 
     # === DIAGNOSTIC: Coverage (messages with predictions vs total) ===
     # Only messages whose gold parent is within max_dist get a prediction.
