@@ -201,7 +201,7 @@ def load_gold_clusters(data_dir, split):
     return all_clusters
 
 
-def compute_ari_and_vi(gold_clusters, pred_clusters):
+def compute_ari_and_vi(gold_clusters, pred_clusters, valid_messages=None):
     """
     Compute Adjusted Rand Index (ARI) and Variation of Information (VI)
     between gold and predicted clusterings.
@@ -209,6 +209,11 @@ def compute_ari_and_vi(gold_clusters, pred_clusters):
     Args:
         gold_clusters: list of sets of message indices
         pred_clusters: list of sets of message indices
+        valid_messages: optional set of message indices to restrict comparison to.
+            If provided, only these messages are included. Messages not in this set
+            are excluded from both gold and pred clusterings.
+            This prevents ARI from being artificially deflated when the model only
+            makes predictions for a subset of messages (e.g., those within max_dist).
     
     Returns:
         (ari, vi) tuple
@@ -222,25 +227,28 @@ def compute_ari_and_vi(gold_clusters, pred_clusters):
     for c in pred_clusters:
         all_messages.update(c)
     
+    # If valid_messages is provided, restrict to only those messages
+    if valid_messages is not None:
+        all_messages = all_messages & valid_messages
+    
     n = len(all_messages)
     if n == 0:
         return 0.0, 0.0
     
-    # Build message-to-cluster mapping
+    # Build message-to-cluster mapping (only for valid messages)
     gold_assignment = {}  # msg -> cluster_id
     for cid, cluster in enumerate(gold_clusters):
         for msg in cluster:
-            gold_assignment[msg] = cid
+            if msg in all_messages:
+                gold_assignment[msg] = cid
     
     pred_assignment = {}
     for cid, cluster in enumerate(pred_clusters):
         for msg in cluster:
-            pred_assignment[msg] = cid
+            if msg in all_messages:
+                pred_assignment[msg] = cid
     
-    n_gold = len(gold_clusters)
-    n_pred = len(pred_clusters)
-    
-    # Build contingency table
+    # Build contingency table (only for valid messages)
     contingency = {}
     for msg in all_messages:
         g = gold_assignment.get(msg, -1)
@@ -373,14 +381,20 @@ def compute_clustering_eval(loader, predictions, dataset, gold_clusters):
     """
     Compute clustering metrics comparing predicted clusters vs gold clusters.
     
+    IMPORTANT: Only messages that have predictions (i.e., those within max_dist)
+    are included in the comparison. Messages without predictions are excluded
+    from both gold and pred clusterings to prevent ARI from being artificially
+    deflated by the coverage mismatch.
+    
     Returns:
-        metrics dict with ari, vi, and per-conversation breakdown
+        metrics dict with ari, vi, per-conversation breakdown, and coverage stats
     """
     pred_clusters = cluster_from_predictions(loader, predictions, dataset)
     
     total_ari = 0.0
     total_vi = 0.0
     n_convs = 0
+    total_coverage = 0.0
     
     per_conv_results = []
     
@@ -389,29 +403,54 @@ def compute_clustering_eval(loader, predictions, dataset, gold_clusters):
             continue
         
         pred_conv_clusters = pred_clusters[conv_name]
-        ari, vi = compute_ari_and_vi(gold_conv_clusters, pred_conv_clusters)
+        
+        # Determine which messages have predictions (valid set)
+        predicted_messages = set()
+        for cluster in pred_conv_clusters:
+            predicted_messages.update(cluster)
+        
+        # Count total gold messages for this conversation
+        gold_messages = set()
+        for cluster in gold_conv_clusters:
+            gold_messages.update(cluster)
+        
+        coverage = len(predicted_messages) / len(gold_messages) if gold_messages else 0.0
+        total_coverage += coverage
+        
+        # Compute ARI/VI only on messages that have predictions
+        ari, vi = compute_ari_and_vi(
+            gold_conv_clusters, pred_conv_clusters,
+            valid_messages=predicted_messages
+        )
         
         total_ari += ari
         total_vi += vi
         n_convs += 1
         
-        per_conv_results.append((conv_name, ari, vi, len(gold_conv_clusters), len(pred_conv_clusters)))
+        per_conv_results.append(
+            (conv_name, ari, vi, len(gold_conv_clusters), len(pred_conv_clusters),
+             len(predicted_messages), len(gold_messages), coverage)
+        )
     
     # Average across conversations
     avg_ari = total_ari / n_convs if n_convs > 0 else 0.0
     avg_vi = total_vi / n_convs if n_convs > 0 else 0.0
+    avg_coverage = total_coverage / n_convs if n_convs > 0 else 0.0
     
-    # Log per-conversation results
-    logger.info(f"  Per-conversation clustering metrics ({n_convs} conversations):")
-    for conv_name, ari, vi, n_gold, n_pred in sorted(per_conv_results, key=lambda x: -x[1])[:10]:
-        logger.info(f"    {conv_name}: ARI={ari:.4f}, VI={vi:.4f} ({n_gold} gold clusters, {n_pred} pred clusters)")
-    if len(per_conv_results) > 10:
-        logger.info(f"    ... ({len(per_conv_results) - 10} more conversations)")
+    # Log per-conversation results with coverage
+    logger.info(f"  Per-conversation clustering metrics ({n_convs} conversations, avg coverage={avg_coverage:.1%}):")
+    for conv_name, ari, vi, n_gold, n_pred, n_pred_msgs, n_gold_msgs, cov in sorted(per_conv_results, key=lambda x: -x[1]):
+        logger.info(
+            f"    {conv_name}: ARI={ari:.4f}, VI={vi:.4f} "
+            f"({n_gold} gold clusters, {n_pred} pred clusters, "
+            f"{n_pred_msgs}/{n_gold_msgs} msgs covered = {cov:.1%})"
+        )
     
     return {
         "clustering_ari": avg_ari,
         "clustering_vi": avg_vi,
         "num_conversations": n_convs,
+        "avg_coverage": avg_coverage,
     }
 
 

@@ -582,6 +582,16 @@ def evaluate(model, dataloader, device, fp16=False):
             pct = 100.0 * cnt / total
             logger.info(f"    Position {pos:2d}: {cnt:5d} ({pct:.1f}%)")
 
+    # === DIAGNOSTIC: Coverage (messages with predictions vs total) ===
+    # Only messages whose gold parent is within max_dist get a prediction.
+    # This logs how many messages are covered vs total in the dataset.
+    if hasattr(dataloader, 'dataset') and hasattr(dataloader.dataset, 'conversations'):
+        total_messages = sum(len(conv.messages) for conv in dataloader.dataset.conversations)
+        total_samples = len(all_labels)
+        coverage_pct = 100.0 * total_samples / total_messages if total_messages > 0 else 0.0
+        logger.info(f"  COVERAGE: {total_samples}/{total_messages} messages have predictions ({coverage_pct:.1f}%)")
+        logger.info(f"    (Messages without predictions: gold parent is outside max_dist window)")
+
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
 
     # Prediction vs. label scatter sample (first 20)
@@ -595,11 +605,11 @@ def evaluate(model, dataloader, device, fp16=False):
         errors = [abs(p - l) for p, l in zip(pred_sample, label_sample)]
         logger.info(f"    Abs error: {errors} (mean={sum(errors)/len(errors):.2f})")
 
-    # Per-candidate-position accuracy breakdown (top 10 classes)
+    # Per-candidate-position accuracy breakdown (all positions)
     if len(all_predictions) > 0 and len(all_labels) > 0:
         num_pos_classes = max(all_labels.max().item(), all_predictions.max().item()) + 1
-        logger.info(f"  Per-position accuracy (top 10 classes):")
-        for c in range(min(num_pos_classes, 10)):
+        logger.info(f"  Per-position accuracy (all {num_pos_classes} positions):")
+        for c in range(num_pos_classes):
             mask = (all_labels == c)
             if mask.sum() == 0:
                 continue
