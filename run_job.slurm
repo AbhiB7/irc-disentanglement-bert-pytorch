@@ -23,7 +23,8 @@ export SINGULARITY_TMPDIR=/scratch/user/$USER
 # Bunya storage layout: relocate heavy outputs to /scratch
 export RUN_ROOT=/scratch/user/$USER/ircbert_runs
 export LOG_DIR=$RUN_ROOT/logs
-export CHECKPOINT_DIR=$RUN_ROOT/checkpoints
+# New checkpoint directory for max_dist=50 run (separate from max_dist=15 checkpoints)
+export CHECKPOINT_DIR=$RUN_ROOT/checkpoints_maxdist50
 
 # Create directories (including repo-local logs for slurm output/error files)
 mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
@@ -53,7 +54,7 @@ python src/train.py \
     --epochs 20 \
     --learning-rate 5e-5 \
     --max-length 128 \
-    --max-dist 15 \
+    --max-dist 50 \
     --warmup-ratio 0.1 \
     --patience 5 \
     --eval-every 1 \
@@ -78,7 +79,7 @@ else
         --checkpoint "$LATEST_CHECKPOINT" \
         --split dev \
         --batch-size 64 \
-        --max-dist 15 \
+        --max-dist 50 \
         --metrics both
 
     echo ""
@@ -87,6 +88,6 @@ else
         --checkpoint "$LATEST_CHECKPOINT" \
         --split test \
         --batch-size 64 \
-        --max-dist 15 \
+        --max-dist 50 \
         --metrics both
 fi
