@@ -1,0 +1,173 @@
+2026-05-10 20:14:45,083 - __main__ - INFO - Using device: cuda
+2026-05-10 20:14:45,349 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 20:14:45,349 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-10 20:14:45,354 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 20:14:45,594 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 20:14:45,600 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-10 20:14:45,830 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-10 20:14:46,066 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-10 20:14:46,572 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-10 20:14:46,574 - __main__ - INFO - Loaded tokenizer: DebertaV2Tokenizer
+2026-05-10 20:14:46,574 - __main__ - INFO - Loading checkpoint from /scratch/user/s4901673/ircbert_runs/debug_checkpoints/checkpoint_epoch_5.pt
+2026-05-10 20:14:47,733 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 20:14:47,740 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 20:14:48,400 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-10 20:14:48,634 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-10 20:14:48,877 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+2026-05-10 20:14:49,123 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-10 20:14:49,372 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-10 20:14:49,604 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-10 20:14:49,845 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
+2026-05-10 20:14:50,556 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-10 20:14:50,563 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-10 20:14:51,342 - __main__ - INFO - Loaded checkpoint from epoch 5 (model=microsoft/deberta-v3-base)
+2026-05-10 20:14:51,343 - __main__ - INFO - Loading dev dataset...
+2026-05-10 20:14:51,347 - data_loader - INFO - Initializing IRCDisentanglementDataset with 10 files
+2026-05-10 20:14:51,347 - data_loader - INFO -   max_dist=15, max_length=128, skip_labels=False
+2026-05-10 20:14:51,348 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-10 20:14:51,349 - data_loader - INFO - Loading conversation from data/dev/2004-11-15_03.ascii.txt
+2026-05-10 20:14:51,350 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:51,538 - data_loader - INFO -   Parsed 1250 messages, found 76 unique users
+2026-05-10 20:14:51,667 - data_loader - INFO -   Loaded 189 gold links from annotation file
+2026-05-10 20:14:51,667 - data_loader - INFO -   Conversation '2004-11-15_03' loaded in 0.32s
+2026-05-10 20:14:51,667 - data_loader - INFO -   Creating samples for 2004-11-15_03: all 1250 messages
+2026-05-10 20:14:51,670 - data_loader - INFO -   LABEL CHECK [2004-11-15_03 sample #0]: gold_parent_idx=3, gold_msg_idx=1000, C=4, msg_i_idx=1000, candidate_range=[993, 1000]
+2026-05-10 20:14:51,670 - data_loader - INFO -   LABEL CHECK [2004-11-15_03 sample #1]: gold_parent_idx=4, gold_msg_idx=1001, C=5, msg_i_idx=1001, candidate_range=[993, 1001]
+2026-05-10 20:14:51,670 - data_loader - INFO -   LABEL CHECK [2004-11-15_03 sample #2]: gold_parent_idx=4, gold_msg_idx=1002, C=5, msg_i_idx=1002, candidate_range=[993, 1002]
+2026-05-10 20:14:51,674 - data_loader - INFO -   Created 65 samples for 2004-11-15_03
+2026-05-10 20:14:51,674 - data_loader - INFO -   File 1/10: 2004-11-15_03 - 1250 messages, 65 total samples so far
+2026-05-10 20:14:51,674 - data_loader - INFO - Loading conversation from data/dev/2005-06-27_12.ascii.txt
+2026-05-10 20:14:51,675 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:51,679 - data_loader - INFO -   Parsed 1250 messages, found 77 unique users
+2026-05-10 20:14:51,802 - data_loader - INFO -   Loaded 182 gold links from annotation file
+2026-05-10 20:14:51,802 - data_loader - INFO -   Conversation '2005-06-27_12' loaded in 0.13s
+2026-05-10 20:14:51,802 - data_loader - INFO -   Creating samples for 2005-06-27_12: all 1250 messages
+2026-05-10 20:14:51,805 - data_loader - INFO -   LABEL CHECK [2005-06-27_12 sample #65]: gold_parent_idx=13, gold_msg_idx=1000, C=14, msg_i_idx=1000, candidate_range=[986, 1000]
+2026-05-10 20:14:51,805 - data_loader - INFO -   LABEL CHECK [2005-06-27_12 sample #66]: gold_parent_idx=14, gold_msg_idx=1015, C=15, msg_i_idx=1015, candidate_range=[1001, 1015]
+2026-05-10 20:14:51,806 - data_loader - INFO -   LABEL CHECK [2005-06-27_12 sample #67]: gold_parent_idx=13, gold_msg_idx=1018, C=14, msg_i_idx=1018, candidate_range=[1004, 1018]
+2026-05-10 20:14:51,809 - data_loader - INFO -   Created 41 samples for 2005-06-27_12
+2026-05-10 20:14:51,809 - data_loader - INFO -   File 2/10: 2005-06-27_12 - 1250 messages, 106 total samples so far
+2026-05-10 20:14:51,809 - data_loader - INFO - Loading conversation from data/dev/2005-08-08_01.ascii.txt
+2026-05-10 20:14:51,810 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:51,814 - data_loader - INFO -   Parsed 1250 messages, found 95 unique users
+2026-05-10 20:14:51,977 - data_loader - INFO -   Loaded 186 gold links from annotation file
+2026-05-10 20:14:51,977 - data_loader - INFO -   Conversation '2005-08-08_01' loaded in 0.17s
+2026-05-10 20:14:51,977 - data_loader - INFO -   Creating samples for 2005-08-08_01: all 1250 messages
+2026-05-10 20:14:51,980 - data_loader - INFO -   LABEL CHECK [2005-08-08_01 sample #106]: gold_parent_idx=11, gold_msg_idx=1000, C=12, msg_i_idx=1000, candidate_range=[986, 1000]
+2026-05-10 20:14:51,980 - data_loader - INFO -   LABEL CHECK [2005-08-08_01 sample #107]: gold_parent_idx=13, gold_msg_idx=1005, C=14, msg_i_idx=1005, candidate_range=[991, 1005]
+2026-05-10 20:14:51,980 - data_loader - INFO -   LABEL CHECK [2005-08-08_01 sample #108]: gold_parent_idx=13, gold_msg_idx=1010, C=14, msg_i_idx=1010, candidate_range=[996, 1010]
+2026-05-10 20:14:51,984 - data_loader - INFO -   Created 70 samples for 2005-08-08_01
+2026-05-10 20:14:51,984 - data_loader - INFO -   File 3/10: 2005-08-08_01 - 1250 messages, 176 total samples so far
+2026-05-10 20:14:51,984 - data_loader - INFO - Loading conversation from data/dev/2008-12-11_11.ascii.txt
+2026-05-10 20:14:51,986 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:51,989 - data_loader - INFO -   Parsed 1250 messages, found 142 unique users
+2026-05-10 20:14:52,294 - data_loader - INFO -   Loaded 172 gold links from annotation file
+2026-05-10 20:14:52,294 - data_loader - INFO -   Conversation '2008-12-11_11' loaded in 0.31s
+2026-05-10 20:14:52,294 - data_loader - INFO -   Creating samples for 2008-12-11_11: all 1250 messages
+2026-05-10 20:14:52,297 - data_loader - INFO -   LABEL CHECK [2008-12-11_11 sample #176]: gold_parent_idx=14, gold_msg_idx=1002, C=15, msg_i_idx=1002, candidate_range=[988, 1002]
+2026-05-10 20:14:52,297 - data_loader - INFO -   LABEL CHECK [2008-12-11_11 sample #177]: gold_parent_idx=14, gold_msg_idx=1006, C=15, msg_i_idx=1006, candidate_range=[992, 1006]
+2026-05-10 20:14:52,297 - data_loader - INFO -   LABEL CHECK [2008-12-11_11 sample #178]: gold_parent_idx=13, gold_msg_idx=1008, C=14, msg_i_idx=1008, candidate_range=[994, 1008]
+2026-05-10 20:14:52,301 - data_loader - INFO -   Created 44 samples for 2008-12-11_11
+2026-05-10 20:14:52,301 - data_loader - INFO -   File 4/10: 2008-12-11_11 - 1250 messages, 220 total samples so far
+2026-05-10 20:14:52,301 - data_loader - INFO - Loading conversation from data/dev/2009-02-23_10.ascii.txt
+2026-05-10 20:14:52,303 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:52,306 - data_loader - INFO -   Parsed 1250 messages, found 111 unique users
+2026-05-10 20:14:52,540 - data_loader - INFO -   Loaded 186 gold links from annotation file
+2026-05-10 20:14:52,540 - data_loader - INFO -   Conversation '2009-02-23_10' loaded in 0.24s
+2026-05-10 20:14:52,540 - data_loader - INFO -   Creating samples for 2009-02-23_10: all 1250 messages
+2026-05-10 20:14:52,542 - data_loader - INFO -   LABEL CHECK [2009-02-23_10 sample #220]: gold_parent_idx=13, gold_msg_idx=1002, C=14, msg_i_idx=1002, candidate_range=[988, 1002]
+2026-05-10 20:14:52,543 - data_loader - INFO -   LABEL CHECK [2009-02-23_10 sample #221]: gold_parent_idx=13, gold_msg_idx=1011, C=14, msg_i_idx=1011, candidate_range=[997, 1011]
+2026-05-10 20:14:52,543 - data_loader - INFO -   LABEL CHECK [2009-02-23_10 sample #222]: gold_parent_idx=14, gold_msg_idx=1028, C=15, msg_i_idx=1028, candidate_range=[1014, 1028]
+2026-05-10 20:14:52,547 - data_loader - INFO -   Created 53 samples for 2009-02-23_10
+2026-05-10 20:14:52,547 - data_loader - INFO -   File 5/10: 2009-02-23_10 - 1250 messages, 273 total samples so far
+2026-05-10 20:14:52,547 - data_loader - INFO - Loading conversation from data/dev/2009-03-03_10.ascii.txt
+2026-05-10 20:14:52,548 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:52,551 - data_loader - INFO -   Parsed 1250 messages, found 134 unique users
+2026-05-10 20:14:52,840 - data_loader - INFO -   Loaded 188 gold links from annotation file
+2026-05-10 20:14:52,841 - data_loader - INFO -   Conversation '2009-03-03_10' loaded in 0.29s
+2026-05-10 20:14:52,841 - data_loader - INFO -   Creating samples for 2009-03-03_10: all 1250 messages
+2026-05-10 20:14:52,844 - data_loader - INFO -   LABEL CHECK [2009-03-03_10 sample #273]: gold_parent_idx=14, gold_msg_idx=1005, C=15, msg_i_idx=1005, candidate_range=[991, 1005]
+2026-05-10 20:14:52,845 - data_loader - INFO -   LABEL CHECK [2009-03-03_10 sample #274]: gold_parent_idx=14, gold_msg_idx=1011, C=15, msg_i_idx=1011, candidate_range=[997, 1011]
+2026-05-10 20:14:52,845 - data_loader - INFO -   LABEL CHECK [2009-03-03_10 sample #275]: gold_parent_idx=13, gold_msg_idx=1016, C=14, msg_i_idx=1016, candidate_range=[1002, 1016]
+2026-05-10 20:14:52,847 - data_loader - INFO -   Created 28 samples for 2009-03-03_10
+2026-05-10 20:14:52,848 - data_loader - INFO -   File 6/10: 2009-03-03_10 - 1250 messages, 301 total samples so far
+2026-05-10 20:14:52,848 - data_loader - INFO - Loading conversation from data/dev/2009-10-01_17.ascii.txt
+2026-05-10 20:14:52,849 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:52,853 - data_loader - INFO -   Parsed 1250 messages, found 166 unique users
+2026-05-10 20:14:53,235 - data_loader - INFO -   Loaded 171 gold links from annotation file
+2026-05-10 20:14:53,235 - data_loader - INFO -   Conversation '2009-10-01_17' loaded in 0.39s
+2026-05-10 20:14:53,235 - data_loader - INFO -   Creating samples for 2009-10-01_17: all 1250 messages
+2026-05-10 20:14:53,238 - data_loader - INFO -   LABEL CHECK [2009-10-01_17 sample #301]: gold_parent_idx=13, gold_msg_idx=1008, C=14, msg_i_idx=1008, candidate_range=[994, 1008]
+2026-05-10 20:14:53,238 - data_loader - INFO -   LABEL CHECK [2009-10-01_17 sample #302]: gold_parent_idx=13, gold_msg_idx=1010, C=14, msg_i_idx=1010, candidate_range=[997, 1010]
+2026-05-10 20:14:53,238 - data_loader - INFO -   LABEL CHECK [2009-10-01_17 sample #303]: gold_parent_idx=14, gold_msg_idx=1017, C=15, msg_i_idx=1017, candidate_range=[1003, 1017]
+2026-05-10 20:14:53,242 - data_loader - INFO -   Created 45 samples for 2009-10-01_17
+2026-05-10 20:14:53,242 - data_loader - INFO -   File 7/10: 2009-10-01_17 - 1250 messages, 346 total samples so far
+2026-05-10 20:14:53,242 - data_loader - INFO - Loading conversation from data/dev/2011-05-29_19.ascii.txt
+2026-05-10 20:14:53,243 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:53,247 - data_loader - INFO -   Parsed 1250 messages, found 152 unique users
+2026-05-10 20:14:53,581 - data_loader - INFO -   Loaded 181 gold links from annotation file
+2026-05-10 20:14:53,581 - data_loader - INFO -   Conversation '2011-05-29_19' loaded in 0.34s
+2026-05-10 20:14:53,581 - data_loader - INFO -   Creating samples for 2011-05-29_19: all 1250 messages
+2026-05-10 20:14:53,584 - data_loader - INFO -   LABEL CHECK [2011-05-29_19 sample #346]: gold_parent_idx=13, gold_msg_idx=1000, C=14, msg_i_idx=1000, candidate_range=[986, 1000]
+2026-05-10 20:14:53,584 - data_loader - INFO -   LABEL CHECK [2011-05-29_19 sample #347]: gold_parent_idx=14, gold_msg_idx=1016, C=15, msg_i_idx=1016, candidate_range=[1002, 1016]
+2026-05-10 20:14:53,585 - data_loader - INFO -   LABEL CHECK [2011-05-29_19 sample #348]: gold_parent_idx=14, gold_msg_idx=1018, C=15, msg_i_idx=1018, candidate_range=[1004, 1018]
+2026-05-10 20:14:53,588 - data_loader - INFO -   Created 42 samples for 2011-05-29_19
+2026-05-10 20:14:53,588 - data_loader - INFO -   File 8/10: 2011-05-29_19 - 1250 messages, 388 total samples so far
+2026-05-10 20:14:53,588 - data_loader - INFO - Loading conversation from data/dev/2011-11-13_02.ascii.txt
+2026-05-10 20:14:53,589 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:53,592 - data_loader - INFO -   Parsed 1250 messages, found 164 unique users
+2026-05-10 20:14:53,962 - data_loader - INFO -   Loaded 165 gold links from annotation file
+2026-05-10 20:14:53,962 - data_loader - INFO -   Conversation '2011-11-13_02' loaded in 0.37s
+2026-05-10 20:14:53,962 - data_loader - INFO -   Creating samples for 2011-11-13_02: all 1250 messages
+2026-05-10 20:14:53,965 - data_loader - INFO -   LABEL CHECK [2011-11-13_02 sample #388]: gold_parent_idx=12, gold_msg_idx=1001, C=13, msg_i_idx=1001, candidate_range=[987, 1001]
+2026-05-10 20:14:53,965 - data_loader - INFO -   LABEL CHECK [2011-11-13_02 sample #389]: gold_parent_idx=12, gold_msg_idx=1002, C=13, msg_i_idx=1002, candidate_range=[988, 1002]
+2026-05-10 20:14:53,965 - data_loader - INFO -   LABEL CHECK [2011-11-13_02 sample #390]: gold_parent_idx=12, gold_msg_idx=1003, C=13, msg_i_idx=1003, candidate_range=[989, 1003]
+2026-05-10 20:14:53,969 - data_loader - INFO -   Created 39 samples for 2011-11-13_02
+2026-05-10 20:14:53,969 - data_loader - INFO -   File 9/10: 2011-11-13_02 - 1250 messages, 427 total samples so far
+2026-05-10 20:14:53,969 - data_loader - INFO - Loading conversation from data/dev/2016-12-19_20.ascii.txt
+2026-05-10 20:14:53,970 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-10 20:14:53,974 - data_loader - INFO -   Parsed 1250 messages, found 165 unique users
+2026-05-10 20:14:54,334 - data_loader - INFO -   Loaded 176 gold links from annotation file
+2026-05-10 20:14:54,335 - data_loader - INFO -   Conversation '2016-12-19_20' loaded in 0.37s
+2026-05-10 20:14:54,335 - data_loader - INFO -   Creating samples for 2016-12-19_20: all 1250 messages
+2026-05-10 20:14:54,337 - data_loader - INFO -   LABEL CHECK [2016-12-19_20 sample #427]: gold_parent_idx=14, gold_msg_idx=1003, C=15, msg_i_idx=1003, candidate_range=[989, 1003]
+2026-05-10 20:14:54,338 - data_loader - INFO -   LABEL CHECK [2016-12-19_20 sample #428]: gold_parent_idx=13, gold_msg_idx=1011, C=14, msg_i_idx=1011, candidate_range=[997, 1011]
+2026-05-10 20:14:54,338 - data_loader - INFO -   LABEL CHECK [2016-12-19_20 sample #429]: gold_parent_idx=13, gold_msg_idx=1013, C=14, msg_i_idx=1013, candidate_range=[999, 1013]
+2026-05-10 20:14:54,341 - data_loader - INFO -   Created 35 samples for 2016-12-19_20
+2026-05-10 20:14:54,341 - data_loader - INFO -   File 10/10: 2016-12-19_20 - 1250 messages, 462 total samples so far
+2026-05-10 20:14:54,341 - data_loader - INFO - Dataset initialization complete: 462 samples from 10 conversations in 2.99s
+2026-05-10 20:14:54,342 - __main__ - INFO - Dev dataset: 462 samples
+2026-05-10 20:14:54,343 - train - INFO - Starting evaluation on 462 samples
+2026-05-10 20:14:55,723 - train - INFO -   Evaluation progress: 10/116 batches (7.25 batches/s)
+2026-05-10 20:14:55,976 - train - INFO -   Evaluation progress: 20/116 batches (12.25 batches/s)
+2026-05-10 20:14:56,229 - train - INFO -   Evaluation progress: 30/116 batches (15.91 batches/s)
+2026-05-10 20:14:56,482 - train - INFO -   Evaluation progress: 40/116 batches (18.70 batches/s)
+2026-05-10 20:14:56,736 - train - INFO -   Evaluation progress: 50/116 batches (20.89 batches/s)
+2026-05-10 20:14:56,985 - train - INFO -   Evaluation progress: 60/116 batches (22.71 batches/s)
+2026-05-10 20:14:57,237 - train - INFO -   Evaluation progress: 70/116 batches (24.19 batches/s)
+2026-05-10 20:14:57,481 - train - INFO -   Evaluation progress: 80/116 batches (25.49 batches/s)
+2026-05-10 20:14:57,703 - train - INFO -   Evaluation progress: 90/116 batches (26.79 batches/s)
+2026-05-10 20:14:57,932 - train - INFO -   Evaluation progress: 100/116 batches (27.86 batches/s)
+2026-05-10 20:14:58,171 - train - INFO -   Evaluation progress: 110/116 batches (28.74 batches/s)
+2026-05-10 20:14:58,397 - train - INFO -   Prediction sample (first 20):
+2026-05-10 20:14:58,398 - train - INFO -     Predicted: [3, 4, 4, 13, 12, 12, 11, 10, 10, 9, 8, 10, 11, 11, 12, 11, 10, 9, 10, 10]
+2026-05-10 20:14:58,398 - train - INFO -     Gold:      [3, 4, 4, 13, 12, 12, 11, 10, 10, 9, 8, 10, 11, 11, 12, 11, 10, 9, 10, 10]
+2026-05-10 20:14:58,398 - train - INFO -     Abs error: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] (mean=0.00)
+2026-05-10 20:14:58,398 - train - INFO -   Per-position accuracy (top 10 classes):
+2026-05-10 20:14:58,399 - train - INFO -     Position  3: 1.000 accuracy (1 samples)
+2026-05-10 20:14:58,399 - train - INFO -     Position  4: 1.000 accuracy (2 samples)
+2026-05-10 20:14:58,399 - train - INFO -     Position  7: 1.000 accuracy (1 samples)
+2026-05-10 20:14:58,399 - train - INFO -     Position  8: 1.000 accuracy (3 samples)
+2026-05-10 20:14:58,399 - train - INFO -     Position  9: 1.000 accuracy (17 samples)
+2026-05-10 20:14:58,399 - train - INFO - Evaluation complete in 4.06s
+2026-05-10 20:14:58,400 - train - INFO -   Loss: 1.5334, Accuracy: 1.0000, Precision: 0.6667, Recall: 0.6667, F1: 0.6667
+2026-05-10 20:14:58,400 - __main__ - INFO - ================================================================================
+2026-05-10 20:14:58,400 - __main__ - INFO - Evaluation Results (Multiclass Mode)
+2026-05-10 20:14:58,400 - __main__ - INFO - ================================================================================
+2026-05-10 20:14:58,400 - __main__ - INFO - Loss: 1.5334
+2026-05-10 20:14:58,400 - __main__ - INFO - Accuracy: 1.0000
+2026-05-10 20:14:58,400 - __main__ - INFO - Precision: 0.6667
+2026-05-10 20:14:58,400 - __main__ - INFO - Recall: 0.6667
+2026-05-10 20:14:58,400 - __main__ - INFO - F1: 0.6667
+2026-05-10 20:14:58,400 - __main__ - INFO - ================================================================================
+2026-05-10 20:14:58,401 - __main__ - INFO - Results saved to: /home/s4901673/workspace/irc-disentanglement-bert-pytorch/logs/eval_20260510_201444.log
