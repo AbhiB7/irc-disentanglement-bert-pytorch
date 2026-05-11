@@ -45,10 +45,10 @@ source setup.sh
 #   - Test F1: 0.7333 on 922 held-out samples
 #   - 0 NaN batches, 0 OOM — fully stable
 #
-# Overnight config: 20 epochs, batch_size=8 (GPU has 80GB, plenty of headroom)
+# Overnight config: 20 epochs, batch_size=16 (GPU has 80GB, plenty of headroom)
 python src/train.py \
     --mode train \
-    --batch-size 8 \
+    --batch-size 16 \
     --num-workers 4 \
     --epochs 20 \
     --learning-rate 5e-5 \
@@ -61,3 +61,32 @@ python src/train.py \
     --test-end 1000000000 \
     --output-dir "$CHECKPOINT_DIR" \
     --device cuda
+
+echo ""
+echo "=== Training complete. Running final evaluation on DEV and TEST sets ==="
+echo ""
+
+# Find the latest checkpoint
+LATEST_CHECKPOINT=$(ls -t "$CHECKPOINT_DIR"/checkpoint_epoch_*.pt 2>/dev/null | head -1)
+if [ -z "$LATEST_CHECKPOINT" ]; then
+    echo "WARNING: No checkpoint found in $CHECKPOINT_DIR — skipping final evaluation."
+else
+    echo "Latest checkpoint: $LATEST_CHECKPOINT"
+    echo ""
+    echo "=== Evaluating on DEV set (pairwise + clustering metrics) ==="
+    python src/evaluate.py \
+        --checkpoint "$LATEST_CHECKPOINT" \
+        --split dev \
+        --batch-size 64 \
+        --max-dist 15 \
+        --metrics both
+
+    echo ""
+    echo "=== Evaluating on TEST set (pairwise + clustering metrics) ==="
+    python src/evaluate.py \
+        --checkpoint "$LATEST_CHECKPOINT" \
+        --split test \
+        --batch-size 64 \
+        --max-dist 15 \
+        --metrics both
+fi

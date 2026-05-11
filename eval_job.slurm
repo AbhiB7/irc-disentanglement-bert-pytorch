@@ -24,7 +24,8 @@ export CHECKPOINT_DIR=$RUN_ROOT/checkpoints
 
 mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 
-CHECKPOINT=${1:-$CHECKPOINT_DIR/best/checkpoint_epoch_3.pt}
+# Default checkpoint: epoch 6 from the most recent training run (24485619)
+CHECKPOINT=${1:-$CHECKPOINT_DIR/checkpoint_epoch_6.pt}
 
 echo "=========================================="
 echo "IRC Disentanglement - Checkpoint Evaluation"
@@ -36,7 +37,23 @@ echo ""
 # Use 'source' so conda activation and env vars persist in the current shell
 source setup.sh
 
-python src/evaluate.py --checkpoint "$CHECKPOINT"
+echo ""
+echo "=== Evaluating on DEV set ==="
+python src/evaluate.py \
+    --checkpoint "$CHECKPOINT" \
+    --split dev \
+    --batch-size 64 \
+    --max-dist 15 \
+    --metrics both
+
+echo ""
+echo "=== Evaluating on TEST set ==="
+python src/evaluate.py \
+    --checkpoint "$CHECKPOINT" \
+    --split test \
+    --batch-size 64 \
+    --max-dist 15 \
+    --metrics both
 
 echo ""
 echo "=========================================="

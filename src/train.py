@@ -518,19 +518,26 @@ def evaluate(model, dataloader, device, fp16=False):
         else 0.0
     )
 
-    # Macro-averaged precision, recall, F1 across all candidate classes
+    # Macro-averaged precision, recall, F1 across active candidate classes only.
+    # ONLY classes that appear in labels OR predictions are included.
+    # This prevents artificial deflation when classes 0-14 are averaged
+    # but many have zero support (common with max_dist=15).
     num_classes = 0
     precision = 0.0
     recall = 0.0
     f1 = 0.0
 
     if len(all_predictions) > 0:
-        num_classes = max(all_labels.max().item(), all_predictions.max().item()) + 1
+        # Determine active classes (appear in labels or predictions)
+        active_classes = sorted(
+            set(all_labels.tolist()) | set(all_predictions.tolist())
+        )
+        num_classes = len(active_classes)
         per_class_precision = []
         per_class_recall = []
         per_class_f1 = []
 
-        for c in range(num_classes):
+        for c in active_classes:
             tp = ((all_predictions == c) & (all_labels == c)).sum().item()
             fp = ((all_predictions == c) & (all_labels != c)).sum().item()
             fn = ((all_predictions != c) & (all_labels == c)).sum().item()
@@ -550,6 +557,30 @@ def evaluate(model, dataloader, device, fp16=False):
         precision = sum(per_class_precision) / num_classes
         recall = sum(per_class_recall) / num_classes
         f1 = sum(per_class_f1) / num_classes
+
+    # === DIAGNOSTIC: Last-candidate majority baseline ===
+    # Computes what accuracy a trivial baseline would get by always predicting
+    # the last candidate (position C-1). High baseline accuracy indicates the
+    # task is too easy (positional bias) and current metrics are misleading.
+    if len(all_labels) > 0:
+        # "Predict last position" baseline: assumes last candidate is always correct
+        # Since labels are 0-indexed candidate indices and max C = max_dist = 15,
+        # the "last position" baseline predicts 14 for every sample.
+        last_pos_acc = (all_labels == 14).float().mean().item()
+        logger.info(f"  BASELINE: 'Predict last position (14)' accuracy: {last_pos_acc:.4f}")
+        logger.info(f"    (If this is >0.8, the model may be exploiting positional shortcuts)")
+
+    # === DIAGNOSTIC: Gold label distribution ===
+    if len(all_labels) > 0:
+        label_counts = {}
+        for lbl in all_labels.tolist():
+            label_counts[lbl] = label_counts.get(lbl, 0) + 1
+        total = len(all_labels)
+        top_labels = sorted(label_counts.items(), key=lambda x: -x[1])[:5]
+        logger.info(f"  Gold label distribution (top 5 of {len(label_counts)} active positions):")
+        for pos, cnt in top_labels:
+            pct = 100.0 * cnt / total
+            logger.info(f"    Position {pos:2d}: {cnt:5d} ({pct:.1f}%)")
 
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
 
