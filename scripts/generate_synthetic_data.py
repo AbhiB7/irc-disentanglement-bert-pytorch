@@ -32,7 +32,7 @@ THREAD_TEMPLATES = {
         "speakers": ["Charlie", "Diana"],
         "messages": [
             "Weather today?",
-            "Sunny, {temp}°C.",
+            "Sunny, {temp} deg C.",
             "Will it rain tomorrow?",
             "No, clear skies expected.",
             "What about the weekend?",
@@ -162,11 +162,11 @@ def write_conversation(output_dir, conv_id, messages, annotations):
     ann_path = output_dir / f"{conv_id}.annotation.txt"
     
     # Write ASCII file
-    with open(ascii_path, "w") as f:
+    with open(ascii_path, "w", encoding="utf-8") as f:
         f.write("\n".join(messages) + "\n")
     
     # Write annotation file (child parent pairs)
-    with open(ann_path, "w") as f:
+    with open(ann_path, "w", encoding="utf-8") as f:
         for child, parent in annotations:
             f.write(f"{child} {parent}\n")
     
