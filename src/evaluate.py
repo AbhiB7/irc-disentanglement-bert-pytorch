@@ -566,8 +566,15 @@ def debug_predicted_pairs(predictions, all_probs, dataset, conv_name, conv_obj, 
         p_gold = 0.0
         if all_probs is not None and idx < len(all_probs):
             probs = all_probs[idx]  # Tensor of shape [C]
-            # Self-link is always the last candidate (child is at position C-1)
-            p_self = probs[-1].item() if len(probs) > 0 else 0.0
+            # Find self-link position in candidate_indices (where parent == child)
+            self_pos = None
+            for pos, (cidx, i, j) in enumerate(candidate_indices):
+                if i == j:  # Self-link: child == parent
+                    self_pos = pos
+                    break
+            # Extract probabilities
+            if self_pos is not None and self_pos < len(probs):
+                p_self = probs[self_pos].item()
             p_pred = probs[pred_in_cand].item() if pred_in_cand < len(probs) else 0.0
             p_gold = probs[gold_in_cand].item() if gold_in_cand < len(probs) else 0.0
         

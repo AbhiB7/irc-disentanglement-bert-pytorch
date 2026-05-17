@@ -208,7 +208,9 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 ## Next Steps
 - [x] **Fix all_probs collection in train.py (extend vs append)** - COMPLETED: Changed `all_probs.append(probs.cpu())` to `all_probs.extend([p for p in probs.cpu()])` in `evaluate()` function
 - [x] **Run pytest tests to verify the fix** - COMPLETED: 120 tests pass
-- [ ] **Run evaluation on Bunya with new debug output** to see self-link probabilities (P(self), P(pred), P(gold))
+- [x] **Fix P(self) extraction in evaluate.py** - COMPLETED: Now searches candidate_indices for self-link (i==j) instead of assuming position C-1
+- [x] **Run pytest tests to verify P(self) fix** - COMPLETED: 120 tests pass
+- [ ] **Re-run evaluation on Bunya** with corrected debug output to get actual P(self) values
 - [ ] **Analyze results**: If P(self) > 0.9 for most samples → model confidently predicts self-links
 - [ ] **Consider masking or retraining**: Option 2 (mask self-link at prediction) or Option 1 (exclude child from candidates in data_loader.py)
 - [ ] **Generate synthetic data**: Run `python scripts/generate_synthetic_data.py --num-conversations 5`
