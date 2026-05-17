@@ -115,6 +115,20 @@ def parse_args():
         help="Which metrics to compute: pairwise (per-message), clustering (VI/ARI), or both",
     )
     
+    parser.add_argument(
+        "--verbose",
+        type=int,
+        default=0,
+        help="Print human-readable predicted vs gold threads. Value = number of random conversations to sample (0=off)",
+    )
+    
+    parser.add_argument(
+        "--verbose-seed",
+        type=int,
+        default=42,
+        help="Random seed for sampling conversations (default: 42 for reproducibility)",
+    )
+    
     return parser.parse_args()
 
 
@@ -454,6 +468,51 @@ def compute_clustering_eval(loader, predictions, dataset, gold_clusters):
     }
 
 
+def format_conversation_threads(conv, gold_clusters, pred_clusters, max_threads=5):
+    """
+    Format a conversation's gold and predicted threads for human inspection.
+    
+    Args:
+        conv: IRCConversation object
+        gold_clusters: list of sets (gold threads)
+        pred_clusters: list of sets (predicted threads)
+        max_threads: max threads to print per side
+    
+    Returns:
+        formatted string
+    """
+    lines = []
+    lines.append(f"\n{'='*60}")
+    lines.append(f"Conversation: {conv.name}")
+    lines.append(f"{'='*60}")
+    
+    # Build message lookup
+    msg_lookup = {msg.index: msg for msg in conv.messages}
+    
+    # Gold threads
+    lines.append("\nGOLD THREADS:")
+    for tidx, thread in enumerate(gold_clusters[:max_threads]):
+        lines.append(f"  Thread {tidx+1}:")
+        for msg_idx in sorted(thread):
+            msg = msg_lookup.get(msg_idx)
+            if msg:
+                lines.append(f"    [{msg_idx}] {msg.speaker}: \"{msg.text[:80]}{'...' if len(msg.text)>80 else ''}\"")
+    
+    # Predicted threads
+    lines.append("\nPREDICTED THREADS:")
+    for tidx, thread in enumerate(pred_clusters[:max_threads]):
+        lines.append(f"  Thread {tidx+1}:")
+        for msg_idx in sorted(thread):
+            msg = msg_lookup.get(msg_idx)
+            if msg:
+                lines.append(f"    [{msg_idx}] {msg.speaker}: \"{msg.text[:80]}{'...' if len(msg.text)>80 else ''}\"")
+    
+    # Count mismatches (different number of threads)
+    lines.append(f"\nThread count: Gold={len(gold_clusters)}, Predicted={len(pred_clusters)}")
+    
+    return "\n".join(lines)
+
+
 def main():
     args = parse_args()
     
@@ -518,6 +577,42 @@ def main():
             logger.info(f"VI  (Variation of Information): {clustering_metrics['clustering_vi']:.4f}")
             logger.info(f"Conversations evaluated: {clustering_metrics['num_conversations']}")
             logger.info("=" * 80)
+            
+            # Human-readable validation output (random sampling)
+            if args.verbose > 0:
+                import random
+                random.seed(args.verbose_seed)
+                
+                # Get predicted clusters from the clustering eval
+                pred_clusters = cluster_from_predictions(metrics["predictions"], loader.dataset)
+                
+                # Get all conversation names
+                all_conv_names = list(gold_clusters.keys())
+                
+                # Randomly sample N conversations (or all if fewer)
+                num_to_show = min(args.verbose, len(all_conv_names))
+                sampled_names = random.sample(all_conv_names, num_to_show)
+                
+                logger.info(f"\n{'='*60}")
+                logger.info(f"HUMAN-READABLE VALIDATION (showing {num_to_show} random conversations)")
+                logger.info(f"{'='*60}")
+                
+                for conv_name in sampled_names:
+                    if conv_name not in pred_clusters:
+                        continue
+                    
+                    # Find conversation object
+                    conv = None
+                    for c in loader.dataset.conversations:
+                        if c.name == conv_name:
+                            conv = c
+                            break
+                    
+                    if conv:
+                        output = format_conversation_threads(
+                            conv, gold_clusters[conv_name], pred_clusters[conv_name]
+                        )
+                        logger.info(output)
     else:
         logger.info("Skipping clustering metrics (gold clusters file may be missing)")
     

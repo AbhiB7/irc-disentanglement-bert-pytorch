@@ -213,8 +213,23 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - `research/handover.md`: Complete diagnostic results with Claude's questions answered
 - `context/CONTEXT.md`: Added section 7 (Evaluation Results) with all findings
 
-## Next Steps: Conference Paper
-- [ ] **Write the paper** using the results in `context/CONTEXT.md` (section 7) and `research/handover.md`
+## Recent Completions (2026-05-17)
+- **100% Accuracy Root Cause Analysis**: Traced through `evaluate.py`, `train.py`, `data_loader.py`, and `model.py`. Found that 100% accuracy likely stems from gold labels being dominated by the immediately previous message (recency bias), making the pairwise metric trivial.
+- **Human-Readable Validation Output**: Added `--verbose N` flag to `src/evaluate.py`:
+  - Randomly samples N conversations (reproducible via `--verbose-seed`)
+  - Formats gold and predicted threads side-by-side for manual inspection
+  - Added `format_conversation_threads()` function
+- **Synthetic Data Generation**: Created `scripts/generate_synthetic_data.py`:
+  - Generates conversations with clear thread structure (Python help, Weather, Food, Gaming)
+  - Creates `.ascii.txt` and `.annotation.txt` files
+  - Topics are clearly separated to prevent recency shortcut
+- **Updated `eval_job.slurm`**: Added `--verbose 3` to dev/test evaluation calls. Added synthetic data evaluation step.
+
+## Next Steps
+- [ ] **Generate synthetic data**: Run `python scripts/generate_synthetic_data.py --num-conversations 5`
+- [ ] **Evaluate on synthetic data**: Run `python src/evaluate.py --checkpoint <path> --data-dir data/synthetic --split dev --verbose 3`
+- [ ] **Manual inspection**: Review human-readable output to verify if model predictions make sense
+- [ ] **Write conference paper** using the results in `context/CONTEXT.md` (section 7) and `research/handover.md`
 - [ ] Submit `run_job.slurm` on Bunya after cluster maintenance (for max_dist=50 training)
 - [ ] Consider per-feature ablation study (requires retraining 5 models)
 - [ ] Consider evaluating on channel-two data for denser clustering metrics

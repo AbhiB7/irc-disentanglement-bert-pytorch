@@ -44,7 +44,9 @@ python src/evaluate.py \
     --split dev \
     --batch-size 64 \
     --max-dist 50 \
-    --metrics both
+    --metrics both \
+    --verbose 3 \
+    --verbose-seed 42
 
 echo ""
 echo "=== Evaluating on TEST set ==="
@@ -53,7 +55,21 @@ python src/evaluate.py \
     --split test \
     --batch-size 64 \
     --max-dist 50 \
-    --metrics both
+    --metrics both \
+    --verbose 3 \
+    --verbose-seed 42
+
+echo ""
+echo "=== Evaluating on SYNTHETIC data ==="
+python src/evaluate.py \
+    --checkpoint "$CHECKPOINT" \
+    --data-dir data/synthetic \
+    --split dev \
+    --batch-size 64 \
+    --max-dist 50 \
+    --metrics both \
+    --verbose 3 \
+    --verbose-seed 42
 
 echo ""
 echo "=========================================="
