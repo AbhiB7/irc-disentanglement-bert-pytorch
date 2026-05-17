@@ -55,7 +55,6 @@ else
         --checkpoint "$LATEST_CHECKPOINT" \
         --data-dir $TINY_DIR \
         --split dev \
-        --test-end 300 \
         --batch-size 16 \
         --metrics both \
         --verbose 3
