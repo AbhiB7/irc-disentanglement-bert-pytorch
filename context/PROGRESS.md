@@ -14,6 +14,8 @@ This file tracks the dynamic working state, recent completions, and immediate ne
 - ✅ **Updated eval_job.slurm**: Added `--verbose 3` to dev/test evaluation calls. Added synthetic data evaluation step.
 - 🔄 **Evaluation Running on Bunya**: The evaluation job (`eval_job.slurm`) is currently running on Bunya A100 with the checkpoint from run 24562188. Waiting for results with human-readable output.
 - ✅ **All Prior Milestones**: Multiclass architecture, DeBERTa-v3-base, max_dist=50, lazy tokenization, OOM/NaN recovery, Bunya compliance all complete.
+- ✅ **TypeError in evaluate.py Fixed**: Added missing `loader` argument to `cluster_from_predictions()` call (line 587).
+- ✅ **Test Suite Fixed**: Fixed 5 failing tests in `tests/test_data_loader.py` and `tests/test_create_samples.py` (adjusted for 8-sample dataset due to skipped messages 0 and 3). All 120 tests now pass.
 
 ## Recent Completions (2026-05-04)
 - **Proper Multiclass Implementation**: Complete refactor of multiclass architecture:
