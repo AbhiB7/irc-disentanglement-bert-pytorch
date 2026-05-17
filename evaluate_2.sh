@@ -54,7 +54,7 @@ python src/evaluate.py \
     --max-dist 50 \
     --metrics both \
     $VERBOSE \
-    --verbose-seed 42 2>&1 | tee -a logs/eval_test_$(date +%Y%m%d_%H%M%S).log"
+    --verbose-seed 42 2>&1 | tee -a logs/eval_test_$(date +%Y%m%d_%H%M%S).log
 
 echo ""
 echo "=== Evaluating on SYNTHETIC data ==="
@@ -66,7 +66,7 @@ python src/evaluate.py \
     --max-dist 50 \
     --metrics both \
     $VERBOSE \
-    --verbose-seed 42 2>&1 | tee -a logs/eval_synthetic_$(date +%Y%m%d_%H%M%S).log"
+    --verbose-seed 42 2>&1 | tee -a logs/eval_synthetic_$(date +%Y%m%d_%H%M%S).log
 
 echo ""
 echo "=========================================="

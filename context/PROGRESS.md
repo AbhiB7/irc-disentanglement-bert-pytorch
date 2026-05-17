@@ -8,14 +8,11 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **100% Accuracy Analysis Complete**: Traced through `evaluate.py`, `train.py`, `data_loader.py`, and `model.py`. Root cause: gold labels dominated by immediately previous message (recency bias).
-- ✅ **Human-Readable Validation**: Added `--verbose N` flag to `src/evaluate.py`. Randomly samples N conversations and prints gold vs predicted threads side-by-side for manual inspection. Includes `format_conversation_threads()` function.
-- ✅ **Synthetic Data Generation**: Created `scripts/generate_synthetic_data.py` that generates conversations with clear thread structure (Python help, Weather, Food, Gaming). Topics are separated to prevent recency shortcut.
-- ✅ **Updated eval_job.slurm**: Added `--verbose 3` to dev/test evaluation calls. Added synthetic data evaluation step.
-- 🔄 **Evaluation Running on Bunya**: The evaluation job (`eval_job.slurm`) is currently running on Bunya A100 with the checkpoint from run 24562188. Waiting for results with human-readable output.
-- ✅ **All Prior Milestones**: Multiclass architecture, DeBERTa-v3-base, max_dist=50, lazy tokenization, OOM/NaN recovery, Bunya compliance all complete.
 - ✅ **TypeError in evaluate.py Fixed**: Added missing `loader` argument to `cluster_from_predictions()` call (line 587).
 - ✅ **Test Suite Fixed**: Fixed 5 failing tests in `tests/test_data_loader.py` and `tests/test_create_samples.py` (adjusted for 8-sample dataset due to skipped messages 0 and 3). All 120 tests now pass.
+- ✅ **Invalid Log Filenames Fixed**: Removed stray quotes from `evaluate.sh` and `evaluate_2.sh` that were causing invalid filenames on Bunya Linux.
+- 🔄 **Git Sync Issue**: Local branch behind remote by 1 commit (`3a158cc`). Pull fails due to invalid Windows paths in remote commit's log files.
+- 🔄 **Evaluation Running on Bunya**: Waiting for evaluation job results with checkpoint from run 24562188.
 
 ## Recent Completions (2026-05-04)
 - **Proper Multiclass Implementation**: Complete refactor of multiclass architecture:
@@ -118,22 +115,11 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
     - **Fix**: Changed default threshold to 0.5 in `src/train.py:173`, removed explicit --threshold from all scripts
 
 ## Next Steps
-- **Immediate Priority**: Submit Bunya smoke test with multiclass architecture:
-  1. `sbatch smoke_test.slurm` — 30 min test on A100 with DeBERTa-v3-base, max_dist=50, batch_size=64
-  2. Check logs for: no OOM, no NaN loss, loss decreasing, accuracy > 0.10 (random baseline)
-  3. If smoke test passes → `sbatch train.sh` for full training (3-8 hours)
-  4. After training → `python src/evaluate.py --checkpoint checkpoints/best/checkpoint_epoch_3.pt` on dev set
-- **Post-Training**: Evaluate on full dev set using `src/evaluate.py`.
-- **Future: Improve Convergence Detection**: Current early stopping uses patience-based heuristic. Consider implementing more robust convergence detection:
-  - **Gradient-based convergence**: Monitor gradient norms approaching zero
-  - **Loss plateau detection**: Track when loss stops decreasing significantly
-- **Remaining Priorities**:
-  - Priority 4: Union-Find clustering + thread metrics (VI, ARI, MCF)
-  - Priority 5: Speaker-masked MHSA (structural attention masking)
-  - Priority 6: @mention r-GCN (uses existing `msg.targets` data)
-  - **Multiple metric convergence**: Require F1, loss, AND precision to plateau
-  - **Learning rate decay**: Reduce LR when validation loss plateaus, then apply early stopping
-  - **Priority**: Low - current patience-based approach is sufficient for now, focus on full pipeline first
+- [ ] **Resolve Git sync issue**: Local branch behind remote by 1 commit (`3a158cc`). Pull fails due to invalid Windows paths in remote log files. Options: reset remote to `145ddab`, or use sparse checkout to skip `logs/` folder.
+- [ ] **Check Bunya evaluation results**: Evaluation job running with checkpoint from run 24562188. Review human-readable output (`--verbose 3`) for synthetic and real data.
+- [ ] **Generate synthetic data**: Run `python scripts/generate_synthetic_data.py --num-conversations 5` and evaluate to verify model predictions make sense beyond recency bias.
+- [ ] **Manual inspection**: Review side-by-side gold vs predicted threads for sampled conversations.
+- [ ] **Prepare conference paper**: Use results in `context/CONTEXT.md` (section 7) and `research/handover.md` to draft thesis chapter.
 
 ## Recent Completions (2026-04-22)
 - **Test 2 Success**: Completed stability run on RTX 5070.
@@ -208,6 +194,7 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
   - Creates `.ascii.txt` and `.annotation.txt` files
   - Topics are clearly separated to prevent recency shortcut
 - **Updated `eval_job.slurm`**: Added `--verbose 3` to dev/test evaluation calls. Added synthetic data evaluation step.
+- **Fixed Invalid Log Filenames on Bunya Linux**: Removed stray double quotes from `evaluate.sh` (lines 47, 59) and `evaluate_2.sh` (lines 57, 69). Stray quotes caused shell to interpret subsequent `echo` statements and newlines as part of the filename, creating invalid filenames like `'eval_test_20260517_190243.log'$'\n\n''echo '$'\n''echo ==='`. Verified both files use LF line endings for Linux compatibility.
 
 ## Next Steps
 - [ ] **Check Bunya evaluation results**: Evaluation job is running with `--verbose 3` for human-readable output
