@@ -584,7 +584,7 @@ def main():
                 random.seed(args.verbose_seed)
                 
                 # Get predicted clusters from the clustering eval
-                pred_clusters = cluster_from_predictions(metrics["predictions"], loader.dataset)
+                pred_clusters = cluster_from_predictions(loader, metrics["predictions"], loader.dataset)
                 
                 # Get all conversation names
                 all_conv_names = list(gold_clusters.keys())

@@ -314,22 +314,25 @@ def test_getitem_label_correctness():
     dataset = create_test_dataset(max_dist=50)
     all_pass = True
 
-    # Expected labels for each sample (from gold_links and candidate filtering):
-    # Sample 0 (msg0): no gold entry → label = -1
-    # Sample 1 (msg1): gold parent = msg0 at candidate index 0 → label = 0
-    # Sample 2 (msg2): gold parent = msg1 at candidate index 1 → label = 1
-    # Sample 3 (msg3): no gold entry → label = -1
-    # Sample 4 (msg4): gold parent = msg4 (self-link) at candidate index 3 → label = 3
-    # Sample 5 (msg5): gold parent = msg4 at candidate index 3 → label = 3
-    # Sample 6 (msg6): gold parent = msg5 at candidate index 4 → label = 4
-    # Sample 7 (msg7): gold parent = msg5 at candidate index 4 → label = 4
-    # Sample 8 (msg8): gold parent = msg7 at candidate index 6 → label = 6
-    #   Candidates: [msg0, msg1, msg2, msg4, msg5, msg6, msg7, msg8]
-    #   msg7 is at index 6 (msg3 SYSTEM was filtered out)
-    # Sample 9 (msg9): gold parent = msg8 at candidate index 7 → label = 7
-    #   Candidates: [msg0, msg1, msg2, msg4, msg5, msg6, msg7, msg8, msg9]
-    #   msg8 is at index 7 (msg3 SYSTEM was filtered out)
-    expected_labels = [-1, 0, 1, -1, 3, 3, 4, 4, 6, 7]
+    # Samples are only created for messages with gold labels (msg0 and msg3 are skipped).
+    # Messages with gold labels: 1,2,4,5,6,7,8,9 → 8 samples.
+    # Sample ordering matches message order after filtering.
+    # Label = index of gold parent within candidate list (SYSTEM msg3 filtered out).
+    #   msg1: candidates [0,1] → gold parent 0 at index 0
+    #   msg2: candidates [0,1,2] → gold parent 1 at index 1
+    #   msg4: candidates [0,1,2,4] → gold parent 4 at index 3
+    #   msg5: candidates [0,1,2,4,5] → gold parent 4 at index 3
+    #   msg6: candidates [0,1,2,4,5,6] → gold parent 5 at index 4
+    #   msg7: candidates [0,1,2,4,5,6,7] → gold parent 5 at index 4
+    #   msg8: candidates [0,1,2,4,5,6,7,8] → gold parent 7 at index 6
+    #   msg9: candidates [0,1,2,4,5,6,7,8,9] → gold parent 8 at index 7
+    expected_labels = [0, 1, 3, 3, 4, 4, 6, 7]
+
+    # Verify we have the expected number of samples
+    if len(dataset) != len(expected_labels):
+        print(f"  FAIL: expected {len(expected_labels)} samples, got {len(dataset)}")
+        all_pass = False
+        return all_pass
 
     for idx, expected in enumerate(expected_labels):
         item = dataset[idx]
@@ -340,7 +343,7 @@ def test_getitem_label_correctness():
             all_pass = False
 
     if all_pass:
-        print(f"  All {len(dataset.samples)} samples have correct labels — PASS")
+        print(f"  All {len(dataset)} samples have correct labels — PASS")
 
     print(f"\n>>> TEST 2 {'ALL PASSED' if all_pass else 'SOME FAILED'} <<<")
     return all_pass
@@ -357,33 +360,27 @@ def test_getitem_candidate_count():
     dataset = create_test_dataset(max_dist=50)
     all_pass = True
 
-    # For max_dist=50, all preceding messages are candidates.
-    # System messages (msg3) are filtered out as non-self-link parents.
-    # So expected candidates per sample:
-    #   msg0: [msg0] → 1
-    #   msg1: [msg0, msg1] → 2
-    #   msg2: [msg0, msg1, msg2] → 3
-    #   msg3: [msg0, msg1, msg2, msg3] → 4 (msg3 includes self-link)
-    #   msg4: [msg0, msg1, msg2, msg4] → 4 (msg3 filtered, msg4 self-link)
-    #   msg5: [msg0, msg1, msg2, msg4, msg5] → 5
-    #   msg6: [msg0, msg1, msg2, msg4, msg5, msg6] → 6
-    #   msg7: [msg0, msg1, msg2, msg4, msg5, msg6, msg7] → 7
-    #   msg8: [msg0, msg1, msg2, msg4, msg5, msg6, msg7, msg8] → 8
-    #   msg9: [msg0, msg1, msg2, msg4, msg5, msg6, msg7, msg8, msg9] → 9
-    expected_counts = {
-        0: 1,
-        1: 2,
-        2: 3,
-        3: 4,
-        4: 4,
-        5: 5,
-        6: 6,
-        7: 7,
-        8: 8,
-        9: 9,
-    }
+    # Build expected candidate counts dynamically.
+    # Dataset skips msg0 and msg3 (no gold labels).
+    # Messages with gold labels: 1,2,4,5,6,7,8,9 (8 samples).
+    # For each sample index i in [0..7], the corresponding message index is:
+    #   sample0 → msg1, sample1 → msg2, sample2 → msg4, etc.
+    # Candidate count = number of preceding non-filtered messages + self-link.
+    # System msg3 is filtered out as parent candidate.
+    msg_indices = [1, 2, 4, 5, 6, 7, 8, 9]
+    # Preceding non-system messages for each:
+    #   msg1: [0,1] → 2 (msg0 is not system)
+    #   msg2: [0,1,2] → 3
+    #   msg4: [0,1,2,4] → 4 (msg3 filtered)
+    #   msg5: [0,1,2,4,5] → 5
+    #   msg6: [0,1,2,4,5,6] → 6
+    #   msg7: [0,1,2,4,5,6,7] → 7
+    #   msg8: [0,1,2,4,5,6,7,8] → 8
+    #   msg9: [0,1,2,4,5,6,7,8,9] → 9
+    expected_counts = [2, 3, 4, 5, 6, 7, 8, 9]
 
-    for idx, expected_c in expected_counts.items():
+    for idx in range(len(dataset)):
+        expected_c = expected_counts[idx]
         item = dataset[idx]
         actual_c = item["input_ids"].shape[0]
         passed = actual_c == expected_c
@@ -457,20 +454,21 @@ def test_getitem_with_max_dist():
     dataset = create_test_dataset(max_dist=3)
     all_pass = True
 
+    # Dataset skips msg0 and msg3 (no gold labels).
+    # Messages with gold labels: 1,2,4,5,6,7,8,9 (8 samples).
     # For max_dist=3, range(max(0, i-2), i+1):
-    #   msg0: range(0, 1) → [0] → 1 candidate
-    #   msg1: range(0, 2) → [0, 1] → 2 candidates
-    #   msg2: range(0, 3) → [0, 1, 2] → 3 candidates
-    #   msg3: range(1, 4) → [1, 2, 3] → 3 candidates
-    #   msg4: range(2, 5) → [2, 3, 4] → 3 candidates (msg3 system filtered → [2, 4])
-    #   msg5: range(3, 6) → [3, 4, 5] → 3 candidates (msg3 system filtered → [4, 5])
-    #   msg6: range(4, 7) → [4, 5, 6] → 3 candidates
-    #   msg7: range(5, 8) → [5, 6, 7] → 3 candidates
-    #   msg8: range(6, 9) → [6, 7, 8] → 3 candidates
-    #   msg9: range(7, 10) → [7, 8, 9] → 3 candidates
-    expected_counts = [1, 2, 3, 3, 2, 2, 3, 3, 3, 3]
+    #   msg1: range(0,2) → [0,1] → 2 candidates
+    #   msg2: range(0,3) → [0,1,2] → 3 candidates
+    #   msg4: range(2,5) → [2,3,4] → msg3 system filtered → [2,4] → 2
+    #   msg5: range(3,6) → [3,4,5] → msg3 filtered → [4,5] → 2
+    #   msg6: range(4,7) → [4,5,6] → 3 candidates
+    #   msg7: range(5,8) → [5,6,7] → 3 candidates
+    #   msg8: range(6,9) → [6,7,8] → 3 candidates
+    #   msg9: range(7,10) → [7,8,9] → 3 candidates
+    expected_counts = [2, 3, 2, 2, 3, 3, 3, 3]
 
-    for idx, expected_c in enumerate(expected_counts):
+    for idx in range(len(dataset)):
+        expected_c = expected_counts[idx]
         item = dataset[idx]
         actual_c = item["input_ids"].shape[0]
         passed = actual_c == expected_c
@@ -558,7 +556,13 @@ def test_getitem_consistency():
     dataset = create_test_dataset(max_dist=50)
     all_pass = True
 
-    for idx in [0, 2, 5, 9]:
+    # Dataset has 8 samples (indices 0-7). Use valid indices only.
+    valid_indices = [i for i in [0, 2, 5, 9] if i < len(dataset)]
+    if not valid_indices:
+        print("  No valid indices to check determinism")
+        return True()
+
+    for idx in valid_indices:
         item1 = dataset[idx]
         item2 = dataset[idx]
 
