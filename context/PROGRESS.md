@@ -206,11 +206,13 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
   - All 120 tests pass after changes (`pytest tests/ -x -q`)
 
 ## Next Steps
-- [ ] **Check Bunya evaluation results**: Evaluation job is running with `--verbose 3` for human-readable output
+- [x] **Fix all_probs collection in train.py (extend vs append)** - COMPLETED: Changed `all_probs.append(probs.cpu())` to `all_probs.extend([p for p in probs.cpu()])` in `evaluate()` function
+- [x] **Run pytest tests to verify the fix** - COMPLETED: 120 tests pass
+- [ ] **Run evaluation on Bunya with new debug output** to see self-link probabilities (P(self), P(pred), P(gold))
+- [ ] **Analyze results**: If P(self) > 0.9 for most samples → model confidently predicts self-links
+- [ ] **Consider masking or retraining**: Option 2 (mask self-link at prediction) or Option 1 (exclude child from candidates in data_loader.py)
 - [ ] **Generate synthetic data**: Run `python scripts/generate_synthetic_data.py --num-conversations 5`
 - [ ] **Evaluate on synthetic data**: Run `python src/evaluate.py --checkpoint <path> --data-dir data/synthetic --split dev --verbose 3`
-- [ ] **Manual inspection**: Review human-readable output to verify if model predictions make sense
-- [ ] **Write conference paper** using results in `context/CONTEXT.md` (section 7) and `research/handover.md`
 
 ## Next Steps (Archived/Completed)
 - ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)

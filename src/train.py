@@ -468,7 +468,8 @@ def evaluate(model, dataloader, device, fp16=False):
                 # Store results (keep as tensors, concat at the end)
                 all_predictions.append(predictions.cpu())
                 all_labels.append(labels.cpu())
-                all_probs.append(probs.cpu())
+                # Extend with per-sample probabilities (probs is [batch, C])
+                all_probs.extend([p for p in probs.cpu()])
 
                 # Accumulate loss
                 if "loss" in outputs:
