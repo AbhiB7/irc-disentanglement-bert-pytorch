@@ -1,0 +1,66 @@
+2026-05-17 19:17:48,701 - __main__ - INFO - Using device: cuda
+2026-05-17 19:17:48,964 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-17 19:17:48,965 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-17 19:17:48,971 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-17 19:17:49,209 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-17 19:17:49,216 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-17 19:17:49,452 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-17 19:17:49,682 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-17 19:17:50,143 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-17 19:17:50,147 - __main__ - INFO - Loaded tokenizer: DebertaV2Tokenizer
+2026-05-17 19:17:50,147 - __main__ - INFO - Loading checkpoint from /scratch/user/s4901673/ircbert_runs/checkpoints/checkpoint_epoch_6.pt
+2026-05-17 19:17:51,177 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-17 19:17:51,183 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-17 19:17:51,807 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-17 19:17:52,127 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+Loading weights:   0%|          | 0/198 [00:00<?, ?it/s]Loading weights: 100%|██████████| 198/198 [00:00<00:00, 49262.79it/s]
+2026-05-17 19:17:52,374 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+2026-05-17 19:17:52,627 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+[transformers] [1mDebertaV2Model LOAD REPORT[0m from: microsoft/deberta-v3-base
+Key                                     | Status     |  | 
+----------------------------------------+------------+--+-
+mask_predictions.dense.bias             | UNEXPECTED |  | 
+mask_predictions.LayerNorm.weight       | UNEXPECTED |  | 
+lm_predictions.lm_head.LayerNorm.weight | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.weight     | UNEXPECTED |  | 
+mask_predictions.LayerNorm.bias         | UNEXPECTED |  | 
+mask_predictions.dense.weight           | UNEXPECTED |  | 
+lm_predictions.lm_head.bias             | UNEXPECTED |  | 
+lm_predictions.lm_head.LayerNorm.bias   | UNEXPECTED |  | 
+lm_predictions.lm_head.dense.bias       | UNEXPECTED |  | 
+mask_predictions.classifier.bias        | UNEXPECTED |  | 
+mask_predictions.classifier.weight      | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+2026-05-17 19:17:52,866 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-17 19:17:52,987 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-17 19:17:52,994 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-17 19:17:53,095 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-17 19:17:53,346 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
+2026-05-17 19:17:53,555 - __main__ - INFO - Loaded checkpoint from epoch 6 (model=microsoft/deberta-v3-base)
+2026-05-17 19:17:53,556 - __main__ - INFO - Loading dev dataset...
+2026-05-17 19:17:53,557 - data_loader - INFO - Initializing IRCDisentanglementDataset with 0 files
+2026-05-17 19:17:53,557 - data_loader - INFO -   max_dist=50, max_length=128, skip_labels=False
+2026-05-17 19:17:53,558 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-17 19:17:53,558 - data_loader - INFO - Dataset initialization complete: 0 samples from 0 conversations in 0.00s
+2026-05-17 19:17:53,558 - __main__ - INFO - dev dataset: 0 samples
+2026-05-17 19:17:53,558 - __main__ - INFO - === Pairwise Metrics (Per-Message Accuracy) ===
+2026-05-17 19:17:53,559 - train - INFO - Starting evaluation on 0 samples
+Evaluating: 0it [00:00, ?it/s]                              2026-05-17 19:17:53,655 - train - INFO -   COVERAGE: 0/0 messages have predictions (0.0%)
+2026-05-17 19:17:53,656 - train - INFO -     (Messages without predictions: gold parent is outside max_dist window)
+2026-05-17 19:17:53,656 - train - INFO - Evaluation complete in 0.10s
+2026-05-17 19:17:53,656 - train - INFO -   Loss: 0.0000, Accuracy: 0.0000, Precision: 0.0000, Recall: 0.0000, F1: 0.0000
+2026-05-17 19:17:53,656 - __main__ - INFO - ================================================================================
+2026-05-17 19:17:53,656 - __main__ - INFO - Evaluation Results (Multiclass Mode)
+2026-05-17 19:17:53,656 - __main__ - INFO - ================================================================================
+2026-05-17 19:17:53,656 - __main__ - INFO - Loss: 0.0000
+2026-05-17 19:17:53,656 - __main__ - INFO - Accuracy: 0.0000
+2026-05-17 19:17:53,656 - __main__ - INFO - Precision: 0.0000
+2026-05-17 19:17:53,656 - __main__ - INFO - Recall: 0.0000
+2026-05-17 19:17:53,656 - __main__ - INFO - F1: 0.0000
+2026-05-17 19:17:53,656 - __main__ - INFO - ================================================================================
+2026-05-17 19:17:53,656 - __main__ - INFO - === Clustering Metrics (VI / ARI) ===
+2026-05-17 19:17:53,656 - __main__ - WARNING - Gold clusters file not found: data/synthetic/gold.dev.clusters.txt
+2026-05-17 19:17:53,656 - __main__ - INFO - Results saved to: /home/s4901673/workspace/irc-disentanglement-bert-pytorch/logs/eval_20260517_191748.log
