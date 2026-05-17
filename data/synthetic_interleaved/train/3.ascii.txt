@@ -1,0 +1,18 @@
+[10:00] <Alice> How do I install PyTorch?
+[10:02] <Grace> Anyone playing Baldur's Gate 3?
+[10:04] <Eve> Lunch recommendations?
+[10:06] <Bob> Use pip install PyTorch.
+[10:08] <Henry> Yeah, just finished Act 2.
+[10:10] <Frank> Try the Italian place on Oak Ave.
+[10:12] <Alice> What about CUDA support?
+[10:14] <Grace> How long did it take?
+[10:16] <Eve> Is it expensive?
+[10:18] <Bob> You need to install the cuda version specifically.
+[10:20] <Henry> About 20 hours, pretty short.
+[10:22] <Frank> Around $34 per person.
+[10:24] <Alice> Getting an error: CUDA out of memory
+[10:26] <Grace> Worth buying?
+[10:28] <Eve> Do I need reservations?
+[10:30] <Bob> Try downgrading to version 2.0.1.
+[10:32] <Henry> Definitely, 9/10 rating.
+[10:34] <Frank> Yes, it's quite popular.
