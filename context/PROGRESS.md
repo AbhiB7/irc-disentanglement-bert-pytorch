@@ -8,30 +8,12 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Test 1 (Iteration 3)**: Successfully ran on `data/tiny`. Resolved "all-zero" prediction issue. Achieved **0.48 F1** and **92.3% Recall** on tiny dev set.
-- ✅ **Robustness**: OOM recovery and NaN detection implemented and verified.
-- ✅ **Model Fix**: Resolved "all-zero" prediction issue via hyperparameter tuning.
-- ✅ **Early Stopping**: Implemented and verified in `train.py`.
-- ✅ **Documentation**: Refactored into three distinct files (`instructions.md`, `context.md`, `progress.md`).
-- ✅ **Environment**: Python 3.13 compatibility confirmed on Windows.
-- ✅ **Optimization**: Default `max_dist` reduced to 30 for local GPU feasibility.
-- ✅ **Test 2 Success**: 3-hour stability run completed. Achieved **0.1454 F1** and **57.36% Recall** on dev set. Pipeline is stable on RTX 5070.
-- ✅ **Bunya Smoke Test**: Created [`smoke_test.slurm`](../smoke_test.slurm) for UQ Bunya HPC (A100) verification.
-- ✅ **Bunya Compliance Fix**: Added `--qos=gpu`, `--account=a_hcc`, and `mkdir -p logs` to both SLURM files.
-- ✅ **Conda Module Fix**: Updated all HPC files to use `miniconda3/23.9.0-0` and `$EBROOTMINICONDA3` (removed Miniforge3/Miniconda3 fallbacks).
-- ✅ **Error Handling**: Added `set -e` to `run_job.slurm` and `smoke_test.slurm`.
-- ✅ **Lazy Tokenization Fix**: Implemented on-the-fly tokenization in `data_loader.py` to eliminate OOM. Now stores raw text pairs instead of pre-tokenized tensors. Tokenization happens in `__getitem__` instead of `__init__`. Reduces per-worker memory from ~1.5GB to ~200MB (~85% reduction).
-- 📋 **Supervisor Meeting**: Created `research/supervisor_meeting_20260424.md` with discussion points for 2026-04-24 meeting.
-- ✅ **Threshold Fix**: Changed default threshold from 0.3 to 0.5 in `src/train.py`. Removed `--threshold` flags from all training scripts. This fixes the "predict everything as positive" failure mode (Recall=100%, Precision=0.69%, F1=0.0137).
-- ✅ **Evaluation Script**: Created [`src/evaluate.py`](src/evaluate.py) for checkpoint evaluation with threshold sweep support. Usage: `python src/evaluate.py --checkpoint <path> [--threshold 0.5] [--sweep-thresholds]`
-- 🔄 **Full Dataset Training**: Currently running on Bunya A100 with threshold=0.5. A100 provides 80GB VRAM enabling full dataset training without OOM issues.
-- ✅ **DeBERTa-v3-base**: Updated default model to `microsoft/deberta-v3-base` in `model.py` and `train.py` (ROCLING 2025 SOTA).
-- ✅ **max_dist=50**: Increased max_dist from 30 to 50 in data loader and training (StructBERT uses kh=50).
-- ✅ **Multiclass Architecture**: Properly implemented multiclass reframing (Priority 3):
-  - Data loader creates C separate samples (one per candidate)
-  - Model processes child message independently, outputs C probabilities
-  - Uses CrossEntropyLoss (no pos_weight needed)
-  - Ready for training
+- ✅ **100% Accuracy Analysis Complete**: Traced through `evaluate.py`, `train.py`, `data_loader.py`, and `model.py`. Root cause: gold labels dominated by immediately previous message (recency bias).
+- ✅ **Human-Readable Validation**: Added `--verbose N` flag to `src/evaluate.py`. Randomly samples N conversations and prints gold vs predicted threads side-by-side for manual inspection. Includes `format_conversation_threads()` function.
+- ✅ **Synthetic Data Generation**: Created `scripts/generate_synthetic_data.py` that generates conversations with clear thread structure (Python help, Weather, Food, Gaming). Topics are separated to prevent recency shortcut.
+- ✅ **Updated eval_job.slurm**: Added `--verbose 3` to dev/test evaluation calls. Added synthetic data evaluation step.
+- 🔄 **Evaluation Running on Bunya**: The evaluation job (`eval_job.slurm`) is currently running on Bunya A100 with the checkpoint from run 24562188. Waiting for results with human-readable output.
+- ✅ **All Prior Milestones**: Multiclass architecture, DeBERTa-v3-base, max_dist=50, lazy tokenization, OOM/NaN recovery, Bunya compliance all complete.
 
 ## Recent Completions (2026-05-04)
 - **Proper Multiclass Implementation**: Complete refactor of multiclass architecture:
@@ -226,13 +208,11 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - **Updated `eval_job.slurm`**: Added `--verbose 3` to dev/test evaluation calls. Added synthetic data evaluation step.
 
 ## Next Steps
+- [ ] **Check Bunya evaluation results**: Evaluation job is running with `--verbose 3` for human-readable output
 - [ ] **Generate synthetic data**: Run `python scripts/generate_synthetic_data.py --num-conversations 5`
 - [ ] **Evaluate on synthetic data**: Run `python src/evaluate.py --checkpoint <path> --data-dir data/synthetic --split dev --verbose 3`
 - [ ] **Manual inspection**: Review human-readable output to verify if model predictions make sense
-- [ ] **Write conference paper** using the results in `context/CONTEXT.md` (section 7) and `research/handover.md`
-- [ ] Submit `run_job.slurm` on Bunya after cluster maintenance (for max_dist=50 training)
-- [ ] Consider per-feature ablation study (requires retraining 5 models)
-- [ ] Consider evaluating on channel-two data for denser clustering metrics
+- [ ] **Write conference paper** using results in `context/CONTEXT.md` (section 7) and `research/handover.md`
 
 ## Next Steps (Archived/Completed)
 - ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)
