@@ -513,10 +513,11 @@ def format_conversation_threads(conv, gold_clusters, pred_clusters, max_threads=
     return "\n".join(lines)
     
 
-def debug_predicted_pairs(predictions, dataset, conv_name, conv_obj, num_samples=10, seed=42):
+def debug_predicted_pairs(predictions, all_probs, dataset, conv_name, conv_obj, num_samples=10, seed=42):
     """
     Debug predicted pairs for a conversation.
-    Prints (child, predicted parent, gold parent) with message indices, speakers, text snippets.
+    Prints (child, predicted parent, gold parent) with message indices, speakers, text snippets,
+    and softmax probabilities for self-link, predicted, and gold candidates.
     """
     import random
     random.seed(seed)
@@ -540,7 +541,7 @@ def debug_predicted_pairs(predictions, dataset, conv_name, conv_obj, num_samples
     logger.info(f"\n{'='*60}")
     logger.info(f"DEBUG PREDICTED PAIRS for {conv_name}")
     logger.info(f"{'='*60}")
-    logger.info(f"{'Idx':<6} {'Child':<6} {'ChildSpk':<12} {'PredPar':<8} {'PredSpk':<12} {'GoldPar':<8} {'GoldSpk':<12} {'Match':<6} Text")
+    logger.info(f"{'Idx':<6} {'Child':<6} {'ChildSpk':<12} {'PredPar':<8} {'PredSpk':<12} {'GoldPar':<8} {'GoldSpk':<12} {'Match':<6} {'P(self)':<8} {'P(pred)':<8} {'P(gold)':<8} Text")
     
     for idx in sampled:
         conv_idx, child_msg_idx, candidate_indices = dataset.conversation_map[idx]
@@ -559,6 +560,17 @@ def debug_predicted_pairs(predictions, dataset, conv_name, conv_obj, num_samples
         pred_parent_msg_idx = candidate_indices[pred_in_cand][2]  # j = parent message index
         gold_parent_msg_idx = candidate_indices[gold_in_cand][2]
         
+        # Get probabilities if available
+        p_self = 0.0
+        p_pred = 0.0
+        p_gold = 0.0
+        if all_probs is not None and idx < len(all_probs):
+            probs = all_probs[idx]  # Tensor of shape [C]
+            # Self-link is always the last candidate (child is at position C-1)
+            p_self = probs[-1].item() if len(probs) > 0 else 0.0
+            p_pred = probs[pred_in_cand].item() if pred_in_cand < len(probs) else 0.0
+            p_gold = probs[gold_in_cand].item() if gold_in_cand < len(probs) else 0.0
+        
         # Get message objects
         child_msg = conv_obj.messages[child_msg_idx] if child_msg_idx < len(conv_obj.messages) else None
         pred_parent_msg = conv_obj.messages[pred_parent_msg_idx] if pred_parent_msg_idx < len(conv_obj.messages) else None
@@ -572,7 +584,7 @@ def debug_predicted_pairs(predictions, dataset, conv_name, conv_obj, num_samples
         
         text = child_msg.text[:60].replace("\n", " ") if child_msg else ""
         
-        logger.info(f"{idx:<6} {child_msg_idx:<6} {child_spk:<12} {pred_parent_msg_idx:<8} {pred_spk:<12} {gold_parent_msg_idx:<8} {gold_spk:<12} {match:<6} {text}")
+        logger.info(f"{idx:<6} {child_msg_idx:<6} {child_spk:<12} {pred_parent_msg_idx:<8} {pred_spk:<12} {gold_parent_msg_idx:<8} {gold_spk:<12} {match:<6} {p_self:<8.4f} {p_pred:<8.4f} {p_gold:<8.4f} {text}")
 
 
 def main():
@@ -679,6 +691,7 @@ def main():
                         # Debug predicted pairs
                         debug_predicted_pairs(
                             metrics["predictions"],
+                            metrics["probs"],
                             loader.dataset,
                             conv_name,
                             conv,
