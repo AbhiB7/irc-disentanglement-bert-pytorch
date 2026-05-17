@@ -1,0 +1,18 @@
+[10:00] <Alice> Lunch recommendations?
+[10:02] <Bob> Try the Thai place on 5th St.
+[10:04] <Alice> Is it expensive?
+[10:06] <Bob> Around $17 per person.
+[10:08] <Alice> Do I need reservations?
+[10:10] <Bob> Yes, it's quite popular.
+[10:12] <Alice> Anyone playing Baldur's Gate 3?
+[10:14] <Bob> Yeah, just finished Act 2.
+[10:16] <Alice> How long did it take?
+[10:18] <Bob> About 49 hours, pretty short.
+[10:20] <Alice> Worth buying?
+[10:22] <Bob> Definitely, 9/10 rating.
+[10:24] <Alice> Weather today?
+[10:26] <Bob> Sunny, 32°C.
+[10:28] <Alice> Will it rain tomorrow?
+[10:30] <Bob> No, clear skies expected.
+[10:32] <Alice> What about the weekend?
+[10:34] <Bob> Saturday might have showers.

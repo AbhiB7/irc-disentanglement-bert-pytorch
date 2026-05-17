@@ -389,6 +389,11 @@ def create_dataloaders(args, tokenizer):
 
         logger.info(f"  Train dataset created: {len(train_dataset)} samples")
 
+        # Skip if train dataset is empty (e.g., after excluding self-links)
+        if len(train_dataset) == 0:
+            logger.warning("Train dataset is empty after filtering (no valid candidates)")
+            return None, None
+
         logger.info(f"Loading {len(dev_ascii)} dev files...")
         dev_dataset = IRCDisentanglementDataset(
             ascii_files=dev_ascii,
@@ -399,6 +404,10 @@ def create_dataloaders(args, tokenizer):
         )
 
         logger.info(f"  Dev dataset created: {len(dev_dataset)} samples")
+
+        if len(dev_dataset) == 0:
+            logger.warning("Dev dataset is empty after filtering (no valid candidates)")
+            return None, None
 
         train_loader = DataLoader(
             train_dataset,
