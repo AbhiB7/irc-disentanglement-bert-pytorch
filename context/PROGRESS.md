@@ -195,6 +195,11 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
   - Topics are clearly separated to prevent recency shortcut
 - **Updated `eval_job.slurm`**: Added `--verbose 3` to dev/test evaluation calls. Added synthetic data evaluation step.
 - **Fixed Invalid Log Filenames on Bunya Linux**: Removed stray double quotes from `evaluate.sh` (lines 47, 59) and `evaluate_2.sh` (lines 57, 69). Stray quotes caused shell to interpret subsequent `echo` statements and newlines as part of the filename, creating invalid filenames like `'eval_test_20260517_190243.log'$'\n\n''echo '$'\n''echo ==='`. Verified both files use LF line endings for Linux compatibility.
+- **Added Predicted Pair Debugging to `src/evaluate.py`**:
+  - New function `debug_predicted_pairs()` prints (child, predicted parent, gold parent) with message indices, speakers, and text snippets
+  - Integrated into `--verbose` block to show actual predicted pairs for sampled conversations
+  - Helps diagnose if model is predicting self-links, SYSTEM→SYSTEM links, or meaningful thread links
+  - All 120 tests pass after changes (`pytest tests/ -x -q`)
 
 ## Next Steps
 - [ ] **Check Bunya evaluation results**: Evaluation job is running with `--verbose 3` for human-readable output

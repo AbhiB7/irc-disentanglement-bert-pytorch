@@ -511,6 +511,67 @@ def format_conversation_threads(conv, gold_clusters, pred_clusters, max_threads=
     lines.append(f"\nThread count: Gold={len(gold_clusters)}, Predicted={len(pred_clusters)}")
     
     return "\n".join(lines)
+    
+
+def debug_predicted_pairs(predictions, dataset, conv_name, conv_obj, num_samples=10, seed=42):
+    """
+    Debug predicted pairs for a conversation.
+    Prints (child, predicted parent, gold parent) with message indices, speakers, text snippets.
+    """
+    import random
+    random.seed(seed)
+    
+    # Collect sample indices belonging to this conversation
+    sample_indices = []
+    for idx, (conv_idx, child_msg_idx, candidate_indices) in enumerate(dataset.conversation_map):
+        if dataset.conversations[conv_idx].name == conv_name:
+            sample_indices.append(idx)
+    
+    if not sample_indices:
+        logger.warning(f"No samples found for conversation {conv_name}")
+        return
+    
+    # Sample if needed
+    if len(sample_indices) > num_samples:
+        sampled = random.sample(sample_indices, num_samples)
+    else:
+        sampled = sample_indices
+    
+    logger.info(f"\n{'='*60}")
+    logger.info(f"DEBUG PREDICTED PAIRS for {conv_name}")
+    logger.info(f"{'='*60}")
+    logger.info(f"{'Idx':<6} {'Child':<6} {'ChildSpk':<12} {'PredPar':<8} {'PredSpk':<12} {'GoldPar':<8} {'GoldSpk':<12} {'Match':<6} Text")
+    
+    for idx in sampled:
+        conv_idx, child_msg_idx, candidate_indices = dataset.conversation_map[idx]
+        # Get sample to retrieve gold label
+        sample = dataset[idx]
+        # __getitem__ returns (input_ids, attention_mask, features, label, conv_idx, child_msg_idx, candidate_indices)
+        gold_in_cand = sample[3].item() if isinstance(sample[3], torch.Tensor) else sample[3]
+        pred_in_cand = predictions[idx].item()
+        
+        if pred_in_cand < 0 or pred_in_cand >= len(candidate_indices):
+            continue
+        if gold_in_cand < 0 or gold_in_cand >= len(candidate_indices):
+            continue
+        
+        pred_parent_msg_idx = candidate_indices[pred_in_cand][2]  # j
+        gold_parent_msg_idx = candidate_indices[gold_in_cand][2]
+        
+        # Get message objects
+        child_msg = conv_obj.messages[child_msg_idx] if child_msg_idx < len(conv_obj.messages) else None
+        pred_parent_msg = conv_obj.messages[pred_parent_msg_idx] if pred_parent_msg_idx < len(conv_obj.messages) else None
+        gold_parent_msg = conv_obj.messages[gold_parent_msg_idx] if gold_parent_msg_idx < len(conv_obj.messages) else None
+        
+        child_spk = child_msg.speaker if child_msg else "?"
+        pred_spk = pred_parent_msg.speaker if pred_parent_msg else "?"
+        gold_spk = gold_parent_msg.speaker if gold_parent_msg else "?"
+        
+        match = "YES" if pred_parent_msg_idx == gold_parent_msg_idx else "NO"
+        
+        text = child_msg.text[:60].replace("\n", " ") if child_msg else ""
+        
+        logger.info(f"{idx:<6} {child_msg_idx:<6} {child_spk:<12} {pred_parent_msg_idx:<8} {pred_spk:<12} {gold_parent_msg_idx:<8} {gold_spk:<12} {match:<6} {text}")
 
 
 def main():
@@ -613,6 +674,16 @@ def main():
                             conv, gold_clusters[conv_name], pred_clusters[conv_name]
                         )
                         logger.info(output)
+                        
+                        # Debug predicted pairs
+                        debug_predicted_pairs(
+                            metrics["predictions"],
+                            loader.dataset,
+                            conv_name,
+                            conv,
+                            num_samples=10,
+                            seed=args.verbose_seed
+                        )
     else:
         logger.info("Skipping clustering metrics (gold clusters file may be missing)")
     
