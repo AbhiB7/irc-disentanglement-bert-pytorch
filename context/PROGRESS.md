@@ -213,9 +213,10 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - [x] **Run pytest tests** - COMPLETED: 117 passed, 3 skipped
 - [x] **Analyze latest log files** - COMPLETED: Confirmed low probabilities (~0.07), 100% accuracy is mirage due to recency bias
 - [x] **Fix test_train_pipeline.py** - COMPLETED: Handle empty datasets gracefully with pytest.skip()
-- [ ] **Upload modified code to Bunya** (data_loader.py, evaluate.py, train.py, scripts/generate_synthetic_data.py, train_synthetic.sh)
-- [ ] **Run train_synthetic.sh on Bunya GPU node** to verify model can learn interleaved thread structure
-- [ ] **Train on real data** without self-links, evaluate on dev set
+- [x] **Self-links exclusion implemented** in data_loader.py (lines 376-378)
+- [x] **train_synthetic.sh rewritten** to use data/tiny with DeBERTa-v3-base (not synthetic data)
+- [ ] **Run train_synthetic.sh on Bunya GPU node** to test self-links exclusion on real data
+- [ ] **Train on full data** without self-links, evaluate on dev/test sets
 - [ ] **Friday demo preparation**: Structure: (1) Problem discovery, (2) Solution (self-link masking), (3) Results, (4) Honest assessment vs literature
 
 ## Next Steps (Archived/Completed)
