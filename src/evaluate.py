@@ -546,8 +546,9 @@ def debug_predicted_pairs(predictions, dataset, conv_name, conv_obj, num_samples
         conv_idx, child_msg_idx, candidate_indices = dataset.conversation_map[idx]
         # Get sample to retrieve gold label
         sample = dataset[idx]
-        # __getitem__ returns (input_ids, attention_mask, features, label, conv_idx, child_msg_idx, candidate_indices)
-        gold_in_cand = sample[3].item() if isinstance(sample[3], torch.Tensor) else sample[3]
+        # __getitem__ returns a dict with keys: input_ids, attention_mask, features, labels, (token_type_ids)
+        # labels is the gold label (index into candidate_indices)
+        gold_in_cand = sample["labels"].item()
         pred_in_cand = predictions[idx].item()
         
         if pred_in_cand < 0 or pred_in_cand >= len(candidate_indices):
@@ -555,7 +556,7 @@ def debug_predicted_pairs(predictions, dataset, conv_name, conv_obj, num_samples
         if gold_in_cand < 0 or gold_in_cand >= len(candidate_indices):
             continue
         
-        pred_parent_msg_idx = candidate_indices[pred_in_cand][2]  # j
+        pred_parent_msg_idx = candidate_indices[pred_in_cand][2]  # j = parent message index
         gold_parent_msg_idx = candidate_indices[gold_in_cand][2]
         
         # Get message objects

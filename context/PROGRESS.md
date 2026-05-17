@@ -199,6 +199,7 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
   - New function `debug_predicted_pairs()` prints (child, predicted parent, gold parent) with message indices, speakers, and text snippets
   - Integrated into `--verbose` block to show actual predicted pairs for sampled conversations
   - Helps diagnose if model is predicting self-links, SYSTEM→SYSTEM links, or meaningful thread links
+  - Fixed `KeyError: 3` by using `sample["labels"]` dict access instead of tuple indexing (since `__getitem__` returns dict)
   - All 120 tests pass after changes (`pytest tests/ -x -q`)
 
 ## Next Steps
