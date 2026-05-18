@@ -49,7 +49,9 @@ $PYTHON src/train.py \
     --data-dir "$DATA_DIR" \
     --model-name microsoft/deberta-v3-base \
     --max-dist 50 \
-    --batch-size 16 \
+    --max-length 96 \
+    --batch-size 4 \
+    --gradient-accumulation-steps 4 \
     --epochs 10 \
     --learning-rate 5e-5 \
     --warmup-ratio 0.1 \

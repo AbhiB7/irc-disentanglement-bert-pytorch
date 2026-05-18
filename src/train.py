@@ -206,6 +206,16 @@ def parse_args():
         help="Enable gradient checkpointing on BERT backbone (trades ~30%% speed for ~80%% less activation VRAM)",
     )
 
+    parser.add_argument(
+        "--gradient-accumulation-steps",
+        type=int,
+        default=1,
+        help="Number of forward/backward passes to accumulate gradients over "
+             "before each optimizer.step(). Use with reduced --batch-size to fit "
+             "large models in GPU memory while preserving effective batch size. "
+             "E.g., --batch-size 4 --gradient-accumulation-steps 4 = effective batch 16.",
+    )
+
     # Test mode options
     parser.add_argument(
         "--test-start",
@@ -661,7 +671,8 @@ def evaluate(model, dataloader, device, fp16=False):
 
 
 def train_epoch(
-    model, train_loader, optimizer, scheduler, device, epoch, fp16=False, scaler=None
+    model, train_loader, optimizer, scheduler, device, epoch, fp16=False, scaler=None,
+    accumulation_steps=1,
 ):
     """Train for one epoch"""
     model.train()
@@ -702,7 +713,7 @@ def train_epoch(
                 logger.info(f"    labels shape    : {list(labels.shape)}")
                 logger.info(f"    Candidate counts per sample: min={actual_candidates.min().item()} "
                             f"max={actual_candidates.max().item()} "
-                            f"mean={actual_candidates.float().mean().item():.1f}")
+                            f"Mean={actual_candidates.float().mean().item():.1f}")
                 logger.info(f"    Label values: {labels.tolist()[:16]}{'...' if b > 16 else ''}")
                 label_dist = {}
                 for lbl in labels.tolist():
@@ -773,13 +784,12 @@ def train_epoch(
             else:
                 raise e
 
-        # SMART LOGGING: Log every 50 batches to monitor general probability distribution and avoid log flooding.
+        # SMART LOGGING: Log every 50 batches
         if (batch_idx + 1) % 50 == 0:
             avg_prob = probs.mean().item()
             max_prob = probs.max().item()
             min_prob = probs.min().item()
 
-            # Prediction diversity: what candidate indices is the model picking?
             preds = torch.argmax(probs, dim=-1)  # [batch]
             pred_counts = {}
             for p in preds.tolist():
@@ -787,7 +797,6 @@ def train_epoch(
             top_pred = max(pred_counts, key=pred_counts.get)
             top_pred_pct = 100.0 * pred_counts[top_pred] / len(preds)
 
-            # Confidence: max prob per sample (how sure is the model?)
             confidence = probs.max(dim=-1).values  # [batch]
             avg_confidence = confidence.mean().item()
 
@@ -805,8 +814,12 @@ def train_epoch(
                 )
 
         # === BACKWARD PASS ===
+        # Divide loss by accumulation_steps so that gradients are averaged
+        # (not summed) over the accumulation window. This preserves the
+        # effective learning rate regardless of accumulation count.
+        loss = loss / accumulation_steps
+
         try:
-            optimizer.zero_grad()
             loss.backward()
 
             # --- NaN gradient check ---
@@ -825,7 +838,10 @@ def train_epoch(
                 torch.cuda.empty_cache()
                 continue
 
-            # --- Pre-clip gradient norm (MUST be before clip_grad_norm_ and optimizer.step) ---
+            # Only compute optimizer step every accumulation_steps batches
+            is_optimizer_step = (batch_idx + 1) % accumulation_steps == 0
+
+            # --- Pre-clip gradient norm ---
             pre_clip_norm = 0.0
             for p in model.parameters():
                 if p.grad is not None:
@@ -851,59 +867,59 @@ def train_epoch(
                 torch.cuda.empty_cache()
                 continue
 
-            # --- Gradient clipping ---
-            # max_norm=1.0: Standard for BERT fine-tuning. The previous value of 10.0
-            # was too loose — a norm of 5.07 was passing through unclipped.
-            # Bump back to 5.0 for full training once NaN is resolved.
+            # --- Gradient clipping (applied every batch during accumulation) ---
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
-            # --- LR BEFORE optimizer step ---
-            if scheduler is not None:
-                lr_before = scheduler.get_last_lr()
-                logger.info(f"  Batch {batch_idx} LR before optimizer.step(): {lr_before}")
+            # --- Optimizer step — only every accumulation_steps batches ---
+            if is_optimizer_step:
+                if scheduler is not None:
+                    lr_before = scheduler.get_last_lr()
+                    logger.info(f"  Batch {batch_idx} LR before optimizer.step(): {lr_before}")
 
-            # --- Optimizer step ---
-            optimizer.step()
+                optimizer.step()
 
-            # --- Weight NaN check IMMEDIATELY after optimizer step ---
-            weight_has_nan = False
-            nan_param_name = None
-            for name, p in model.named_parameters():
-                if torch.isnan(p).any() or torch.isinf(p).any():
-                    weight_has_nan = True
-                    nan_param_name = name
-                    break
+                # --- Weight NaN check IMMEDIATELY after optimizer step ---
+                weight_has_nan = False
+                nan_param_name = None
+                for name, p in model.named_parameters():
+                    if torch.isnan(p).any() or torch.isinf(p).any():
+                        weight_has_nan = True
+                        nan_param_name = name
+                        break
 
-            if weight_has_nan:
-                logger.error(
-                    f"  CRITICAL: Model weights contain NaN/Inf after optimizer.step() "
-                    f"at batch {batch_idx}! First bad param: {nan_param_name}"
-                )
-                logger.error(
-                    f"  This means the optimizer step itself is corrupting weights."
-                )
-                logger.error(
-                    f"  Likely causes: (1) NaN LR from scheduler, "
-                    f"(2) zero grad norm causing clip_grad_norm_ division by zero, "
-                    f"(3) AdamW second moment (v) going to zero then dividing."
-                )
-                # Do not continue — halt so we can read the logs
-                raise RuntimeError(
-                    f"Model weights NaN after optimizer.step() at batch {batch_idx}. "
-                    f"First bad param: {nan_param_name}. Check logs."
-                )
-
-            # --- Scheduler step + LR AFTER ---
-            if scheduler is not None:
-                scheduler.step()
-                lr_after = scheduler.get_last_lr()
-                logger.info(f"  Batch {batch_idx} LR after scheduler.step(): {lr_after}")
-                if any(lr != lr for lr in lr_after):  # NaN check
+                if weight_has_nan:
                     logger.error(
-                        f"  CRITICAL: Scheduler produced NaN LR at batch {batch_idx}! "
-                        f"total_steps may equal warmup_steps (division by zero)."
+                        f"  CRITICAL: Model weights contain NaN/Inf after optimizer.step() "
+                        f"at batch {batch_idx}! First bad param: {nan_param_name}"
                     )
-                    raise RuntimeError(f"Scheduler produced NaN LR at batch {batch_idx}.")
+                    logger.error(
+                        f"  This means the optimizer step itself is corrupting weights."
+                    )
+                    logger.error(
+                        f"  Likely causes: (1) NaN LR from scheduler, "
+                        f"(2) zero grad norm causing clip_grad_norm_ division by zero, "
+                        f"(3) AdamW second moment (v) going to zero then dividing."
+                    )
+                    raise RuntimeError(
+                        f"Model weights NaN after optimizer.step() at batch {batch_idx}. "
+                        f"First bad param: {nan_param_name}. Check logs."
+                    )
+
+                # --- Scheduler step ---
+                if scheduler is not None:
+                    scheduler.step()
+                    lr_after = scheduler.get_last_lr()
+                    logger.info(f"  Batch {batch_idx} LR after scheduler.step(): {lr_after}")
+                    if any(lr != lr for lr in lr_after):  # NaN check
+                        logger.error(
+                            f"  CRITICAL: Scheduler produced NaN LR at batch {batch_idx}! "
+                            f"total_steps may equal warmup_steps (division by zero)."
+                        )
+                        raise RuntimeError(f"Scheduler produced NaN LR at batch {batch_idx}.")
+
+                # Zero gradients AFTER optimizer step (not before backward)
+                optimizer.zero_grad()
+
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
                 logger.error(
@@ -914,11 +930,10 @@ def train_epoch(
                     reserved = torch.cuda.memory_reserved(device) / (1024**2)
                     logger.error(f"  Memory at OOM: {allocated:.0f}/{reserved:.0f}MB")
 
-                # Clear cache and skip batch
+                # Clear cache and zero gradients to clear accumulation state
                 optimizer.zero_grad()
                 torch.cuda.empty_cache()
 
-                # Track consecutive OOM failures — if cascading, abort early
                 if not hasattr(train_epoch, "_consecutive_oom"):
                     train_epoch._consecutive_oom = 0
                 train_epoch._consecutive_oom += 1
@@ -939,12 +954,12 @@ def train_epoch(
         if hasattr(train_epoch, "_consecutive_oom"):
             train_epoch._consecutive_oom = 0
 
-        # Update metrics
-        total_loss += loss.item()
+        # Update metrics (use original loss value before division)
+        total_loss += loss.item() * accumulation_steps
         num_batches += 1
 
         # Update progress bar
-        progress_bar.set_postfix({"loss": loss.item()})
+        progress_bar.set_postfix({"loss": loss.item() * accumulation_steps})
 
         # Log progress every 10 batches
         if (batch_idx + 1) % 10 == 0:
@@ -1031,7 +1046,6 @@ def save_checkpoint(model, optimizer, scheduler, epoch, args, metrics, checkpoin
     # Also save best model
     if "f1" in metrics:
         best_path = checkpoint_dir / "best_model.pt"
-        # Remove existing best model file if it exists
         if best_path.exists():
             try:
                 best_path.unlink()
@@ -1167,27 +1181,24 @@ def main():
 
     # Create optimizer and scheduler
     if args.mode in ["train", "dev-only"]:
-        # eps=1e-6: DeBERTa-v3-base's HuggingFace training guide recommends this
-        # over the default 1e-8 for stability. With only 1 warmup step on debug
-        # runs, AdamW's second moment (v) is near zero initially, and eps=1e-8
-        # can cause grad / sqrt(v + eps) to explode. 1e-6 provides a larger
-        # floor. See 2026-05-10 NaN investigation in research/handover.md.
         optimizer = torch.optim.AdamW(
             model.parameters(), lr=args.learning_rate, weight_decay=0.01, eps=1e-6
         )
         logger.info(f"Created AdamW optimizer with lr={args.learning_rate}")
 
         if train_loader:
-            total_steps = len(train_loader) * args.epochs
+            # total_steps should count optimizer steps, not batch steps.
+            # With gradient accumulation, one optimizer step = accumulation_steps batches.
+            total_steps = (len(train_loader) * args.epochs) // args.gradient_accumulation_steps
             num_warmup_steps = int(total_steps * args.warmup_ratio)
 
-            # === SCHEDULER DIAGNOSTIC ===
             logger.info(f"Scheduler config: total_steps={total_steps}, "
                         f"warmup_steps={num_warmup_steps}, "
-                        f"warmup_ratio={args.warmup_ratio}")
+                        f"warmup_ratio={args.warmup_ratio}, "
+                        f"accumulation_steps={args.gradient_accumulation_steps}")
 
             if total_steps == 0:
-                raise RuntimeError("total_steps is 0 — train_loader is empty.")
+                raise RuntimeError("total_steps is 0 — train_loader is empty (check gradient_accumulation_steps).")
 
             if num_warmup_steps >= total_steps:
                 logger.error(
@@ -1212,7 +1223,7 @@ def main():
                 num_training_steps=total_steps,
             )
             logger.info(
-                f"Created scheduler with {num_warmup_steps} warmup steps ({args.warmup_ratio*100:.0f}% of {total_steps} total steps)"
+                f"Created scheduler with {num_warmup_steps} warmup steps ({args.warmup_ratio*100:.0f}% of {total_steps} total optimizer steps)"
             )
         else:
             scheduler = None
@@ -1220,25 +1231,7 @@ def main():
         optimizer = None
         scheduler = None
 
-    # Mixed precision scaler — DISABLED.
-    #
-    # What GradScaler normally does: When training in fp16, very small gradient
-    # values (e.g. 0.0000001) can't be represented in 16-bit and become zero
-    # ("underflow"). GradScaler prevents this by multiplying the loss by a large
-    # constant before backward, then dividing gradients back down before the
-    # optimizer step. Like turning up the volume on a quiet recording.
-    #
-    # Why it's disabled: PyTorch 2.5.1's GradScaler raises "ValueError: Attempting
-    # to unscale FP16 gradients" when used with gradient_checkpointing_enable().
-    # Gradient checkpointing recomputes intermediate activations during backward
-    # instead of storing them, which creates a different autograd graph structure
-    # that the scaler doesn't understand.
-    #
-    # Why that's fine: Autocast (torch.amp.autocast) still runs the forward pass
-    # in fp16 for memory savings. Gradient underflow isn't a problem for BERT
-    # fine-tuning — gradients are large enough that they don't vanish in 16-bit.
-    # GradScaler is mainly needed for training from scratch on huge datasets
-    # (ImageNet, etc.), not for fine-tuning a pretrained model.
+    # Mixed precision scaler — DISABLED (see CONTEXT.md for rationale)
     scaler = None
 
     # Resume from checkpoint if specified
@@ -1261,6 +1254,13 @@ def main():
         training_start_time = datetime.now()
         epoch_losses = []
 
+        # Log accumulation config
+        if args.gradient_accumulation_steps > 1:
+            logger.info(
+                f"Gradient accumulation: {args.gradient_accumulation_steps} steps, "
+                f"effective batch size = {args.batch_size * args.gradient_accumulation_steps}"
+            )
+
         for epoch in range(start_epoch, args.epochs + 1):
             logger.info(f"Epoch {epoch}/{args.epochs}")
             logger.info("-" * 80)
@@ -1276,6 +1276,7 @@ def main():
                     epoch,
                     fp16=args.fp16,
                     scaler=scaler,
+                    accumulation_steps=args.gradient_accumulation_steps,
                 )
                 epoch_losses.append(train_loss)
                 if len(epoch_losses) >= 2:
@@ -1292,7 +1293,6 @@ def main():
                 logger.info(f"Dev Loss: {metrics['loss']:.4f}")
                 logger.info(f"Dev Accuracy: {metrics['accuracy']:.4f}")
 
-                # Track best model (accuracy is the multiclass metric)
                 current_score = metrics.get("accuracy", 0.0)
                 if current_score > best_f1:
                     best_f1 = current_score
@@ -1312,17 +1312,14 @@ def main():
                     no_improve_count += 1
                     logger.info(f"  No improvement for {no_improve_count} epochs")
 
-                # Early stopping check
                 if args.patience > 0 and no_improve_count >= args.patience:
                     logger.info(f"  Early stopping triggered after {epoch} epochs!")
-                    # Save final checkpoint before stopping
                     metrics = {"f1": best_f1}
                     save_checkpoint(
                         model, optimizer, scheduler, epoch, args, metrics, output_dir
                     )
                     break
 
-            # Save checkpoint
             if epoch % args.save_every == 0:
                 metrics = {"f1": best_f1} if dev_loader else {}
                 save_checkpoint(
@@ -1348,7 +1345,6 @@ def main():
             logger.info(f"Recall: {metrics['recall']:.4f}")
             logger.info(f"F1: {metrics['f1']:.4f}")
 
-            # Save results
             results_path = output_dir / "test_results.json"
             with open(results_path, "w") as f:
                 json.dump(
