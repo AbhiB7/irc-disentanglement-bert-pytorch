@@ -2,7 +2,7 @@
 # Script to train and evaluate on data/tiny (real IRC data)
 # Designed to run directly on a live Bunya GPU node (no SLURM submission needed)
 # Tests self-links exclusion by training on real data with DeBERTa-v3-base
-# Follows HPC checklist: set -e, miniconda setup, /scratch output dir
+# Follows HPC checklist: set -e, miniconda setup, /scratch output dir.
 
 set -e  # Exit immediately on any command failure (HPC checklist)
 
@@ -26,12 +26,12 @@ source setup.sh  # Loads miniconda3/23.9.0-0, creates/activates env, installs de
 
 # Train on data/tiny (real IRC data, 300 messages, 212 gold links)
 echo ""
-echo "=== Starting training on data/tiny (DeBERTa-v3-base, max_dist=20) ==="
+echo "=== Starting training on data/tiny (DeBERTa-v3-base, max_dist=50) ==="
 python src/train.py \
     --mode train \
     --data-dir $TINY_DIR \
     --model-name microsoft/deberta-v3-base \
-    --max-dist 20 \
+    --max-dist 50 \
     --batch-size 16 \
     --epochs 10 \
     --learning-rate 5e-5 \
@@ -39,7 +39,6 @@ python src/train.py \
     --patience 3 \
     --eval-every 1 \
     --save-every 1 \
-    --test-end 300 \
     --output-dir "$CHECKPOINT_DIR" \
     --device cuda
 
