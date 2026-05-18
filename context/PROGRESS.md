@@ -8,20 +8,19 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Annotation format bug found and fixed**: The `PARENT CHILD -` annotation format was being parsed as `CHILD PARENT -`. Fixed on `data_loader.py` lines 171-172. This was the root cause of 0 samples — all cross-links were assigned to wrong message indices. (Promoted to CONTEXT.md Section 6.)
-- ✅ **100% accuracy results invalidated**: All pre-2026-05-18 evaluation results were based on self-link-only training due to the annotation bug. CONTEXT.md Section 7 updated to mark these as invalid.
-- ✅ **OOM fixed via gradient accumulation**: `--batch-size` reduced from 16 to 4, `--gradient-accumulation-steps` added at 4, `--max-length` reduced to 96. Effective batch size stays 16. Peak memory reduced ~3x (4× smaller batch × 0.75× shorter seq). Implemented in `src/train.py` with `accumulation_steps` parameter: loss divided by `accumulation_steps` before backward, optimizer.step() and scheduler.step() only trigger every `accumulation_steps` batches, gradients zeroed after optimizer step (not before backward). Scheduler `total_steps` now counts optimizer steps (not batch steps). Tests pass: 120/120.
-- ✅ **Cross-link diagnostic completed**: 69,395 total gold links. Self-links=16,754 (24.1%), Cross-links=52,641 (75.9%). Median cross-link distance=3 messages. 98.1% within max_dist=50. Self-links are NOT dominant.
-- ✅ **Training dataset validated**: After the fix, 49,676 training samples from 153 files (3,105 batches/epoch). 1,994 validation samples from 10 dev files. The 0 sample problem is fully resolved.
-- ✅ **handover.md rewritten from scratch**: Clean diagnosis, OOM details, fix documentation.
-- ✅ **pytest tests/ -x -q**: All 120 tests pass.
+- ✅ **Annotation format bug fixed**: The `PARENT CHILD -` format parsing was reversed. Fixed on `data_loader.py` lines 171-172. (CONTEXT.md §6.)
+- ✅ **Gradient accumulation implemented**: `--batch-size` reduced to 4, `--gradient-accumulation-steps`=4, `--max-length` reduced to 96. Effective batch size stays 16. All 120 tests pass. (Promoted to CONTEXT.md §6.)
+- ✅ **Cross-link diagnostic completed**: 69,395 total gold links, 52,641 cross-links (75.9%), median dist=3.
+- ✅ **SLURM constraint fix**: Changed `--gres=gpu:1` → added ` --constraint=cuda48gb|cuda80gb` to exclude MIG 1g.10gb partitions. First run hit MIG (only 9.5 GiB) and OOM'd before any training.
+- ✅ **`run_job.slurm` aligned with `learning_signal.sh`**: `--data-dir`, `--batch-size` 4, `--gradient-accumulation-steps` 4, `--max-length` 96, `--max-dist` 50, 10 epochs, eval on dev+test post-training.
+- ✅ **`learning_signal.sh` run on Bunya (attempt 1)**: Failed — landed on MIG 1g.10gb, batch=4 OOM'd immediately. Evaluation on untrained random init produced Loss=3.8236, F1=0.008 (essentially random).
 
 ## Next Steps
-- [ ] **Run learning_signal.sh on Bunya**: Submit `bash learning_signal.sh` on Bunya L40 interactive session. Monitor first 3 epochs for loss convergence.
+- [ ] **Submit `sbatch run_job.slurm` on Bunya**: Will land on L40/L40S/A100 full GPU (48GB+ VRAM). Monitor first 3 epochs for loss convergence.
 - [ ] **Post-training evaluation**: After training completes, run evaluation on dev/test sets with corrected annotations to get real metrics.
-- [ ] **Manual inspection**: Review side-by-side gold vs predicted threads for sampled conversations using `--verbose 3`.
-- [ ] **Synthetic data evaluation**: Evaluate on synthetic data to verify model predictions make sense beyond recency bias.
-- [ ] **Prepare conference paper**: Use results from corrected training in `context/CONTEXT.md` and `research/handover.md` to draft thesis chapter.
+- [ ] **Manual inspection**: Review side-by-side gold vs predicted threads using `--verbose 3`.
+- [ ] **Synthetic data evaluation**: Verify model predictions make sense beyond recency bias.
+- [ ] **Conference paper**: Use results from corrected training to draft thesis chapter.
 
 ---
 

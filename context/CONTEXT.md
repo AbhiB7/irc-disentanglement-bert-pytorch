@@ -102,15 +102,19 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 ### Available GPUs (UQ Bunya HPC)
 | GPU         | VRAM    | Notes                                                       |
 |-------------|---------|-------------------------------------------------------------|
-| **A100**    | 40 GB   | Reliable, widely available. Default for smoke tests.        |
-| **L40S**    | 48 GB   | Newer architecture, faster. Available on `gpu_cuda` queue.  |
+| **A100 (full)** | 40/80 GB | Full GPU. Request with `--gres=gpu:1 --constraint=cuda80gb`. |
+| **A100 MIG** | 10/20/40 GB | **AVOID**. MIG partitions share one A100. `--constraint=cuda48gb|cuda80gb` excludes them. |
+| **L40S**    | 48 GB   | Newer architecture, fast. Available on `gpu_cuda` queue.  |
 | **H100**    | 80 GB   | Highest throughput. Use for full training runs.             |
 
 ### Training Hyperparameters
 - **Learning Rate**: 5e-5 (Standard for BERT fine-tuning).
-- **Epochs**: 3 (BERT typically converges in 2-4 epochs).
-- **Batch Size**: 64 (Feasible on all Bunya GPUs; adjust up for H100 if needed).
+- **Epochs**: 10 (with gradient accumulation and patience=3 for early stopping).
+- **Batch Size**: 4 (with `--gradient-accumulation-steps 4` → effective batch size 16).
+- **Max Length**: 96 tokens (covers 95%+ of IRC messages; saves ~25% memory vs 128).
+- **Max Dist**: 50 (covers 98.1% of gold cross-links).
 - **Early Stopping**: Implemented via `--patience` (default 3) to monitor Dev F1.
+- **Always pass `--constraint=cuda48gb|cuda80gb` to SLURM** to avoid MIG partitions.
 
 ## 5. Priority Improvement Roadmap (vs. SOTA)
 
@@ -123,6 +127,8 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ## 6. Robustness & Diagnostics
 - **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.
+- **Gradient Accumulation (2026-05-18)**: DeBERTa-v3-base with batch=16, candidate count up to 50, and seq_len=128 generates ~102K tokens/forward pass per batch. With gradient+AdamW states, this exceeds 48GB VRAM. Fix: `--batch-size 4` + `--gradient-accumulation-steps 4` + `--max-length 96`. Loss divided by `accumulation_steps` before backward (averages gradients over N batches). `optimizer.step()` and `scheduler.step()` only trigger every `accumulation_steps` batches. `optimizer.zero_grad()` runs after optimizer step (not before backward). Scheduler `total_steps` counts optimizer steps (`(len(train_loader) * epochs) // accumulation_steps`). Invariant: gradient accumulation is ON for any training run using DeBERTa-v3-base at batch_size > 1.
+- **SLURM Constraint (2026-05-18)**: First `learning_signal.sh` run landed on a MIG `1g.10gb` partition (9.5 GiB) instead of a full GPU. Even batch=4 OOM'd. Fix: always include `--constraint=cuda48gb|cuda80gb` in SLURM directives, even for interactive sessions: `srun --partition=gpu_cuda --gres=gpu:1 --constraint=cuda48gb|cuda80gb ...`.
 - **Annotation Format Bug (Found 2026-05-18)**: The annotation files use format `PARENT CHILD -` (first column = parent, second = child). The code was parsing this as `child = int(parts[0]), parent = int(parts[1])`, which assigned every cross-link to the wrong message index. Only self-links survived because they are symmetric. Fixed by swapping the variable assignment. Invariant: annotation column 0 is always the parent.
 - **Numerical Safety**: NaN/Inf loss detection triggers batch skipping to prevent weight corruption.
 - **NaN Loss Prevention — Fix A (collate_fn, 2026-05-10)**: Two fixes prevent NaN from out-of-range labels:
@@ -157,8 +163,8 @@ The bug was fixed on 2026-05-18. All evaluation results prior to this date shoul
 ### Post-Fix Status
 - Cross-links: 52,641 (75.9%) of total gold links
 - Training dataset: 49,676 valid samples
-- **No training has completed yet** with corrected annotations — batch_size=16 OOMs on L40 at every batch
-- Evaluation on untrained checkpoint: Accuracy=0.0098 (effectively random), Loss=3.8236
+- **First training attempt OOM'd**: Landed on MIG 1g.10gb (9.5 GiB) instead of a full GPU. Batch=4 with gradient accumulation OOM'd on first forward pass. Evaluation on the untrained random init produced Loss=3.8236, F1=0.008 (near-uniform distribution over 49 candidates; ln(49) ≈ 3.89).
+- **Fix**: `--constraint=cuda48gb|cuda80gb` added to SLURM headers. `run_job.slurm` ready to submit.
 
 ## 8. Clustering & Thread-Level Metrics
 - **Current**: Only link-level F1 is computed.

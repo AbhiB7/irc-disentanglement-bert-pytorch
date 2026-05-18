@@ -2,11 +2,12 @@
 #SBATCH --job-name=ircbert_train
 #SBATCH --partition=gpu_cuda
 #SBATCH --gres=gpu:1
+#SBATCH --constraint=cuda48gb|cuda80gb
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --output=logs/%j.out
 #SBATCH --error=logs/%j.err
 #SBATCH --qos=gpu
