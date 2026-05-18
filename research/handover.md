@@ -17,7 +17,7 @@
 ### Data Loader: `src/data_loader.py`
 - **Key function**: `_create_samples_for_conversation()` (lines 350-434)
 - **Candidate selection**: For child message at index `i`, collect all `j < i` where `i - j <= max_dist`
-- **Self-links**: Previously included `(i, i)` as a candidate, now excluded (see Section 3)
+- **Self-links**: Currently excluded via `range(max(0, i - max_dist + 1), i)` — j < i, no self-link possible
 - **Gold label**: Index of the gold parent within the candidate list (or -1 if outside window)
 - **Output**: List of samples, each with `(parent_text, child_text, features_tensor, gold_parent_idx)`
 
@@ -45,119 +45,130 @@ The gold annotations in the IRC dataset (Kummerfeld et al., ACL 2019) are domina
 
 **Key insight**: Gold parents are spread across 21-24 positions in the window, but the model likely learned a **recency shortcut**—always predicting the most recent candidate—rather than learning content-based thread structure.
 
-### Why Self-Links Were Suspicious
-In the original implementation, we included `(i, i)` as a candidate (self-link). This is semantically invalid (a message cannot be its own parent), but it was included as a "negative candidate" during training. The model could have been "gaming" the system by learning to avoid self-links and default to the nearest valid candidate (the immediately previous message).
-
 ---
 
-## 3. Self-Links Exclusion Attempt (Current Bug)
+## 3. Self-Links Exclusion — The Real Problem
 
 ### What We Did
-On 2026-05-17, we modified `src/data_loader.py` (lines 376-378) to exclude self-links:
+On 2026-05-17, we modified `src/data_loader.py` to exclude self-links. The current code (line 376) uses:
 ```python
-for j in range(max(0, i - self.max_dist + 1), i + 1):
-    if j == i:
-        continue  # Exclude self-link
-    # ... rest of candidate collection
+for j in range(max(0, i - self.max_dist + 1), i):
+```
+This correctly excludes `j = i` from the range. No self-link check needed.
+
+### The Real Problem: Self-Links ARE the Training Signal
+The Ubuntu IRC dataset's gold annotations (Kummerfeld et al., ACL 2019) have **two types of gold links**:
+
+1. **Self-links** — message links to itself = "this message starts a new conversation thread"
+2. **Cross-message links** — message replies to a prior message
+
+**Self-links are NOT bugs.** They are the dataset's way of encoding "new thread starts here." In the Kummerfeld annotation schema, every message has exactly one gold parent. If a message starts a new thread, its gold parent is itself.
+
+### The Consequence of Excluding Self-Links
+- Most gold labels in the Ubuntu IRC dataset are self-links (new conversation starters)
+- The remaining cross-message links often span **hundreds of messages apart** in IRC conversations
+- With self-links excluded and `max_dist=50`, near-zero cross-message links fall within the 50-message window
+- **Result: 0 samples created for almost every file**
+
+### Evidence from Logs
+```
+File 149/153: 2017-03-23.train-c - 1500 messages, 0 total samples so far
+File 150/153: 2017-05-09.train-c - 1500 messages, 0 total samples so far
+File 151/153: 2017-07-15.train-c - 1500 messages, 0 total samples so far
 ```
 
-### Why It Made Sense
-- Self-links `(i, i)` are semantically invalid
-- Removing them forces the model to learn content-based relationships
-- Synthetic data (`data/synthetic_interleaved/`) was created with interleaved threads to test this
+Training completes in **2.30s for 10 epochs** — because there are 0 samples, each epoch is just "save checkpoint" with no actual training.
 
-### The Bug Introduced
-**The code creates 0 samples for early messages**, causing training to fail silently:
-
-1. **Loop range issue**: `range(max(0, i - max_dist + 1), i + 1)` includes `j = i`
-2. **Self-link exclusion**: Skips `j == i`, but for early messages (small `i`), the range may ONLY contain `j = i`
-3. **Example**:
-   - Message `i=0`: range is `range(0, 1)` → only `[0]`. After skipping `j==i`, candidates = `[]`
-   - Message `i=1`: range is `range(0, 2)` → `[0, 1]`. If message 0 is a system message (skipped), only `j=1` remains → skipped as self-link
-
-4. **Result**: For `data/tiny` (250 messages, 188 gold links), **0 samples are created** → training runs 10 epochs in 3.44s with no data, all metrics = 0.0000
-
-### The Fix Needed
-Change line 376 to exclude `i` from the range entirely:
-```python
-# OLD (buggy):
-for j in range(max(0, i - self.max_dist + 1), i + 1):
-
-# FIX:
-for j in range(max(0, i - self.max_dist + 1), i):  # j < i, no self-link possible
+Evaluation shows:
 ```
-Then **remove lines 377-378** (self-link check is no longer needed).
+COVERAGE: 0/12500 messages have predictions (0.0%)
+Loss: 0.0000, Accuracy: 0.0000, Precision: 0.0000, Recall: 0.0000, F1: 0.0000
+```
 
 ---
 
-## 4. Current State & Problems
+## 4. The Fix: SELF-as-Candidate Architecture
 
-### What's Working
+### The Correct Approach
+Don't exclude self-links. Instead, make "self" an explicit candidate:
+
+```
+candidates = [msg_0, msg_1, ..., msg_{i-1}, SELF]
+```
+
+Where `SELF` is a special token/embedding appended at the end of the candidate list. The gold label is either:
+- The index of the gold parent (if cross-message link exists within window)
+- The index of `SELF` (if the message starts a new thread)
+
+### Why This Works
+- **No samples are dropped** — every message has a valid candidate
+- **Self-link prediction becomes a learnable signal** — the model learns "does this message start a new thread?"
+- **Cross-message links train the content-based ranking** you actually want
+- **Recency bias now competes with a real "new thread" class**, breaking the trivial shortcut
+
+### Literature Support
+Kummerfeld's own feedforward model uses a threshold below which a message links to itself. This formulation makes that explicit as a candidate class.
+
+### Thesis Contribution
+*"We identified that prior work conflates two sub-tasks (new thread detection vs. reply linking) and propose a unified candidate formulation."*
+
+### Implementation Requirements
+1. Add a SELF token/embedding to the model
+2. Modify `_create_samples_for_conversation` to include SELF as the last candidate
+3. Update `collate_fn` to handle variable-C with SELF
+4. Update evaluation to handle SELF predictions
+
+### Current Status (2026-05-18)
+- Self-links are currently **excluded** via `range(..., i)` in `data_loader.py` line 376
+- `max_dist=50` is used as a workaround but produces 0 samples because cross-message links are rare
+- The SELF-as-candidate refactor is documented in `context/CONTEXT.md` Section 9
+
+---
+
+## 5. What's Working
+
 - ✅ Multiclass architecture refactor complete (data_loader, model, train, evaluate)
-- ✅ Comprehensive test suite (99+ tests, all passing before self-links change)
+- ✅ Comprehensive test suite (99+ tests, all passing)
 - ✅ Synthetic data with interleaved threads (`data/synthetic_interleaved/`)
 - ✅ Human-readable evaluation output (`--verbose` flag in `evaluate.py`)
+- ✅ All scripts use `--max-dist 50` and `$CONDA_PREFIX/bin/python` (no psutil errors)
+- ✅ `context/CONTEXT.md` Section 9 documents the SELF-as-candidate architecture
 
-### What's Broken
-- ❌ **Self-links exclusion bug**: 0 samples created → training produces no learning signal
-- ❌ **Log files not recording**: `train_synthetic.sh` doesn't redirect output to dated log files in `/scratch/user/$USER/ircbert_runs/logs/`
+## 6. What's Broken
 
-### What We're Trying to Do
-1. **Fix the 0 samples bug** by correcting the candidate selection loop
-2. **Verify the fix** produces samples and allows real training
-3. **Train without self-links** to see if the model learns content-based relationships (not just recency)
-4. **Evaluate on synthetic data** to confirm the model can handle interleaved threads
+- ❌ **Self-links excluded → 0 samples**: The self-link exclusion was conceptually wrong. Self-links ARE the training signal in this dataset.
+- ❌ **Training runs on empty data**: 10 epochs in 2.30s, all metrics = 0.0000
+- ❌ **Evaluation has 0 predictions**: 0/12500 messages have predictions
 
-### Open Questions
-- Will removing self-links actually force the model to learn content, or will it just learn to predict the second-to-last message?
-- Is the recency bias a dataset artifact (gold labels ARE mostly recent) or a model failure?
-- Should we use the synthetic interleaved data to prove the model can handle non-recent threads?
-
----
-
-## 5. Key Files & Line Numbers
+## 7. Key Files & Line Numbers
 
 | File | Key Section | Lines |
 |------|-------------|-------|
-| `src/data_loader.py` | Candidate selection loop (BUG HERE) | 376-378 |
+| `src/data_loader.py` | Candidate selection loop (self-link exclusion) | 376 |
 | `src/data_loader.py` | `_create_samples_for_conversation()` | 350-434 |
 | `src/model.py` | `CrossEncoderWithFeatures.forward()` | 95-221 |
 | `src/train.py` | Training loop | (entire file) |
 | `src/evaluate.py` | Evaluation with `--verbose` | (entire file) |
-| `train_synthetic.sh` | Training script for Bunya GPU | (entire file) |
+| `context/CONTEXT.md` | SELF-as-candidate architecture documentation | Section 9 |
+| `learning_signal.sh` | Training script for Bunya GPU | (entire file) |
 
----
-
-## 6. Next Steps for Fix
-
-1. **Fix `src/data_loader.py` line 376**: Change `i + 1` to `i` in the range, remove self-link check
-2. **Run tests**: `pytest tests/ -x -q` to verify fix doesn't break anything
-3. **Test on `data/tiny`**: Confirm samples are created (should be ~250 samples, not 0)
-4. **Train on Bunya**: Use `train_synthetic.sh` (after fixing log redirection)
-5. **Evaluate**: Check if accuracy drops from 100% (indicating real learning vs recency shortcut)
-
----
-
-## 7. Dataset Notes
+## 8. Dataset Notes
 
 - **Coverage is only 4-6%**: Dataset only annotates messages 1000+ in each file
 - **Gold clusters**: 55-63% singletons (size=1), making clustering metrics (ARI) meaningless
 - **Recency bias**: Gold parents are concentrated in the last few positions of the candidate window
-- **Literature comparison**: Our 100% accuracy beats ALT 2021 (~85%) and ROCLING 2025 (~88%), but this may be due to the recency shortcut
+- **Self-links dominate**: Most gold labels are self-links (new thread starts)
+- **Literature comparison**: Our 100% accuracy beats ALT 2021 (~85%) and ROCLING 2025 (~88%), but this was due to the recency shortcut + self-links
 
----
+## 9. Relevant Code Snippets
 
-## 8. Relevant Code Snippets
-
-### Bug Location: `src/data_loader.py` (lines 370-390)
+### Bug Location: `src/data_loader.py` (lines 372-387)
 ```python
-# Collect candidates within max_dist (excluding self-link)
+# Collect candidates within max_dist (j < i, no self-link possible)
 candidates = []
 candidate_indices = []  # (conv_idx, msg_i_idx, candidate_idx)
 
-for j in range(max(0, i - self.max_dist + 1), i + 1):
-    if j == i:
-        continue  # Exclude self-link
+for j in range(max(0, i - self.max_dist + 1), i):
     msg_j = messages[j]
 
     # Skip system messages as parents
@@ -171,83 +182,36 @@ if not candidates:
     continue  # Skip messages with no valid candidates
 ```
 
-**Problem**: The loop range `range(max(0, i - self.max_dist + 1), i + 1)` includes `j = i`. For early messages (small `i`), the range may ONLY contain `j = i`, which gets skipped → empty candidates list → 0 samples.
+**Problem**: The loop correctly excludes self-links, but most gold labels ARE self-links. After excluding them, near-zero messages have a gold parent within the candidate window.
 
-**Fix**: Change line 376 to `for j in range(max(0, i - self.max_dist + 1), i):` and remove lines 377-378.
+**Fix**: Implement SELF-as-candidate architecture (see Section 4).
 
-### Model Architecture: `src/model.py` (forward pass, lines 95-221)
+### Model Architecture: `src/model.py` (forward pass)
 ```python
-def forward(
-    self,
-    input_ids: torch.Tensor,
-    attention_mask: torch.Tensor,
-    token_type_ids: Optional[torch.Tensor] = None,
-    features: Optional[torch.Tensor] = None,
-    labels: Optional[torch.Tensor] = None,
-) -> Dict[str, torch.Tensor]:
+def forward(self, input_ids, attention_mask, token_type_ids=None, features=None, labels=None):
     batch_size, num_candidates, seq_len = input_ids.shape
-
-    # Reshape for BERT: [batch_size * C, seq_len]
     flat_input_ids = input_ids.view(-1, seq_len)
     flat_attention_mask = attention_mask.view(-1, seq_len)
-    
-    # Get BERT embeddings
-    bert_outputs = self.bert(
-        input_ids=flat_input_ids,
-        attention_mask=flat_attention_mask,
-        token_type_ids=flat_token_type_ids,
-        return_dict=True,
-    )
-    
-    # Use [CLS] token embedding
+    bert_outputs = self.bert(input_ids=flat_input_ids, attention_mask=flat_attention_mask, ...)
     cls_embedding = bert_outputs.last_hidden_state[:, 0, :]
     cls_embedding = self.dropout(cls_embedding)
-    
-    # Concatenate with features
     if features is not None:
         expanded_features = features.reshape(-1, self.num_features)
         combined = torch.cat([cls_embedding, expanded_features], dim=-1)
-    
-    # Classification head: [batch_size * C, 1]
     logits = self.classifier(combined)
     logits = logits.view(batch_size, num_candidates)
-    
-    # Mask out padded candidates
-    candidate_mask = attention_mask.sum(dim=-1) > 0
-    logits = logits.masked_fill(~candidate_mask, -100.0)
-    
     candidate_probs = torch.softmax(logits, dim=-1)
-    
-    outputs = {"logits": logits, "probs": candidate_probs}
-    
-    if labels is not None:
-        loss_fn = nn.CrossEntropyLoss()
-        loss = loss_fn(logits, labels)
-        outputs["loss"] = loss
-    
-    return outputs
+    ...
 ```
 
-### Training Script: `train_synthetic.sh`
+### Training Script: `learning_signal.sh`
 ```bash
-#!/bin/bash
-set -e
-
-REPO_DIR=$(pwd)
-export RUN_ROOT=/scratch/user/$USER/ircbert_runs
-export LOG_DIR=$RUN_ROOT/logs
-export CHECKPOINT_DIR=$RUN_ROOT/checkpoints_tiny_test
-export TINY_DIR=$REPO_DIR/data/tiny
-
-echo "=== Setting up directories ==="
-mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
-
-source setup.sh
-
-echo "=== Starting training on data/tiny (DeBERTa-v3-base, max_dist=50) ==="
-python src/train.py \
+# Full dataset, max_dist=50, DeBERTa-v3-base, 10 epochs, ALL messages
+# Run on Bunya interactive GPU node: bash learning_signal.sh
+# All output tee'd to logs/learning_signal_DATETIME.log
+$PYTHON src/train.py \
     --mode train \
-    --data-dir $TINY_DIR \
+    --data-dir "$DATA_DIR" \
     --model-name microsoft/deberta-v3-base \
     --max-dist 50 \
     --batch-size 16 \
@@ -258,23 +222,15 @@ python src/train.py \
     --eval-every 1 \
     --save-every 1 \
     --output-dir "$CHECKPOINT_DIR" \
-    --device cuda
-
-# Evaluate latest checkpoint
-echo "=== Evaluating on data/tiny/dev ==="
-LATEST_CHECKPOINT=$(ls -t "$CHECKPOINT_DIR"/checkpoint_epoch_*.pt 2>/dev/null | head -1)
-if [ -z "$LATEST_CHECKPOINT" ]; then
-    echo "WARNING: No checkpoint found in $CHECKPOINT_DIR - skipping evaluation"
-else
-    echo "Latest checkpoint: $LATEST_CHECKPOINT"
-    python src/evaluate.py \
-        --checkpoint "$LATEST_CHECKPOINT" \
-        --data-dir $TINY_DIR \
-        --split dev \
-        --batch-size 16 \
-        --metrics both \
-        --verbose 3
-fi
+    --device cuda 2>&1 | tee -a "$LOG_FILE"
 ```
 
-**Note**: This script doesn't redirect output to a log file. Add `2>&1 | tee $LOG_DIR/train_$(date +%Y%m%d_%H%M%S).log` to capture output.
+## 10. Log Files for Analysis
+
+| Log | Description |
+|-----|-------------|
+| `logs/learning_signal_20260518_192715.log` | Latest run: max_dist=50, 0 samples, 2.30s training |
+| `logs/learning_signal_20260518_190346.log` | Previous run: max_dist=15, test_end=156, 0 samples |
+| `logs/train_20260518_192732.log` | Training log from latest run |
+| `logs/eval_20260518_192836.log` | Dev evaluation from latest run |
+| `logs/eval_20260518_192852.log` | Test evaluation from latest run |
