@@ -21,5 +21,5 @@ This file contains stable behavioral rules and constraints for the AI agent. It 
 
 ## Operational Rules
 - **Workspace**: Operate strictly within the project root. Do not attempt to `cd` into outside directories.
-- **No Local Training**: NEVER run training or heavy experiments on local machine. All training/evaluation must run on Bunya HPC GPU nodes only. Local machine is for code editing, testing small scripts, and pushing to remote only.
+- **No Local Training**: NEVER run training or heavy experiments on local machine. ALL `.sh` scripts and `.slurm` jobs run on Bunya HPC GPU nodes only — no exceptions. If you see a `.sh` or `.slurm` file, assume it executes on Bunya. Local machine is for code editing, running `pytest tests/`, and pushing to remote only.
 - **Context Management**: Keep the three context files (`INSTRUCTIONS.md`, `CONTEXT.md`, `PROGRESS.md`) separated by their defined responsibilities.

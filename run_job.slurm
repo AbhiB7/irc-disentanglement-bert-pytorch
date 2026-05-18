@@ -54,7 +54,7 @@ python src/train.py \
     --epochs 20 \
     --learning-rate 5e-5 \
     --max-length 128 \
-    --max-dist 50 \
+    --max-dist 15 \
     --warmup-ratio 0.1 \
     --patience 5 \
     --eval-every 1 \
@@ -79,7 +79,7 @@ else
         --checkpoint "$LATEST_CHECKPOINT" \
         --split dev \
         --batch-size 64 \
-        --max-dist 50 \
+        --max-dist 15 \
         --metrics both
 
     echo ""
@@ -88,6 +88,6 @@ else
         --checkpoint "$LATEST_CHECKPOINT" \
         --split test \
         --batch-size 64 \
-        --max-dist 50 \
+        --max-dist 15 \
         --metrics both
 fi
