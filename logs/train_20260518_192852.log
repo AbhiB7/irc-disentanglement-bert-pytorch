@@ -1,0 +1,140 @@
+2026-05-18 19:28:52,795 - __main__ - INFO - Using device: cuda
+2026-05-18 19:28:53,051 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 19:28:53,057 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-18 19:28:53,291 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 19:28:53,291 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-18 19:28:53,298 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-18 19:28:53,531 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-18 19:28:53,768 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-18 19:28:54,244 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-18 19:28:54,248 - __main__ - INFO - Loaded tokenizer: DebertaV2Tokenizer
+2026-05-18 19:28:54,248 - __main__ - INFO - Loading checkpoint from /scratch/user/s4901673/ircbert_runs/checkpoints_maxdist50/checkpoint_epoch_10.pt
+2026-05-18 19:28:54,910 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 19:28:54,916 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-18 19:28:55,547 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-18 19:28:55,779 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-18 19:28:56,071 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+2026-05-18 19:28:56,333 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-18 19:28:56,592 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-18 19:28:56,830 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-18 19:28:57,066 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
+2026-05-18 19:28:57,117 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 19:28:57,128 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-18 19:28:57,899 - __main__ - INFO - Loaded checkpoint from epoch 10 (model=microsoft/deberta-v3-base)
+2026-05-18 19:28:57,900 - __main__ - INFO - Loading test dataset...
+2026-05-18 19:28:57,905 - data_loader - INFO - Initializing IRCDisentanglementDataset with 10 files
+2026-05-18 19:28:57,905 - data_loader - INFO -   max_dist=50, max_length=128, skip_labels=False
+2026-05-18 19:28:57,906 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-18 19:28:57,907 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2005-07-06_14.ascii.txt
+2026-05-18 19:28:57,908 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:28:57,912 - data_loader - INFO -   Parsed 1500 messages, found 107 unique users
+2026-05-18 19:28:58,110 - data_loader - INFO -   Loaded 406 gold links from annotation file
+2026-05-18 19:28:58,110 - data_loader - INFO -   Conversation '2005-07-06_14' loaded in 0.20s
+2026-05-18 19:28:58,110 - data_loader - INFO -   Creating samples for 2005-07-06_14: all 1500 messages
+2026-05-18 19:28:58,120 - data_loader - INFO -   Created 0 samples for 2005-07-06_14
+2026-05-18 19:28:58,120 - data_loader - INFO -   File 1/10: 2005-07-06_14 - 1500 messages, 0 total samples so far
+2026-05-18 19:28:58,120 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2007-01-11_12.ascii.txt
+2026-05-18 19:28:58,121 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:28:58,125 - data_loader - INFO -   Parsed 1500 messages, found 79 unique users
+2026-05-18 19:28:58,267 - data_loader - INFO -   Loaded 425 gold links from annotation file
+2026-05-18 19:28:58,267 - data_loader - INFO -   Conversation '2007-01-11_12' loaded in 0.15s
+2026-05-18 19:28:58,268 - data_loader - INFO -   Creating samples for 2007-01-11_12: all 1500 messages
+2026-05-18 19:28:58,277 - data_loader - INFO -   Created 0 samples for 2007-01-11_12
+2026-05-18 19:28:58,277 - data_loader - INFO -   File 2/10: 2007-01-11_12 - 1500 messages, 0 total samples so far
+2026-05-18 19:28:58,277 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2007-12-01_03.ascii.txt
+2026-05-18 19:28:58,278 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:28:58,282 - data_loader - INFO -   Parsed 1500 messages, found 131 unique users
+2026-05-18 19:28:58,596 - data_loader - INFO -   Loaded 399 gold links from annotation file
+2026-05-18 19:28:58,596 - data_loader - INFO -   Conversation '2007-12-01_03' loaded in 0.32s
+2026-05-18 19:28:58,596 - data_loader - INFO -   Creating samples for 2007-12-01_03: all 1500 messages
+2026-05-18 19:28:58,607 - data_loader - INFO -   Created 0 samples for 2007-12-01_03
+2026-05-18 19:28:58,607 - data_loader - INFO -   File 3/10: 2007-12-01_03 - 1500 messages, 0 total samples so far
+2026-05-18 19:28:58,607 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2008-07-14_18.ascii.txt
+2026-05-18 19:28:58,608 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:28:58,612 - data_loader - INFO -   Parsed 1500 messages, found 201 unique users
+2026-05-18 19:28:59,096 - data_loader - INFO -   Loaded 371 gold links from annotation file
+2026-05-18 19:28:59,096 - data_loader - INFO -   Conversation '2008-07-14_18' loaded in 0.49s
+2026-05-18 19:28:59,096 - data_loader - INFO -   Creating samples for 2008-07-14_18: all 1500 messages
+2026-05-18 19:28:59,107 - data_loader - INFO -   Created 0 samples for 2008-07-14_18
+2026-05-18 19:28:59,107 - data_loader - INFO -   File 4/10: 2008-07-14_18 - 1500 messages, 0 total samples so far
+2026-05-18 19:28:59,107 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2010-08-17_18.ascii.txt
+2026-05-18 19:28:59,108 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:28:59,112 - data_loader - INFO -   Parsed 1500 messages, found 220 unique users
+2026-05-18 19:28:59,697 - data_loader - INFO -   Loaded 363 gold links from annotation file
+2026-05-18 19:28:59,697 - data_loader - INFO -   Conversation '2010-08-17_18' loaded in 0.59s
+2026-05-18 19:28:59,697 - data_loader - INFO -   Creating samples for 2010-08-17_18: all 1500 messages
+2026-05-18 19:28:59,708 - data_loader - INFO -   Created 0 samples for 2010-08-17_18
+2026-05-18 19:28:59,708 - data_loader - INFO -   File 5/10: 2010-08-17_18 - 1500 messages, 0 total samples so far
+2026-05-18 19:28:59,708 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2013-09-01_02.ascii.txt
+2026-05-18 19:28:59,709 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:28:59,714 - data_loader - INFO -   Parsed 1500 messages, found 154 unique users
+2026-05-18 19:29:00,099 - data_loader - INFO -   Loaded 357 gold links from annotation file
+2026-05-18 19:29:00,099 - data_loader - INFO -   Conversation '2013-09-01_02' loaded in 0.39s
+2026-05-18 19:29:00,099 - data_loader - INFO -   Creating samples for 2013-09-01_02: all 1500 messages
+2026-05-18 19:29:00,110 - data_loader - INFO -   Created 0 samples for 2013-09-01_02
+2026-05-18 19:29:00,110 - data_loader - INFO -   File 6/10: 2013-09-01_02 - 1500 messages, 0 total samples so far
+2026-05-18 19:29:00,110 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2014-06-18_13.ascii.txt
+2026-05-18 19:29:00,111 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:29:00,115 - data_loader - INFO -   Parsed 1500 messages, found 176 unique users
+2026-05-18 19:29:00,542 - data_loader - INFO -   Loaded 365 gold links from annotation file
+2026-05-18 19:29:00,542 - data_loader - INFO -   Conversation '2014-06-18_13' loaded in 0.43s
+2026-05-18 19:29:00,542 - data_loader - INFO -   Creating samples for 2014-06-18_13: all 1500 messages
+2026-05-18 19:29:00,554 - data_loader - INFO -   Created 0 samples for 2014-06-18_13
+2026-05-18 19:29:00,554 - data_loader - INFO -   File 7/10: 2014-06-18_13 - 1500 messages, 0 total samples so far
+2026-05-18 19:29:00,554 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2015-03-18_05.ascii.txt
+2026-05-18 19:29:00,555 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:29:00,559 - data_loader - INFO -   Parsed 1500 messages, found 172 unique users
+2026-05-18 19:29:00,982 - data_loader - INFO -   Loaded 380 gold links from annotation file
+2026-05-18 19:29:00,982 - data_loader - INFO -   Conversation '2015-03-18_05' loaded in 0.43s
+2026-05-18 19:29:00,982 - data_loader - INFO -   Creating samples for 2015-03-18_05: all 1500 messages
+2026-05-18 19:29:00,993 - data_loader - INFO -   Created 0 samples for 2015-03-18_05
+2026-05-18 19:29:00,993 - data_loader - INFO -   File 8/10: 2015-03-18_05 - 1500 messages, 0 total samples so far
+2026-05-18 19:29:00,993 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2016-02-22_17.ascii.txt
+2026-05-18 19:29:00,994 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:29:00,998 - data_loader - INFO -   Parsed 1500 messages, found 158 unique users
+2026-05-18 19:29:01,378 - data_loader - INFO -   Loaded 369 gold links from annotation file
+2026-05-18 19:29:01,378 - data_loader - INFO -   Conversation '2016-02-22_17' loaded in 0.39s
+2026-05-18 19:29:01,379 - data_loader - INFO -   Creating samples for 2016-02-22_17: all 1500 messages
+2026-05-18 19:29:01,389 - data_loader - INFO -   Created 0 samples for 2016-02-22_17
+2026-05-18 19:29:01,389 - data_loader - INFO -   File 9/10: 2016-02-22_17 - 1500 messages, 0 total samples so far
+2026-05-18 19:29:01,390 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/test/2016-06-08_07.ascii.txt
+2026-05-18 19:29:01,391 - data_loader - INFO -   Read 1500 lines from ASCII file
+2026-05-18 19:29:01,395 - data_loader - INFO -   Parsed 1500 messages, found 176 unique users
+2026-05-18 19:29:01,829 - data_loader - INFO -   Loaded 378 gold links from annotation file
+2026-05-18 19:29:01,830 - data_loader - INFO -   Conversation '2016-06-08_07' loaded in 0.44s
+2026-05-18 19:29:01,830 - data_loader - INFO -   Creating samples for 2016-06-08_07: all 1500 messages
+2026-05-18 19:29:01,841 - data_loader - INFO -   Created 0 samples for 2016-06-08_07
+2026-05-18 19:29:01,841 - data_loader - INFO -   File 10/10: 2016-06-08_07 - 1500 messages, 0 total samples so far
+2026-05-18 19:29:01,841 - data_loader - INFO - Dataset initialization complete: 0 samples from 10 conversations in 3.93s
+2026-05-18 19:29:01,842 - __main__ - INFO - test dataset: 0 samples
+2026-05-18 19:29:01,842 - __main__ - INFO - === Pairwise Metrics (Per-Message Accuracy) ===
+2026-05-18 19:29:01,843 - train - INFO - Starting evaluation on 0 samples
+2026-05-18 19:29:02,011 - train - INFO -   COVERAGE: 0/15000 messages have predictions (0.0%)
+2026-05-18 19:29:02,012 - train - INFO -     (Messages without predictions: gold parent is outside max_dist window)
+2026-05-18 19:29:02,012 - train - INFO - Evaluation complete in 0.17s
+2026-05-18 19:29:02,012 - train - INFO -   Loss: 0.0000, Accuracy: 0.0000, Precision: 0.0000, Recall: 0.0000, F1: 0.0000
+2026-05-18 19:29:02,012 - __main__ - INFO - ================================================================================
+2026-05-18 19:29:02,012 - __main__ - INFO - Evaluation Results (Multiclass Mode)
+2026-05-18 19:29:02,012 - __main__ - INFO - ================================================================================
+2026-05-18 19:29:02,012 - __main__ - INFO - Loss: 0.0000
+2026-05-18 19:29:02,012 - __main__ - INFO - Accuracy: 0.0000
+2026-05-18 19:29:02,012 - __main__ - INFO - Precision: 0.0000
+2026-05-18 19:29:02,013 - __main__ - INFO - Recall: 0.0000
+2026-05-18 19:29:02,013 - __main__ - INFO - F1: 0.0000
+2026-05-18 19:29:02,013 - __main__ - INFO - Predicted position distribution (top 10):
+2026-05-18 19:29:02,013 - __main__ - INFO - ================================================================================
+2026-05-18 19:29:02,013 - __main__ - INFO - === Clustering Metrics (VI / ARI) ===
+2026-05-18 19:29:02,016 - __main__ - INFO -   Loaded 961 clusters across 10 conversations
+2026-05-18 19:29:02,016 - __main__ - INFO -   Per-conversation clustering metrics (0 conversations, avg coverage=0.0%):
+2026-05-18 19:29:02,017 - __main__ - INFO - ================================================================================
+2026-05-18 19:29:02,017 - __main__ - INFO - Clustering Evaluation Results
+2026-05-18 19:29:02,017 - __main__ - INFO - ================================================================================
+2026-05-18 19:29:02,017 - __main__ - INFO - ARI (Adjusted Rand Index): 0.0000
+2026-05-18 19:29:02,017 - __main__ - INFO - VI  (Variation of Information): 0.0000
+2026-05-18 19:29:02,017 - __main__ - INFO - Conversations evaluated: 0
+2026-05-18 19:29:02,017 - __main__ - INFO - ================================================================================
+2026-05-18 19:29:02,017 - __main__ - INFO - 
+============================================================
+2026-05-18 19:29:02,017 - __main__ - INFO - HUMAN-READABLE VALIDATION (showing 3 random conversations)
+2026-05-18 19:29:02,017 - __main__ - INFO - ============================================================
+2026-05-18 19:29:02,017 - __main__ - INFO - Results saved to: /home/s4901673/workspace/irc-disentanglement-bert-pytorch/logs/eval_20260518_192852.log
