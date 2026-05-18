@@ -1,0 +1,1157 @@
+2026-05-18 20:35:18,756 - __main__ - INFO - Using device: cuda
+2026-05-18 20:35:19,017 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 20:35:19,017 - huggingface_hub.utils._http - WARNING - Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-18 20:35:19,023 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-18 20:35:19,261 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 20:35:19,268 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-18 20:35:19,503 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-18 20:35:19,747 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-18 20:35:20,237 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-18 20:35:20,239 - __main__ - INFO - Loaded tokenizer: DebertaV2Tokenizer
+2026-05-18 20:35:20,239 - __main__ - INFO - Loading checkpoint from /scratch/user/s4901673/ircbert_runs/checkpoints_maxdist50/checkpoint_epoch_10.pt
+2026-05-18 20:35:21,017 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 20:35:21,024 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-18 20:35:21,703 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/model.safetensors "HTTP/1.1 404 Not Found"
+2026-05-18 20:35:21,941 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base "HTTP/1.1 200 OK"
+2026-05-18 20:35:22,218 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/main "HTTP/1.1 200 OK"
+2026-05-18 20:35:22,470 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/discussions?p=0 "HTTP/1.1 200 OK"
+2026-05-18 20:35:22,725 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/models/microsoft/deberta-v3-base/commits/refs%2Fpr%2F14 "HTTP/1.1 200 OK"
+2026-05-18 20:35:22,952 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors.index.json "HTTP/1.1 404 Not Found"
+2026-05-18 20:35:23,167 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-18 20:35:23,173 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/microsoft/deberta-v3-base/8ccc9b6f36199bec6961081d44eb72fb3f7353f3/config.json "HTTP/1.1 200 OK"
+2026-05-18 20:35:23,177 - httpx - INFO - HTTP Request: HEAD https://huggingface.co/microsoft/deberta-v3-base/resolve/refs%2Fpr%2F14/model.safetensors "HTTP/1.1 302 Found"
+2026-05-18 20:35:23,944 - __main__ - INFO - Loaded checkpoint from epoch 10 (model=microsoft/deberta-v3-base)
+2026-05-18 20:35:23,944 - __main__ - INFO - Loading dev dataset...
+2026-05-18 20:35:23,949 - data_loader - INFO - Initializing IRCDisentanglementDataset with 10 files
+2026-05-18 20:35:23,949 - data_loader - INFO -   max_dist=50, max_length=128, skip_labels=False
+2026-05-18 20:35:23,954 - data_loader - INFO -   test_start=0, test_end=1000000000
+2026-05-18 20:35:23,954 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2004-11-15_03.ascii.txt
+2026-05-18 20:35:23,956 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:23,959 - data_loader - INFO -   Parsed 1250 messages, found 76 unique users
+2026-05-18 20:35:24,082 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:24,082 - data_loader - INFO -   Conversation '2004-11-15_03' loaded in 0.13s
+2026-05-18 20:35:24,082 - data_loader - INFO -   Creating samples for 2004-11-15_03: all 1250 messages
+2026-05-18 20:35:24,089 - data_loader - INFO -   LABEL CHECK [2004-11-15_03 sample #0]: gold_parent_idx=30, gold_msg_idx=1002, C=31, msg_i_idx=1003, candidate_range=[954, 1002]
+2026-05-18 20:35:24,089 - data_loader - INFO -   LABEL CHECK [2004-11-15_03 sample #1]: gold_parent_idx=30, gold_msg_idx=1003, C=31, msg_i_idx=1004, candidate_range=[955, 1003]
+2026-05-18 20:35:24,089 - data_loader - INFO -   LABEL CHECK [2004-11-15_03 sample #2]: gold_parent_idx=29, gold_msg_idx=1003, C=31, msg_i_idx=1005, candidate_range=[956, 1004]
+2026-05-18 20:35:24,253 - data_loader - INFO -   Created 182 samples for 2004-11-15_03
+2026-05-18 20:35:24,253 - data_loader - INFO -   File 1/10: 2004-11-15_03 - 1250 messages, 182 total samples so far
+2026-05-18 20:35:24,253 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2005-06-27_12.ascii.txt
+2026-05-18 20:35:24,255 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:24,258 - data_loader - INFO -   Parsed 1250 messages, found 77 unique users
+2026-05-18 20:35:24,380 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:24,381 - data_loader - INFO -   Conversation '2005-06-27_12' loaded in 0.13s
+2026-05-18 20:35:24,381 - data_loader - INFO -   Creating samples for 2005-06-27_12: all 1250 messages
+2026-05-18 20:35:24,387 - data_loader - INFO -   LABEL CHECK [2005-06-27_12 sample #182]: gold_parent_idx=43, gold_msg_idx=1000, C=45, msg_i_idx=1002, candidate_range=[954, 1001]
+2026-05-18 20:35:24,387 - data_loader - INFO -   LABEL CHECK [2005-06-27_12 sample #183]: gold_parent_idx=45, gold_msg_idx=1002, C=46, msg_i_idx=1003, candidate_range=[954, 1002]
+2026-05-18 20:35:24,387 - data_loader - INFO -   LABEL CHECK [2005-06-27_12 sample #184]: gold_parent_idx=44, gold_msg_idx=1002, C=46, msg_i_idx=1004, candidate_range=[955, 1003]
+2026-05-18 20:35:24,418 - data_loader - INFO -   Created 205 samples for 2005-06-27_12
+2026-05-18 20:35:24,418 - data_loader - INFO -   File 2/10: 2005-06-27_12 - 1250 messages, 387 total samples so far
+2026-05-18 20:35:24,418 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2005-08-08_01.ascii.txt
+2026-05-18 20:35:24,420 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:24,423 - data_loader - INFO -   Parsed 1250 messages, found 95 unique users
+2026-05-18 20:35:24,582 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:24,582 - data_loader - INFO -   Conversation '2005-08-08_01' loaded in 0.16s
+2026-05-18 20:35:24,582 - data_loader - INFO -   Creating samples for 2005-08-08_01: all 1250 messages
+2026-05-18 20:35:24,589 - data_loader - INFO -   LABEL CHECK [2005-08-08_01 sample #387]: gold_parent_idx=17, gold_msg_idx=975, C=39, msg_i_idx=1001, candidate_range=[952, 1000]
+2026-05-18 20:35:24,589 - data_loader - INFO -   LABEL CHECK [2005-08-08_01 sample #388]: gold_parent_idx=36, gold_msg_idx=999, C=39, msg_i_idx=1002, candidate_range=[955, 1001]
+2026-05-18 20:35:24,589 - data_loader - INFO -   LABEL CHECK [2005-08-08_01 sample #389]: gold_parent_idx=39, gold_msg_idx=1002, C=40, msg_i_idx=1003, candidate_range=[955, 1002]
+2026-05-18 20:35:24,617 - data_loader - INFO -   Created 177 samples for 2005-08-08_01
+2026-05-18 20:35:24,617 - data_loader - INFO -   File 3/10: 2005-08-08_01 - 1250 messages, 564 total samples so far
+2026-05-18 20:35:24,617 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2008-12-11_11.ascii.txt
+2026-05-18 20:35:24,619 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:24,622 - data_loader - INFO -   Parsed 1250 messages, found 142 unique users
+2026-05-18 20:35:24,916 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:24,916 - data_loader - INFO -   Conversation '2008-12-11_11' loaded in 0.30s
+2026-05-18 20:35:24,916 - data_loader - INFO -   Creating samples for 2008-12-11_11: all 1250 messages
+2026-05-18 20:35:24,923 - data_loader - INFO -   LABEL CHECK [2008-12-11_11 sample #564]: gold_parent_idx=47, gold_msg_idx=999, C=48, msg_i_idx=1000, candidate_range=[951, 999]
+2026-05-18 20:35:24,923 - data_loader - INFO -   LABEL CHECK [2008-12-11_11 sample #565]: gold_parent_idx=44, gold_msg_idx=997, C=48, msg_i_idx=1001, candidate_range=[952, 1000]
+2026-05-18 20:35:24,924 - data_loader - INFO -   LABEL CHECK [2008-12-11_11 sample #566]: gold_parent_idx=47, gold_msg_idx=1002, C=48, msg_i_idx=1003, candidate_range=[954, 1002]
+2026-05-18 20:35:24,960 - data_loader - INFO -   Created 196 samples for 2008-12-11_11
+2026-05-18 20:35:24,960 - data_loader - INFO -   File 4/10: 2008-12-11_11 - 1250 messages, 760 total samples so far
+2026-05-18 20:35:24,960 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2009-02-23_10.ascii.txt
+2026-05-18 20:35:24,961 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:24,965 - data_loader - INFO -   Parsed 1250 messages, found 111 unique users
+2026-05-18 20:35:25,191 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:25,191 - data_loader - INFO -   Conversation '2009-02-23_10' loaded in 0.23s
+2026-05-18 20:35:25,191 - data_loader - INFO -   Creating samples for 2009-02-23_10: all 1250 messages
+2026-05-18 20:35:25,197 - data_loader - INFO -   LABEL CHECK [2009-02-23_10 sample #760]: gold_parent_idx=48, gold_msg_idx=999, C=49, msg_i_idx=1000, candidate_range=[951, 999]
+2026-05-18 20:35:25,198 - data_loader - INFO -   LABEL CHECK [2009-02-23_10 sample #761]: gold_parent_idx=45, gold_msg_idx=999, C=48, msg_i_idx=1003, candidate_range=[954, 1002]
+2026-05-18 20:35:25,198 - data_loader - INFO -   LABEL CHECK [2009-02-23_10 sample #762]: gold_parent_idx=46, gold_msg_idx=1002, C=48, msg_i_idx=1004, candidate_range=[955, 1003]
+2026-05-18 20:35:25,233 - data_loader - INFO -   Created 190 samples for 2009-02-23_10
+2026-05-18 20:35:25,233 - data_loader - INFO -   File 5/10: 2009-02-23_10 - 1250 messages, 950 total samples so far
+2026-05-18 20:35:25,233 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2009-03-03_10.ascii.txt
+2026-05-18 20:35:25,234 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:25,237 - data_loader - INFO -   Parsed 1250 messages, found 134 unique users
+2026-05-18 20:35:25,513 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:25,513 - data_loader - INFO -   Conversation '2009-03-03_10' loaded in 0.28s
+2026-05-18 20:35:25,513 - data_loader - INFO -   Creating samples for 2009-03-03_10: all 1250 messages
+2026-05-18 20:35:25,520 - data_loader - INFO -   LABEL CHECK [2009-03-03_10 sample #950]: gold_parent_idx=44, gold_msg_idx=999, C=45, msg_i_idx=1000, candidate_range=[951, 999]
+2026-05-18 20:35:25,520 - data_loader - INFO -   LABEL CHECK [2009-03-03_10 sample #951]: gold_parent_idx=44, gold_msg_idx=1000, C=45, msg_i_idx=1001, candidate_range=[952, 1000]
+2026-05-18 20:35:25,520 - data_loader - INFO -   LABEL CHECK [2009-03-03_10 sample #952]: gold_parent_idx=41, gold_msg_idx=998, C=45, msg_i_idx=1002, candidate_range=[953, 1001]
+2026-05-18 20:35:25,559 - data_loader - INFO -   Created 215 samples for 2009-03-03_10
+2026-05-18 20:35:25,559 - data_loader - INFO -   File 6/10: 2009-03-03_10 - 1250 messages, 1165 total samples so far
+2026-05-18 20:35:25,559 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2009-10-01_17.ascii.txt
+2026-05-18 20:35:25,560 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:25,564 - data_loader - INFO -   Parsed 1250 messages, found 166 unique users
+2026-05-18 20:35:25,928 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:25,928 - data_loader - INFO -   Conversation '2009-10-01_17' loaded in 0.37s
+2026-05-18 20:35:25,929 - data_loader - INFO -   Creating samples for 2009-10-01_17: all 1250 messages
+2026-05-18 20:35:25,935 - data_loader - INFO -   LABEL CHECK [2009-10-01_17 sample #1165]: gold_parent_idx=41, gold_msg_idx=995, C=45, msg_i_idx=1000, candidate_range=[951, 999]
+2026-05-18 20:35:25,936 - data_loader - INFO -   LABEL CHECK [2009-10-01_17 sample #1166]: gold_parent_idx=41, gold_msg_idx=997, C=45, msg_i_idx=1001, candidate_range=[952, 1000]
+2026-05-18 20:35:25,936 - data_loader - INFO -   LABEL CHECK [2009-10-01_17 sample #1167]: gold_parent_idx=42, gold_msg_idx=1000, C=45, msg_i_idx=1003, candidate_range=[954, 1002]
+2026-05-18 20:35:25,976 - data_loader - INFO -   Created 203 samples for 2009-10-01_17
+2026-05-18 20:35:25,976 - data_loader - INFO -   File 7/10: 2009-10-01_17 - 1250 messages, 1368 total samples so far
+2026-05-18 20:35:25,976 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2011-05-29_19.ascii.txt
+2026-05-18 20:35:25,977 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:25,981 - data_loader - INFO -   Parsed 1250 messages, found 152 unique users
+2026-05-18 20:35:26,302 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:26,303 - data_loader - INFO -   Conversation '2011-05-29_19' loaded in 0.33s
+2026-05-18 20:35:26,303 - data_loader - INFO -   Creating samples for 2011-05-29_19: all 1250 messages
+2026-05-18 20:35:26,309 - data_loader - INFO -   LABEL CHECK [2011-05-29_19 sample #1368]: gold_parent_idx=46, gold_msg_idx=999, C=48, msg_i_idx=1001, candidate_range=[952, 1000]
+2026-05-18 20:35:26,310 - data_loader - INFO -   LABEL CHECK [2011-05-29_19 sample #1369]: gold_parent_idx=44, gold_msg_idx=998, C=48, msg_i_idx=1002, candidate_range=[953, 1001]
+2026-05-18 20:35:26,310 - data_loader - INFO -   LABEL CHECK [2011-05-29_19 sample #1370]: gold_parent_idx=45, gold_msg_idx=1000, C=48, msg_i_idx=1003, candidate_range=[954, 1002]
+2026-05-18 20:35:26,348 - data_loader - INFO -   Created 206 samples for 2011-05-29_19
+2026-05-18 20:35:26,348 - data_loader - INFO -   File 8/10: 2011-05-29_19 - 1250 messages, 1574 total samples so far
+2026-05-18 20:35:26,348 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2011-11-13_02.ascii.txt
+2026-05-18 20:35:26,349 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:26,352 - data_loader - INFO -   Parsed 1250 messages, found 164 unique users
+2026-05-18 20:35:26,708 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:26,708 - data_loader - INFO -   Conversation '2011-11-13_02' loaded in 0.36s
+2026-05-18 20:35:26,708 - data_loader - INFO -   Creating samples for 2011-11-13_02: all 1250 messages
+2026-05-18 20:35:26,715 - data_loader - INFO -   LABEL CHECK [2011-11-13_02 sample #1574]: gold_parent_idx=42, gold_msg_idx=993, C=47, msg_i_idx=1000, candidate_range=[951, 998]
+2026-05-18 20:35:26,716 - data_loader - INFO -   LABEL CHECK [2011-11-13_02 sample #1575]: gold_parent_idx=46, gold_msg_idx=1003, C=47, msg_i_idx=1004, candidate_range=[955, 1003]
+2026-05-18 20:35:26,716 - data_loader - INFO -   LABEL CHECK [2011-11-13_02 sample #1576]: gold_parent_idx=45, gold_msg_idx=1003, C=47, msg_i_idx=1005, candidate_range=[956, 1004]
+2026-05-18 20:35:26,757 - data_loader - INFO -   Created 206 samples for 2011-11-13_02
+2026-05-18 20:35:26,757 - data_loader - INFO -   File 9/10: 2011-11-13_02 - 1250 messages, 1780 total samples so far
+2026-05-18 20:35:26,757 - data_loader - INFO - Loading conversation from /home/s4901673/workspace/irc-disentanglement-bert-pytorch/data/dev/2016-12-19_20.ascii.txt
+2026-05-18 20:35:26,759 - data_loader - INFO -   Read 1250 lines from ASCII file
+2026-05-18 20:35:26,762 - data_loader - INFO -   Parsed 1250 messages, found 165 unique users
+2026-05-18 20:35:27,103 - data_loader - INFO -   Loaded 250 gold links from annotation file
+2026-05-18 20:35:27,103 - data_loader - INFO -   Conversation '2016-12-19_20' loaded in 0.35s
+2026-05-18 20:35:27,103 - data_loader - INFO -   Creating samples for 2016-12-19_20: all 1250 messages
+2026-05-18 20:35:27,110 - data_loader - INFO -   LABEL CHECK [2016-12-19_20 sample #1780]: gold_parent_idx=47, gold_msg_idx=999, C=48, msg_i_idx=1000, candidate_range=[951, 999]
+2026-05-18 20:35:27,110 - data_loader - INFO -   LABEL CHECK [2016-12-19_20 sample #1781]: gold_parent_idx=46, gold_msg_idx=999, C=48, msg_i_idx=1001, candidate_range=[952, 1000]
+2026-05-18 20:35:27,111 - data_loader - INFO -   LABEL CHECK [2016-12-19_20 sample #1782]: gold_parent_idx=47, gold_msg_idx=1001, C=48, msg_i_idx=1002, candidate_range=[953, 1001]
+2026-05-18 20:35:27,153 - data_loader - INFO -   Created 214 samples for 2016-12-19_20
+2026-05-18 20:35:27,153 - data_loader - INFO -   File 10/10: 2016-12-19_20 - 1250 messages, 1994 total samples so far
+2026-05-18 20:35:27,153 - data_loader - INFO - Dataset initialization complete: 1994 samples from 10 conversations in 3.20s
+2026-05-18 20:35:27,154 - __main__ - INFO - dev dataset: 1994 samples
+2026-05-18 20:35:27,154 - __main__ - INFO - === Pairwise Metrics (Per-Message Accuracy) ===
+2026-05-18 20:35:27,155 - train - INFO - Starting evaluation on 1994 samples
+2026-05-18 20:35:31,928 - train - INFO -   Evaluation progress: 10/125 batches (2.09 batches/s)
+2026-05-18 20:35:35,958 - train - INFO -   Evaluation progress: 20/125 batches (2.27 batches/s)
+2026-05-18 20:35:40,029 - train - INFO -   Evaluation progress: 30/125 batches (2.33 batches/s)
+2026-05-18 20:35:44,255 - train - INFO -   Evaluation progress: 40/125 batches (2.34 batches/s)
+2026-05-18 20:35:48,746 - train - INFO -   Evaluation progress: 50/125 batches (2.32 batches/s)
+2026-05-18 20:35:53,177 - train - INFO -   Evaluation progress: 60/125 batches (2.31 batches/s)
+2026-05-18 20:35:57,699 - train - INFO -   Evaluation progress: 70/125 batches (2.29 batches/s)
+2026-05-18 20:36:02,247 - train - INFO -   Evaluation progress: 80/125 batches (2.28 batches/s)
+2026-05-18 20:36:06,729 - train - INFO -   Evaluation progress: 90/125 batches (2.27 batches/s)
+2026-05-18 20:36:11,169 - train - INFO -   Evaluation progress: 100/125 batches (2.27 batches/s)
+2026-05-18 20:36:15,782 - train - INFO -   Evaluation progress: 110/125 batches (2.26 batches/s)
+2026-05-18 20:36:20,372 - train - INFO -   Evaluation progress: 120/125 batches (2.25 batches/s)
+2026-05-18 20:36:22,576 - train - INFO -   BASELINE: 'Predict last candidate (position 48)' accuracy: 0.0517
+2026-05-18 20:36:22,576 - train - INFO -     (If this is >0.8, the model may be exploiting positional shortcuts)
+2026-05-18 20:36:22,577 - train - INFO -   Gold label distribution (ALL 46 active positions):
+2026-05-18 20:36:22,577 - train - INFO -     Position 46:   212 (10.6%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 45:   210 (10.5%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 44:   192 (9.6%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 43:   189 (9.5%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 47:   160 (8.0%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 42:   142 (7.1%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 40:   108 (5.4%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 41:   104 (5.2%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 48:   103 (5.2%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 39:    97 (4.9%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 36:    70 (3.5%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 38:    70 (3.5%)
+2026-05-18 20:36:22,577 - train - INFO -     Position 37:    55 (2.8%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 34:    39 (2.0%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 33:    39 (2.0%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 35:    28 (1.4%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 30:    25 (1.3%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 32:    21 (1.1%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 29:    18 (0.9%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 27:    16 (0.8%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 28:    15 (0.8%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 31:    12 (0.6%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 26:    12 (0.6%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 25:     6 (0.3%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 22:     6 (0.3%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 23:     4 (0.2%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 21:     4 (0.2%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 17:     4 (0.2%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 19:     4 (0.2%)
+2026-05-18 20:36:22,578 - train - INFO -     Position 24:     3 (0.2%)
+2026-05-18 20:36:22,579 - train - INFO -     Position  1:     3 (0.2%)
+2026-05-18 20:36:22,579 - train - INFO -     Position  7:     3 (0.2%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 13:     2 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 16:     2 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 15:     2 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 10:     2 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 18:     2 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position  8:     2 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 14:     1 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position  9:     1 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position  2:     1 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position  3:     1 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 12:     1 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 20:     1 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position 11:     1 (0.1%)
+2026-05-18 20:36:22,579 - train - INFO -     Position  4:     1 (0.1%)
+2026-05-18 20:36:22,580 - train - INFO -   BASELINE: 'Always predict position 46 (most common)' accuracy: 0.1063
+2026-05-18 20:36:22,580 - train - INFO -     (Position 46 has 212/1994 = 10.6% of gold labels)
+2026-05-18 20:36:22,580 - train - INFO -   RECENCY CHECK: 23.8% of gold labels are in positions 46-49 (last 4 of 50)
+2026-05-18 20:36:22,580 - train - INFO -     (If >80%%, the task is dominated by recency bias — model may be shortcutting)
+2026-05-18 20:36:22,580 - train - INFO -   COVERAGE: 1994/12500 messages have predictions (16.0%)
+2026-05-18 20:36:22,580 - train - INFO -     (Messages without predictions: gold parent is outside max_dist window)
+2026-05-18 20:36:22,580 - train - INFO -   Prediction sample (first 20):
+2026-05-18 20:36:22,580 - train - INFO -     Predicted: [15, 14, 13, 12, 11, 10, 9, 9, 8, 0, 7, 20, 19, 18, 17, 16, 15, 14, 13, 12]
+2026-05-18 20:36:22,580 - train - INFO -     Gold:      [30, 30, 29, 30, 29, 30, 30, 28, 31, 26, 31, 27, 27, 27, 24, 27, 26, 27, 27, 27]
+2026-05-18 20:36:22,580 - train - INFO -     Abs error: [15, 16, 16, 18, 18, 20, 21, 19, 23, 26, 24, 7, 8, 9, 7, 11, 11, 13, 14, 15] (mean=15.55)
+2026-05-18 20:36:22,580 - train - INFO -   Per-position accuracy (all 49 positions):
+2026-05-18 20:36:22,581 - train - INFO -     Position  1: 0.000 accuracy (3 samples)
+2026-05-18 20:36:22,581 - train - INFO -     Position  2: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,581 - train - INFO -     Position  3: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,582 - train - INFO -     Position  4: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,582 - train - INFO -     Position  7: 0.000 accuracy (3 samples)
+2026-05-18 20:36:22,582 - train - INFO -     Position  8: 0.000 accuracy (2 samples)
+2026-05-18 20:36:22,582 - train - INFO -     Position  9: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,582 - train - INFO -     Position 10: 0.000 accuracy (2 samples)
+2026-05-18 20:36:22,582 - train - INFO -     Position 11: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,583 - train - INFO -     Position 12: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,583 - train - INFO -     Position 13: 0.000 accuracy (2 samples)
+2026-05-18 20:36:22,583 - train - INFO -     Position 14: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,583 - train - INFO -     Position 15: 0.000 accuracy (2 samples)
+2026-05-18 20:36:22,583 - train - INFO -     Position 16: 0.000 accuracy (2 samples)
+2026-05-18 20:36:22,583 - train - INFO -     Position 17: 0.000 accuracy (4 samples)
+2026-05-18 20:36:22,584 - train - INFO -     Position 18: 0.000 accuracy (2 samples)
+2026-05-18 20:36:22,584 - train - INFO -     Position 19: 0.000 accuracy (4 samples)
+2026-05-18 20:36:22,584 - train - INFO -     Position 20: 0.000 accuracy (1 samples)
+2026-05-18 20:36:22,584 - train - INFO -     Position 21: 0.000 accuracy (4 samples)
+2026-05-18 20:36:22,584 - train - INFO -     Position 22: 0.000 accuracy (6 samples)
+2026-05-18 20:36:22,584 - train - INFO -     Position 23: 0.000 accuracy (4 samples)
+2026-05-18 20:36:22,585 - train - INFO -     Position 24: 0.000 accuracy (3 samples)
+2026-05-18 20:36:22,585 - train - INFO -     Position 25: 0.000 accuracy (6 samples)
+2026-05-18 20:36:22,585 - train - INFO -     Position 26: 0.000 accuracy (12 samples)
+2026-05-18 20:36:22,585 - train - INFO -     Position 27: 0.000 accuracy (16 samples)
+2026-05-18 20:36:22,585 - train - INFO -     Position 28: 0.000 accuracy (15 samples)
+2026-05-18 20:36:22,585 - train - INFO -     Position 29: 0.000 accuracy (18 samples)
+2026-05-18 20:36:22,586 - train - INFO -     Position 30: 0.040 accuracy (25 samples)
+2026-05-18 20:36:22,586 - train - INFO -     Position 31: 0.000 accuracy (12 samples)
+2026-05-18 20:36:22,586 - train - INFO -     Position 32: 0.095 accuracy (21 samples)
+2026-05-18 20:36:22,586 - train - INFO -     Position 33: 0.000 accuracy (39 samples)
+2026-05-18 20:36:22,586 - train - INFO -     Position 34: 0.026 accuracy (39 samples)
+2026-05-18 20:36:22,586 - train - INFO -     Position 35: 0.036 accuracy (28 samples)
+2026-05-18 20:36:22,586 - train - INFO -     Position 36: 0.029 accuracy (70 samples)
+2026-05-18 20:36:22,587 - train - INFO -     Position 37: 0.073 accuracy (55 samples)
+2026-05-18 20:36:22,587 - train - INFO -     Position 38: 0.029 accuracy (70 samples)
+2026-05-18 20:36:22,587 - train - INFO -     Position 39: 0.010 accuracy (97 samples)
+2026-05-18 20:36:22,587 - train - INFO -     Position 40: 0.000 accuracy (108 samples)
+2026-05-18 20:36:22,587 - train - INFO -     Position 41: 0.000 accuracy (104 samples)
+2026-05-18 20:36:22,587 - train - INFO -     Position 42: 0.021 accuracy (142 samples)
+2026-05-18 20:36:22,588 - train - INFO -     Position 43: 0.016 accuracy (189 samples)
+2026-05-18 20:36:22,588 - train - INFO -     Position 44: 0.005 accuracy (192 samples)
+2026-05-18 20:36:22,588 - train - INFO -     Position 45: 0.005 accuracy (210 samples)
+2026-05-18 20:36:22,588 - train - INFO -     Position 46: 0.000 accuracy (212 samples)
+2026-05-18 20:36:22,588 - train - INFO -     Position 47: 0.013 accuracy (160 samples)
+2026-05-18 20:36:22,588 - train - INFO -     Position 48: 0.019 accuracy (103 samples)
+2026-05-18 20:36:22,589 - train - INFO - Evaluation complete in 55.43s
+2026-05-18 20:36:22,589 - train - INFO -   Loss: 3.8226, Accuracy: 0.0130, Precision: 0.0266, Recall: 0.0085, F1: 0.0104
+2026-05-18 20:36:22,589 - __main__ - INFO - ================================================================================
+2026-05-18 20:36:22,589 - __main__ - INFO - Evaluation Results (Multiclass Mode)
+2026-05-18 20:36:22,589 - __main__ - INFO - ================================================================================
+2026-05-18 20:36:22,589 - __main__ - INFO - Loss: 3.8226
+2026-05-18 20:36:22,589 - __main__ - INFO - Accuracy: 0.0130
+2026-05-18 20:36:22,589 - __main__ - INFO - Precision: 0.0266
+2026-05-18 20:36:22,589 - __main__ - INFO - Recall: 0.0085
+2026-05-18 20:36:22,590 - __main__ - INFO - F1: 0.0104
+2026-05-18 20:36:22,590 - __main__ - INFO - Predicted position distribution (top 10):
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 0: 81 samples (4.1%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 3: 74 samples (3.7%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 4: 70 samples (3.5%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 1: 69 samples (3.5%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 9: 68 samples (3.4%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 7: 68 samples (3.4%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 6: 68 samples (3.4%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 2: 64 samples (3.2%)
+2026-05-18 20:36:22,590 - __main__ - INFO -   Position 10: 63 samples (3.2%)
+2026-05-18 20:36:22,591 - __main__ - INFO -   Position 5: 63 samples (3.2%)
+2026-05-18 20:36:22,591 - __main__ - INFO - ================================================================================
+2026-05-18 20:36:22,591 - __main__ - INFO - === Clustering Metrics (VI / ARI) ===
+2026-05-18 20:36:22,593 - __main__ - INFO -   Loaded 494 clusters across 10 conversations
+2026-05-18 20:36:22,600 - __main__ - INFO -   Per-conversation clustering metrics (10 conversations, avg coverage=81.8%):
+2026-05-18 20:36:22,600 - __main__ - INFO -     2009-02-23_10: ARI=0.2866, VI=2.8176 (57 gold clusters, 6 pred clusters, 196/250 msgs covered = 78.4%)
+2026-05-18 20:36:22,600 - __main__ - INFO -     2011-11-13_02: ARI=0.2214, VI=2.9376 (42 gold clusters, 5 pred clusters, 211/250 msgs covered = 84.4%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2004-11-15_03: ARI=0.1652, VI=3.0076 (66 gold clusters, 6 pred clusters, 188/250 msgs covered = 75.2%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2009-10-01_17: ARI=0.0699, VI=3.9224 (48 gold clusters, 7 pred clusters, 210/250 msgs covered = 84.0%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2008-12-11_11: ARI=0.0693, VI=4.0202 (48 gold clusters, 5 pred clusters, 201/250 msgs covered = 80.4%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2011-05-29_19: ARI=0.0571, VI=3.3331 (44 gold clusters, 3 pred clusters, 209/250 msgs covered = 83.6%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2016-12-19_20: ARI=0.0329, VI=3.9671 (37 gold clusters, 5 pred clusters, 219/250 msgs covered = 87.6%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2009-03-03_10: ARI=0.0220, VI=3.6548 (34 gold clusters, 6 pred clusters, 221/250 msgs covered = 88.4%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2005-08-08_01: ARI=0.0031, VI=3.6124 (74 gold clusters, 3 pred clusters, 180/250 msgs covered = 72.0%)
+2026-05-18 20:36:22,601 - __main__ - INFO -     2005-06-27_12: ARI=-0.0028, VI=3.2297 (44 gold clusters, 4 pred clusters, 209/250 msgs covered = 83.6%)
+2026-05-18 20:36:22,601 - __main__ - INFO - ================================================================================
+2026-05-18 20:36:22,601 - __main__ - INFO - Clustering Evaluation Results
+2026-05-18 20:36:22,601 - __main__ - INFO - ================================================================================
+2026-05-18 20:36:22,601 - __main__ - INFO - ARI (Adjusted Rand Index): 0.0925
+2026-05-18 20:36:22,601 - __main__ - INFO - VI  (Variation of Information): 3.4503
+2026-05-18 20:36:22,601 - __main__ - INFO - Conversations evaluated: 10
+2026-05-18 20:36:22,601 - __main__ - INFO - ================================================================================
+2026-05-18 20:36:22,604 - __main__ - INFO - 
+============================================================
+2026-05-18 20:36:22,604 - __main__ - INFO - HUMAN-READABLE VALIDATION (showing 3 random conversations)
+2026-05-18 20:36:22,604 - __main__ - INFO - ============================================================
+2026-05-18 20:36:22,604 - __main__ - INFO - 
+============================================================
+Conversation: 2005-06-27_12
+============================================================
+
+GOLD THREADS:
+  Thread 1:
+    [1005] microhaxo: "God dammit, now i need to go buy a new windowsxp cd"
+    [1006] microhaxo: ":|"
+    [1007] bob2: "why on earth would you need to do that?"
+    [1008] microhaxo: "mine is Scratched to hell"
+    [1009] bob2: "if you installed windows, presumably you own a windows disk"
+    [1010] microhaxo: "its Scratched"
+    [1011] microhaxo: "i havent had to reinstall windows for EVER"
+    [1012] microhaxo: "it works FLAWLESSLY"
+    [1013] beavis: "buy pirated .... lots here"
+    [1014] lukus001: "just by a cd de-scratcher"
+    [1016] microhaxo: "pirated doesnt give me updates"
+    [1017] beavis: "yes it does .. it does for us here"
+    [1019] beavis: "heheheheh"
+    [1020] xabbu|: "awn your cd--key isn't scratched right..?"
+    [1024] microhaxo: "i dont have my cd key anymore, if i can boot into windows and retreive it"
+    [1027] CDK: "hehe there is a cd key gen for xp"
+    [1041] xabbu|: "microhaxo: Well, thats your fault. Why on earth would you store your cd-key on y..."
+    [1043] CDK: "if i install form source how do i uninstall"
+    [1044] microhaxo: "err"
+    [1045] microhaxo: "cus i never had to use it"
+    [1046] microhaxo: "i didnt store it"
+    [1047] microhaxo: "i can get a program to read it"
+    [1050] CDK: "like i said there is a way to change it and update it"
+    [1051] microhaxo: "off of windows"
+    [1053] CDK: "with a keygen"
+    [1057] bob2: "anyway, all this windows stuff is off topic"
+    [1058] bob2: "take it to #ubuntu-offtopic"
+    [1059] CDK: "yes i had a simple question how do i uninstall something i installed from source"
+    [1062] microhaxo: "bah"
+    [1065] microhaxo: "If linux could actually run a damn game, CEDEGA is complete BS, wont run Counter..."
+    [1066] bob2: "CDK: you can't, in general.  "make uninstall" might work if yo ustill have the o..."
+    [1067] bob2: "microhaxo: so, if you're a paying customer, go to their site and vote for it"
+    [1068] CDK: "i c"
+    [1071] microhaxo: "it is "Supported""
+    [1074] bob2: "CDK: in future, checkinstall and stow are useful for that"
+    [1075] bob2: "microhaxo: then file a bug with them if it doesn't work"
+    [1076] microhaxo: "but just my luck it wont run on my sys"
+    [1079] bob2: "microhaxo: ranting here isn't going to help it work, sorry"
+    [1080] microhaxo: "nothing will help"
+    [1083] microhaxo: "im pissed"
+    [1084] bob2: "microhaxo: then be pissed somewhere else"
+    [1087] bob2: "CDK: they do different things, but checkinstall is probably simpler"
+  Thread 2:
+    [1021] Ubuntu: "hi i will take over my xp computer with my ubuntu pc how? i tright it with termi..."
+    [1022] beavis: "sorrry am not so techie, .. can't help you people who need help"
+    [1023] beavis: "i need help too"
+    [1025] beavis: ":P"
+    [1028] xabbu|: "Ubuntu, Have you activated the Terminal server on your windows computer?"
+    [1034] Ubuntu: "yes ssh i believe secure security client"
+    [1061] xabbu|: "ubuntu, You need the have a ssh server installed on windows if you are to use ss..."
+    [1077] Ubuntu: "xabbul: ok i use secure shell client"
+    [1078] xabbu|: "okey"
+    [1230] Ubuntu: "xabul: ill tright it but connection refused he says"
+  Thread 3:
+    [1026] SYSTEM: "=== shock [~shockwave@dsl-082-082-155-216.arcor-ip.net]  has joined #ubuntu"
+  Thread 4:
+    [1029] lukus001: "So does anyone know how i can get w32codecs installed? i just get file missing i..."
+    [1032] xabbu|: "lukus001: Is your repositories updated?"
+    [1035] lukus001: "xabbu|: yes they are"
+    [1036] xabbu|: "Okey."
+    [1037] bob2: "lukus001: just get the tarball from mplayer.hu"
+    [1060] lukus001: "bob2: that site isnt in english :s lol"
+  Thread 5:
+    [1030] SYSTEM: "=== BraD [~simple@78f14c649ad397c1.session.tor]  has joined #ubuntu"
+
+PREDICTED THREADS:
+  Thread 1:
+    [1001] lukus001: "bob2: that link isn't of any use... it doesnt help me get the codecs ?:S"
+    [1002] bob2: "oga: all I can suggest is reading the howto again and making sure you followed a..."
+    [1003] oga: "thanks bob2"
+    [1004] bob2: "oga: and that the drivers support your card"
+    [1005] microhaxo: "God dammit, now i need to go buy a new windowsxp cd"
+    [1006] microhaxo: ":|"
+    [1007] bob2: "why on earth would you need to do that?"
+    [1008] microhaxo: "mine is Scratched to hell"
+    [1009] bob2: "if you installed windows, presumably you own a windows disk"
+    [1010] microhaxo: "its Scratched"
+    [1011] microhaxo: "i havent had to reinstall windows for EVER"
+    [1012] microhaxo: "it works FLAWLESSLY"
+    [1013] beavis: "buy pirated .... lots here"
+    [1016] microhaxo: "pirated doesnt give me updates"
+    [1017] beavis: "yes it does .. it does for us here"
+    [1019] beavis: "heheheheh"
+    [1020] xabbu|: "awn your cd--key isn't scratched right..?"
+    [1022] beavis: "sorrry am not so techie, .. can't help you people who need help"
+    [1023] beavis: "i need help too"
+    [1024] microhaxo: "i dont have my cd key anymore, if i can boot into windows and retreive it"
+    [1025] beavis: ":P"
+    [1027] CDK: "hehe there is a cd key gen for xp"
+    [1028] xabbu|: "Ubuntu, Have you activated the Terminal server on your windows computer?"
+    [1032] xabbu|: "lukus001: Is your repositories updated?"
+    [1034] Ubuntu: "yes ssh i believe secure security client"
+    [1035] lukus001: "xabbu|: yes they are"
+    [1036] xabbu|: "Okey."
+    [1037] bob2: "lukus001: just get the tarball from mplayer.hu"
+    [1041] xabbu|: "microhaxo: Well, thats your fault. Why on earth would you store your cd-key on y..."
+    [1042] bob2: "nubbe: no"
+    [1044] microhaxo: "err"
+    [1045] microhaxo: "cus i never had to use it"
+    [1046] microhaxo: "i didnt store it"
+    [1047] microhaxo: "i can get a program to read it"
+    [1049] bob2: "Hylas: not if they're from ubuntu, but in practice you won't need to do that"
+    [1050] CDK: "like i said there is a way to change it and update it"
+    [1051] microhaxo: "off of windows"
+    [1052] nubbe: "bob2, that's bad :("
+    [1053] CDK: "with a keygen"
+    [1054] nubbe: "for me"
+    [1055] bob2: "nubbe: why?"
+    [1057] bob2: "anyway, all this windows stuff is off topic"
+    [1058] bob2: "take it to #ubuntu-offtopic"
+    [1059] CDK: "yes i had a simple question how do i uninstall something i installed from source"
+    [1060] lukus001: "bob2: that site isnt in english :s lol"
+    [1061] xabbu|: "ubuntu, You need the have a ssh server installed on windows if you are to use ss..."
+    [1062] microhaxo: "bah"
+    [1063] Hylas: "because I've got xmms and mplayer here as rpm's and I was going to convert them ..."
+    [1064] nubbe: "bob2, I could read some files with xp, but not with ubuntu, that I need..."
+    [1065] microhaxo: "If linux could actually run a damn game, CEDEGA is complete BS, wont run Counter..."
+    [1066] bob2: "CDK: you can't, in general.  "make uninstall" might work if yo ustill have the o..."
+    [1067] bob2: "microhaxo: so, if you're a paying customer, go to their site and vote for it"
+    [1068] CDK: "i c"
+    [1069] bob2: "Hylas: I'd strongly recommend not doing that"
+    [1070] Hylas: "ok"
+    [1071] microhaxo: "it is "Supported""
+    [1072] nubbe: "bob2, and I know th aprtition is flaky, so I guess win handles the errors better"
+    [1073] GNULinuxer: "nubbe> what  files?"
+    [1074] bob2: "CDK: in future, checkinstall and stow are useful for that"
+    [1075] bob2: "microhaxo: then file a bug with them if it doesn't work"
+    [1076] microhaxo: "but just my luck it wont run on my sys"
+    [1077] Ubuntu: "xabbul: ok i use secure shell client"
+    [1078] xabbu|: "okey"
+    [1080] microhaxo: "nothing will help"
+    [1082] nubbe: "GNULinuxer, why?"
+    [1083] microhaxo: "im pissed"
+    [1086] GNULinuxer: "nubbe> you said you can't view them in ubuntu ... that's why"
+    [1088] CDK: "sorry m8 i dont know how to talk to just you"
+    [1089] nubbe: "GNULinuxer, No, I said I can't read them"
+    [1090] nubbe: "GNULinuxer, As in ubuntu can't get the data from the ntfs part"
+    [1092] GNULinuxer: "nubbe> aha"
+    [1093] microhaxo: "using Gftp"
+    [1096] bob2: "microhaxo: ssh has nothing to do with ftp over ssl"
+    [1098] bob2: "xabbu|: I'm pretty sure it's not possible to detect that from software"
+    [1099] microhaxo: "then how do i connect securely?"
+    [1100] xabbu|: "Okey..."
+    [1102] microhaxo: "gFTP"
+    [1103] GNULinuxer: "nubbe> NTFS read support is there in the ubuntu kernel"
+    [1105] nubbe: "GNULinuxer, yes, but that doesn't cut it for me, that's why I asked if there was..."
+    [1106] GNULinuxer: "nubbe> can you succesfully mount the partition?"
+    [1108] microhaxo: "bob2: how do i connect securely to this ftp?"
+    [1110] bob2: "microhaxo: I don't know what "ftp" you're talking about"
+    [1111] microhaxo: "i said"
+    [1112] bob2: "I hear gftp can do ftp/ssl, tho"
+    [1113] microhaxo: "its my prif ftp"
+    [1114] microhaxo: "anyway"
+    [1115] bob2: ""prif" is not a word"
+    [1116] microhaxo: "gFTP"
+    [1117] microhaxo: "itsa  damn TOPSITE Mk"
+    [1118] microhaxo: "so"
+    [1119] bob2: "I have no idea what a "TOPSITE Mk" is, either"
+    [1120] microhaxo: "you dont need to know"
+    [1121] nubbe: "GNULinuxer, I can mount and read most of it, just a few files that has errors, a..."
+    [1123] microhaxo: "i need to connect to a server with SECURE Access."
+    [1124] GNULinuxer: "nubbe> it's corrupt now"
+    [1125] bob2: "microhaxo: throwing around buzzwords doesn't help"
+    [1126] nubbe: "GNULinuxer, NOOO?? really??   ;)"
+    [1127] bob2: "microhaxo: presumably it speaks ftp/ssl"
+    [1128] bob2: "microhaxo: if that doesn't work, talk to whoever runs it"
+    [1129] GNULinuxer: "nubbe> the xp failure must have happended after you tried to read them from ubun..."
+    [1130] microhaxo: "yea sure, but how do i select this option in gFTP?"
+    [1131] microhaxo: "there is just drop down boxes"
+    [1132] GNULinuxer: "nubbe> just apt-get install ntfsprogs"
+    [1133] microhaxo: "ftp , http ,local ,ssh2,fsp"
+    [1135] nubbe: "GNULinuxer, I'll look at them"
+    [1136] GNULinuxer: "nubbe> and use ntfsfix from there and try to fix it"
+    [1137] microhaxo: "530 USE SECURE CONNECTION"
+    [1138] nubbe: "GNULinuxer, that I don't think I'll do"
+    [1139] SYSTEM: "=== GNULinuxer *shrugs*"
+    [1142] bob2: "I'd use a less obscure firewall system, I guess"
+    [1143] microhaxo: "like?"
+    [1147] tapia: "I have it installed Breezy in my ibook G4"
+    [1149] microhaxo: "is there an easy to use FTP app?"
+    [1151] bob2: "gftp is pretty easy to use"
+    [1152] tapia: "and some dist-upgrade has broken my X keyboard layout"
+    [1154] microhaxo: "lol thats what im using"
+    [1155] bob2: "tapia: you're using hoary, right?"
+    [1156] microhaxo: "and it wont connect meh"
+    [1157] tapia: "bob2: no, breezy"
+    [1158] tapia: "it worked rigth till today"
+    [1159] microhaxo: "whats the diff between breezy and hoary?"
+    [1160] bob2: "microhaxo: lftp does it"
+    [1161] bob2: "breezy is the development branch"
+    [1162] tapia: "i had it configured for spanish layour"
+    [1163] tapia: "layout"
+    [1164] bob2: "which is not recommended for people who can't fix their own systems"
+    [1165] tapia: "but now it is english"
+    [1166] bob2: "I guess X is broken again; you'll have to wait for daniel to fix it"
+    [1167] bob2: "try looking ni bugzilla, there's probably a workaround already"
+    [1168] tapia: "and gnome-keyboard-properties crashes if i try to change the layout"
+    [1170] microhaxo: "bob2"
+    [1171] microhaxo: "says i already got it"
+    [1172] microhaxo: "is it gui or terminal?"
+    [1173] bob2: "cool"
+    [1174] bob2: "terminal"
+    [1175] microhaxo: "aww"
+    [1177] bob2: "I thought all leet kiddies knew how to use command line ftp clients"
+    [1178] microhaxo: "im a windows user dammit"
+    [1179] microhaxo: "its only day 10 on linux"
+    [1180] bob2: "you use a gui client on windows? heh"
+    [1181] microhaxo: "wtf"
+    [1182] Dalkus: "microhaxo, you'll get used to it in no time :)"
+    [1183] bob2: "it's easy to use"
+    [1184] microhaxo: "they dont make a "Terminal" FTP client for windows"
+    [1185] microhaxo: "hah"
+    [1186] Dalkus: "microhaxo, theres plenty of gui ftp clients for linux too if you like"
+    [1187] bob2: "microhaxo: er, it ships with one"
+    [1188] Dalkus: "microhaxo, they do"
+    [1189] bob2: "microhaxo: type ftp in a command window sometime"
+    [1190] tapia: "microhaxo: apt-get install gftp-gtk"
+    [1191] microhaxo: "k"
+    [1192] microhaxo: "thanks"
+    [1194] microhaxo: "i have gftp"
+    [1195] microhaxo: "lol"
+    [1196] microhaxo: "i need a diff one"
+    [1197] microhaxo: "it wont let me connect securely"
+    [1201] floo: "can anyone help me with a problem?  I keep getting "temporary failure in name re..."
+    [1202] bob2: "odie5533: GET"
+    [1203] bob2: "floo: can you ping the nameserves in /etc/resov.conf?"
+    [1204] odie5533: "GET what?"
+    [1205] odie5533: "just "GET""
+    [1206] microhaxo: "thats the command"
+    [1207] floo: "yes no probs there"
+    [1208] bob2: "GET $path HTTP/1.1"
+    [1209] bob2: "or just ues the GET command from libwww-perl"
+    [1210] bob2: "or wget"
+    [1211] bob2: "or ..."
+    [1212] Triffid_Hunter: "you need HOST too if you specify HTTP/1.1"
+    [1213] bob2: "hmm, right"
+    [1215] floo: "ok I'll give that a go, thanks"
+    [1216] Triffid_Hunter: "that's ATI's fault, not linux's"
+    [1217] odie5533: "microhaxo: ebay"
+    [1218] microhaxo: "bah"
+    [1219] microhaxo: "no i am a GAMER"
+    [1220] odie5533: "sell it, and buy a real card, an nvidia"
+    [1221] odie5533: "me too"
+    [1222] microhaxo: "BAH"
+    [1223] microhaxo: "nvidia sucks ass"
+    [1224] odie5533: ":O"
+    [1225] microhaxo: "i can own any of you in a 3dmark 05 benchmark"
+    [1226] Triffid_Hunter: "yeah my fx5200 works just fine in linux ;)"
+    [1228] SYSTEM: "=== odie5533 chokes"
+    [1231] microhaxo: "bah"
+    [1232] odie5533: "mines like bigger than my box"
+    [1233] Dalkus: "bob2, talk for yoruself"
+    [1234] odie5533: "it wont even fit in"
+    [1235] odie5533: "so i win"
+    [1236] microhaxo: "lol"
+    [1237] microhaxo: "no"
+    [1238] microhaxo: "mine has 16 pipelines"
+    [1240] microhaxo: "hah"
+    [1241] odie5533: "mine has its own power supply, and two led fans, i win"
+    [1242] microhaxo: "no"
+    [1243] bob2: "and my radeon works fine in ubuntu"
+    [1244] microhaxo: "mine works"
+    [1245] Dalkus: "Vassilis, dont ask to ask, just ask :)"
+    [1246] microhaxo: "but WHAT Games can i play?!"
+    [1247] Vassilis: "is there a way to pm just not fill the window?"
+    [1248] microhaxo: "who wants to play tux racer, integrated graphics card can run that 50FPS +"
+    [1249] microhaxo: "yea"
+  Thread 2:
+    [1043] CDK: "if i install form source how do i uninstall"
+    [1079] bob2: "microhaxo: ranting here isn't going to help it work, sorry"
+    [1084] bob2: "microhaxo: then be pissed somewhere else"
+    [1087] bob2: "CDK: they do different things, but checkinstall is probably simpler"
+  Thread 3:
+    [1214] microhaxo: "the only reason why i dont like linux is: i spent lots of money on my nifty RADE..."
+    [1227] bob2: "microhaxo: try to actually be polite"
+    [1229] bob2: "and no one cares how big your video card is"
+  Thread 4:
+    [996] xabbu|: "Why not just put in the winXP disc and make repair the system?"
+    [1014] lukus001: "just by a cd de-scratcher"
+
+Thread count: Gold=44, Predicted=4
+2026-05-18 20:36:22,605 - __main__ - INFO - 
+============================================================
+2026-05-18 20:36:22,605 - __main__ - INFO - DEBUG PREDICTED PAIRS for 2005-06-27_12
+2026-05-18 20:36:22,605 - __main__ - INFO - ============================================================
+2026-05-18 20:36:22,605 - __main__ - INFO - Idx    Child  ChildSpk     PredPar  PredSpk      GoldPar  GoldSpk      Match  P(self)  P(pred)  P(gold)  Text
+2026-05-18 20:36:22,620 - __main__ - INFO - 345    1205   odie5533     1162     tapia        1202     bob2         NO     0.0000   0.0245   0.0226   just "GET"
+2026-05-18 20:36:22,630 - __main__ - INFO - 210    1041   xabbu|       1001     lukus001     1024     microhaxo    NO     0.0000   0.0248   0.0233   microhaxo: Well, thats your fault. Why on earth would you st
+2026-05-18 20:36:22,639 - __main__ - INFO - 188    1008   microhaxo    1001     lukus001     1007     bob2         NO     0.0000   0.0234   0.0223   mine is Scratched to hell
+2026-05-18 20:36:22,648 - __main__ - INFO - 371    1233   Dalkus       1203     bob2         1229     bob2         NO     0.0000   0.0234   0.0225   bob2, talk for yoruself
+2026-05-18 20:36:22,658 - __main__ - INFO - 252    1088   CDK          1055     bob2         1085     bob2         NO     0.0000   0.0229   0.0221   sorry m8 i dont know how to talk to just you
+2026-05-18 20:36:22,666 - __main__ - INFO - 244    1078   xabbu|       1055     bob2         1077     Ubuntu       NO     0.0000   0.0244   0.0236   okey
+2026-05-18 20:36:22,674 - __main__ - INFO - 239    1073   GNULinuxer   1028     xabbu|       1064     nubbe        NO     0.0000   0.0251   0.0238   nubbe> what  files?
+2026-05-18 20:36:22,682 - __main__ - INFO - 217    1050   CDK          1001     lukus001     1047     microhaxo    NO     0.0000   0.0254   0.0231   like i said there is a way to change it and update it
+2026-05-18 20:36:22,691 - __main__ - INFO - 370    1232   odie5533     1203     bob2         1229     bob2         NO     0.0000   0.0234   0.0225   mines like bigger than my box
+2026-05-18 20:36:22,699 - __main__ - INFO - 208    1036   xabbu|       1001     lukus001     1035     lukus001     NO     0.0000   0.0248   0.0240   Okey.
+2026-05-18 20:36:22,700 - __main__ - INFO - 
+============================================================
+Conversation: 2004-11-15_03
+============================================================
+
+GOLD THREADS:
+  Thread 1:
+    [1018] blocke: "hi... is anyone elses laptop spinning down the hard drive after like one second ..."
+    [1021] Nafallo: "blocke: 5 seconds. that's the minimum you can have. hdparm -S 1 that is :-)."
+    [1023] blocke: "any idea what is setting it by default in ubuntu?"
+    [1024] Nafallo: "blocke: /etc/acpi/power.sh"
+    [1025] blocke: "it didn't used to be so short on this laptop until I upgraded to hoary... can't ..."
+    [1026] GnuHippy: "the gimp ScriptFU filters are broken in hoary"
+    [1027] Nafallo: "blocke: it makes battery time :-P"
+    [1028] Nafallo: "blocke: in warty default is 12."
+    [1029] blocke: "yeah I see that, strange"
+    [1030] blocke: "its not respecting it"
+    [1032] blocke: "its literally spinning down after a second of inactivity"
+    [1033] Nafallo: "blocke: sudo hdparm -i /dev/hda"
+    [1035] blocke: "http://www.pastebin.com/116669"
+    [1047] blocke: "gah... stop spinning down!"
+    [1049] Nafallo: "blocke: hmm, that didn't say spindown time :-P. well, sudo hdparm -S 12 /dev/hda..."
+    [1050] blocke: "I did that several minutes ago"
+    [1052] SYSTEM: "=== blocke reboots in the vein hope that its just a fluke..."
+    [1079] blocke: "hmm I had to hdparm -B 255 to stop the spinning down, oh well, at least I have a..."
+    [1081] Nafallo: "blocke: hehe"
+  Thread 2:
+    [1031] SYSTEM: "=== natea [~natea@h000f66a887c6.ne.client2.attbi.com]  has joined #ubuntu"
+  Thread 3:
+    [1034] SYSTEM: "=== Hydroxide [user@adsl-98-2.bway.net]  has left #ubuntu []"
+  Thread 4:
+    [1036] GnuHippy: "wow it is scary how much work they have done on hoary already and how fast updat..."
+    [1038] jdub: "GnuHippy: that's largely merging with sid."
+    [1040] GnuHippy: "Do they have 1000 Keebler elves working around the clock?"
+    [1042] GnuHippy: "ic jdub"
+    [1043] GnuHippy: "was Sarge released yet?"
+    [1045] usual: "sarge wont be released until i have grandkids"
+    [1046] GnuHippy: "I'll take that as a no"
+  Thread 5:
+    [1037] SYSTEM: "=== holycow [~yada@S0106002078ccd651.vf.shawcable.net]  has joined #ubuntu"
+
+PREDICTED THREADS:
+  Thread 1:
+    [972] Nafallo: "ogra: I used testing, but I think it's time to let my amd64 fly for a bit ;-)."
+    [1003] Hikaru79: "yohannes, why not WinRAR?"
+    [1004] Hikaru79: "http://www.rarlab.com/"
+    [1005] yohannes: "i am trying to weight my option. any other apps?"
+    [1006] Hikaru79: "Just download RAR 3.41 for Linux"
+    [1007] Hikaru79: "Oh"
+    [1008] Hikaru79: "I see"
+    [1009] Hikaru79: "Only one I know of, sorry =("
+    [1010] yohannes: "btw, how can i install that darn thing? :)"
+    [1011] yohannes: "i downloaded winrar, does not have any instruction to install"
+    [1013] yohannes: "i suspect i need to do something with the makefile included"
+    [1021] Nafallo: "blocke: 5 seconds. that's the minimum you can have. hdparm -S 1 that is :-)."
+    [1023] blocke: "any idea what is setting it by default in ubuntu?"
+    [1024] Nafallo: "blocke: /etc/acpi/power.sh"
+    [1025] blocke: "it didn't used to be so short on this laptop until I upgraded to hoary... can't ..."
+    [1026] GnuHippy: "the gimp ScriptFU filters are broken in hoary"
+    [1027] Nafallo: "blocke: it makes battery time :-P"
+    [1028] Nafallo: "blocke: in warty default is 12."
+    [1029] blocke: "yeah I see that, strange"
+    [1030] blocke: "its not respecting it"
+    [1032] blocke: "its literally spinning down after a second of inactivity"
+    [1033] Nafallo: "blocke: sudo hdparm -i /dev/hda"
+    [1035] blocke: "http://www.pastebin.com/116669"
+    [1038] jdub: "GnuHippy: that's largely merging with sid."
+    [1040] GnuHippy: "Do they have 1000 Keebler elves working around the clock?"
+    [1042] GnuHippy: "ic jdub"
+    [1043] GnuHippy: "was Sarge released yet?"
+    [1045] usual: "sarge wont be released until i have grandkids"
+    [1046] GnuHippy: "I'll take that as a no"
+    [1047] blocke: "gah... stop spinning down!"
+    [1049] Nafallo: "blocke: hmm, that didn't say spindown time :-P. well, sudo hdparm -S 12 /dev/hda..."
+    [1050] blocke: "I did that several minutes ago"
+    [1052] SYSTEM: "=== blocke reboots in the vein hope that its just a fluke..."
+    [1054] KentutMerah: "ud, dpkg ?"
+    [1055] ud: "umm.. I use apt-get. But should I try dpkg?"
+    [1056] jdub: "ud: 0.9.9 is most likely the hoary version, not the warty version"
+    [1057] jdub: "ud: dpkg won't help you"
+    [1058] jdub: "(well, it could, but it's not advisable)"
+    [1059] ud: "ahh but its in the the same repo?"
+    [1061] jdub: "it's in the same pool"
+    [1062] jdub: "all the warty and hoary packages are in the same pool"
+    [1063] ud: "ahh ok"
+    [1064] jdub: "but they're for different releases"
+    [1065] ud: "I wondered if that was the case"
+    [1066] ud: "Because it wouldnt show the newer release with apt-cache search"
+    [1067] ud: "Is there a way I can use the newer release?"
+    [1069] jdub: "ud: hoary is the development branch"
+    [1070] jdub: "ud: unless you're very familiar with debian, i wouldn't recommend it"
+    [1072] Nafallo: "ud: there is, but as jdub just said, it's not advisible :-)."
+    [1074] ud: "ok thanks for your help, ill just have to wait :)"
+    [1079] blocke: "hmm I had to hdparm -B 255 to stop the spinning down, oh well, at least I have a..."
+    [1081] Nafallo: "blocke: hehe"
+    [1083] Striss: "they don't look like they did in gnome"
+    [1084] dopey: "fluxbox is in ubuntu?"
+    [1085] jdub: "dopey: in universe, of course."
+    [1086] dopey: "that makes more sense"
+    [1088] dopey: "i thought universe was unsupported though"
+    [1089] jdub: "it is"
+    [1090] Nafallo: "djtansey: k3b won't work with kernel 2.6.8|2.6.8.1"
+    [1092] djtansey: "Nafallo: so go back to 2.6.7?"
+    [1093] Nafallo: "djtansey: yepp, or upgrade to 2.6.9"
+    [1094] CPayan: "hmm progression or regression"
+    [1095] djtansey: "Nafallo: thanks. i'll see if ubuntu has 2.6.9 packaged"
+    [1096] jdub: "it will work with the ubuntu kernel"
+    [1097] djtansey: "jdub: k3b will?"
+    [1098] jdub: "no, there's no 2.6.9 in warty or hoary"
+    [1099] jdub: "yes"
+    [1100] jdub: "there are plenty of people using it"
+    [1101] Nafallo: "jdub: never worked with ANY 2.6 for me :-P"
+    [1102] djtansey: "jdub: then any guess as to what the problem is?"
+    [1103] Nafallo: "jdub: that's with both ubuntu and debian kernels."
+    [1104] jdub: "dunno if there's a FAQ or something on the website, but it would make sense to c..."
+    [1105] djtansey: "jdub: i did. nothing i could find that was related"
+    [1106] Nafallo: "opss, typo! 2.6.8* ;-)"
+    [1107] djtansey: "jdub: other than some k3bsetup .ICEauthority issues"
+    [1108] djtansey: "Nafallo: but it works with 2.6.7 for you?"
+    [1109] Nafallo: "jdub: k3b and 2.6.8|2.6.8.1 on both my computers with burners fail."
+    [1110] Nafallo: "djtansey: yes."
+    [1111] Nafallo: "djtansey: and it should be fixed in 2.6.9 also :-)"
+    [1112] jdub: "Nafallo: the ubuntu kernels do not have those bugs."
+    [1113] djtansey: "Nafallo: thanks."
+    [1114] jdub: "plenty of other people are using k3b with ubuntu"
+    [1115] Nafallo: "jdub: how come when I TRIED with ubuntu k3b couldn't see my burner?"
+    [1116] Nafallo: "jdub: same thing with my girlfriend."
+    [1117] jdub: "i don't know your particular circumstances"
+    [1118] jdub: "i can only relate what i know"
+    [1119] Nafallo: "it just doesn't work :-)"
+    [1120] Nafallo: "jdub: same here."
+    [1121] jdub: "that may be true in your case"
+    [1122] jdub: "but it is not the case for many other users"
+    [1123] Nafallo: "jdub: maybe it's just drive specific?"
+    [1124] jdub: "i don't know"
+    [1125] Nafallo: "jdub: but then, I got both a samsung and a toshiba ;-)."
+    [1127] Nafallo: "it might be that I'm running my cd-rws as ide-cd :-)"
+    [1128] djtansey: "Nafallo: but i can use cdrecord dev=/dev/hdc without problem. you'd think k3b wo..."
+    [1129] Nafallo: "djtansey: yepp, I've given up on the subject anyway :-P. ubuntu showed me the wa..."
+    [1131] phill: "http://www.ubuntuforums.org/showthread.php?p=11009#post11009"
+    [1132] djtansey: "Nafallo: usually that's what i do. unfortunately i am burning audio CDs for a ro..."
+    [1133] ajmitch: "djtansey: running k3b with sudo?"
+    [1134] ajmitch: "not that it should matter with the patched kernel"
+    [1136] djtansey: "ajmitch: no. but i gave k3b my root password so those apps have root permissions"
+    [1137] Nafallo: "phill: my friend installed that on his lappy yesterday. he just had to apt-get a..."
+    [1138] Nafallo: "phill: and then restart x and gdm ofcourse :-)"
+    [1139] Nafallo: "djtansey: k3b doesn't have root permissions."
+    [1140] Nafallo: "djtansey: cdrecord and cdrdao have :-)."
+    [1141] phill: "hi, ok, how do i restard x/gdm?"
+    [1143] djtansey: "Nafallo: that's why i meants by "those apps." would giving k3b root help? (not t..."
+    [1144] Nafallo: "phill: logout from X, when you're at the login screen, press CTRL+F1, login and ..."
+    [1146] HrdwrBoB: "ctrl+alt+f1"
+    [1147] Nafallo: "HrdwrBoB: thanks :-)"
+    [1148] phill: "ok will give it a go :)"
+    [1150] phill: "so i don't need to apt-get install linux-686 or whatever the binarydriverhowto s..."
+    [1151] Nafallo: "ahh, yes. you have to switch kernel to :-)."
+    [1158] ghc: "I've got an IBM ThinkCenter with a SATA chipset which I can't get working."
+    [1203] Nafallo: "hmm, odd"
+    [1204] Nafallo: "it works now :-P"
+    [1206] Nafallo: "finally I'm on warty again ;-)"
+    [1207] Nafallo: "takes a bit more to downgrade through aptitude than upgrade ;-)"
+  Thread 2:
+    [1130] phill: "Hi, I have a rather long question, so I have posted it here on the ubuntu forums..."
+    [1152] Nafallo: "phill: that makes it easier, because you have to restart to make the new kernel ..."
+  Thread 3:
+    [1153] ghc: "Hi all. Is this a good place to ask for some technical help on installing ubuntu..."
+    [1156] Striss: "ubuntu is so great"
+    [1157] phill: "i have to what? :("
+    [1159] Nafallo: "phill: follow the howto :-)"
+    [1160] phill: "ok"
+    [1163] phill: "since i'm using a 386 kernel at the moment i should just get that and it will re..."
+    [1164] Nafallo: "phill: you need to run 686 yes."
+    [1165] phill: "oh"
+    [1166] phill: "i need to get linux-686"
+    [1167] phill: "?"
+    [1168] Nafallo: "yes"
+    [1169] phill: "and then make sure grub uses that?"
+    [1170] phill: "at what point do i reboot? after the kernel installs and then continue isntallin..."
+    [1173] Nafallo: "phill: install linux-686 and fglrx-driver, then sed then reboot and it will work..."
+    [1176] phill: "natfallo: alright. last time i tried x wouldn't start :( but i'll give it anothe..."
+    [1177] Nafallo: "last time, did you have i686-kernel?"
+    [1178] phill: "yes"
+    [1179] phill: "i did the guide"
+    [1183] bob2: "cuga: no it's not"
+    [1184] bob2: "it's called openssh-server"
+    [1185] bob2: "it is openssh."
+    [1186] Elroy-J: "lol"
+    [1187] cuga: "bob2: man, i must be dislexic.. if i could spell it"
+    [1188] HrdwrBoB: "dyslexis"
+    [1189] HrdwrBoB: "dyslexic"
+    [1190] HrdwrBoB: "I can spell, just not type"
+    [1191] cuga: "i was only off by one letter.. tahts hot"
+    [1194] bob2: "RestrictedFormats on the wiki"
+    [1195] Nafallo: "_timello: probably missing codecs"
+    [1197] Nafallo: "anyone else got troubles with docbook-dsssl?"
+    [1199] Nafallo: "version 1.57-4"
+    [1200] Nafallo: "typo"
+    [1201] Nafallo: "version 1.78-4"
+    [1202] danhunt: "check http://www.desktopos.com/reviews.php?op=PrintReview&id=21 for .mpg tips."
+    [1209] _timello: "danhunt, I installed mplayer and the essential codecs package, but it still isn'..."
+    [1210] Nafallo: "_timello: run mplayer from a terminal and check the output?"
+    [1211] _timello: "it shows errors like: can't open ~/.mplayer/codecs.conf, font, but I don't think..."
+    [1212] bob2: "it's not an error, it's a warning"
+    [1213] _timello: "yes, sorry"
+    [1218] timello: "maybe has a package for X that allows it? Totem doesn't show me nothing either"
+    [1220] timello: "I'm using a nvidia gforce mx440"
+    [1221] Pizbit: "billytwowilly: panel support = ?"
+    [1222] Pizbit: "timello: You installed the w32codecs package eh? Tried changing from totem-gst t..."
+    [1223] timello: "Pizbit, just for mplayer... I' ll go try"
+    [1224] Pizbit: "(although personally I use xine)"
+    [1225] timello: "apt-get install xine-ui?"
+    [1227] Pizbit: "Yeah"
+    [1236] HrdwrBoB: "benh`: yes and maybe"
+    [1237] benh`: "ok, just s/wart/hoary in sources.list?"
+    [1238] timello: "Pizbit, it comes with codecs?"
+    [1239] nomasteryoda: "HrdwrBoB: Ubuntu has given me excellent results with TVtime too"
+    [1240] nomasteryoda: "much better on my old wintv card"
+    [1241] nomasteryoda: "than mandrake"
+    [1242] bob2: "benh`: are you willing to deal with broken things and to file bug reports?"
+    [1243] janice: "I have an unsupported USRobotics wireless PCI card and I need to use ndiswrapper..."
+    [1244] HrdwrBoB: "heh"
+    [1245] HrdwrBoB: "good to hear :)"
+    [1246] HrdwrBoB: "janice: if you start synaptic"
+    [1247] HrdwrBoB: "and you enable 'restricted'"
+    [1248] HrdwrBoB: "you can install ndiswrapper"
+    [1249] benh`: "bob2, depends on how broken and yes"
+  Thread 4:
+    [1214] billytwowilly: "how do I enable panel support in xchat?"
+    [1229] Nafallo: "WTF!"
+  Thread 5:
+    [1231] janice: "Hi All! I took the plunge and installed Ubuntu. However, I need some help."
+    [1233] Nafallo: "@ogre:/mnt/mirrors/ubuntu/pool/main/g/gnutls10$ ls -al"
+    [1234] Nafallo: "lrwxrwxrwx    1 root     root           77 2004-11-02 22:07 libgnutls10-dev_1.0...."
+
+Thread count: Gold=66, Predicted=6
+2026-05-18 20:36:22,700 - __main__ - INFO - 
+============================================================
+2026-05-18 20:36:22,700 - __main__ - INFO - DEBUG PREDICTED PAIRS for 2004-11-15_03
+2026-05-18 20:36:22,700 - __main__ - INFO - ============================================================
+2026-05-18 20:36:22,700 - __main__ - INFO - Idx    Child  ChildSpk     PredPar  PredSpk      GoldPar  GoldSpk      Match  P(self)  P(pred)  P(gold)  Text
+2026-05-18 20:36:22,709 - __main__ - INFO - 163    1225   timello      1210     Nafallo      1224     Pizbit       NO     0.0000   0.0270   0.0248   apt-get install xine-ui?
+2026-05-18 20:36:22,716 - __main__ - INFO - 28     1046   GnuHippy     1007     Hikaru79     1045     usual        NO     0.0000   0.0319   0.0294   I'll take that as a no
+2026-05-18 20:36:22,722 - __main__ - INFO - 6      1009   Hikaru79     972      Nafallo      1008     Hikaru79     NO     0.0000   0.0343   0.0314   Only one I know of, sorry =(
+2026-05-18 20:36:22,730 - __main__ - INFO - 70     1103   Nafallo      1067     ud           1101     Nafallo      NO     0.0000   0.0265   0.0240   jdub: that's with both ubuntu and debian kernels.
+2026-05-18 20:36:22,737 - __main__ - INFO - 62     1095   djtansey     1067     ud           1093     Nafallo      NO     0.0000   0.0278   0.0259   Nafallo: thanks. i'll see if ubuntu has 2.6.9 packaged
+2026-05-18 20:36:22,744 - __main__ - INFO - 57     1089   jdub         1067     ud           1088     dopey        NO     0.0000   0.0280   0.0275   it is
+2026-05-18 20:36:22,751 - __main__ - INFO - 35     1056   jdub         1007     Hikaru79     1051     ud           NO     0.0000   0.0300   0.0284   ud: 0.9.9 is most likely the hoary version, not the warty ve
+2026-05-18 20:36:22,757 - __main__ - INFO - 26     1043   GnuHippy     1007     Hikaru79     1042     GnuHippy     NO     0.0000   0.0328   0.0294   was Sarge released yet?
+2026-05-18 20:36:22,765 - __main__ - INFO - 173    1241   nomasteryoda 1210     Nafallo      1240     nomasteryoda NO     0.0000   0.0277   0.0249   than mandrake
+2026-05-18 20:36:22,773 - __main__ - INFO - 139    1190   HrdwrBoB     1153     ghc          1188     HrdwrBoB     NO     0.0000   0.0272   0.0235   I can spell, just not type
+2026-05-18 20:36:22,773 - __main__ - INFO - 
+============================================================
+Conversation: 2009-02-23_10
+============================================================
+
+GOLD THREADS:
+  Thread 1:
+    [1002] subodh: "hi plz tell me if photoshop CS2 can be install in ubuntu ?"
+    [1004] cooldduuudde: "subodh use gimp man"
+    [1005] eepberries: "subodh: no"
+    [1006] eepberries: "subodh: you can try installing it using wine though"
+    [1008] cooldduuudde: "eepberries but that may not be reliable"
+    [1010] eepberries: "cooldduuudde: better than not being able to use it at all"
+    [1012] eepberries: "somet things actually works really well in wine"
+    [1013] cooldduuudde: "true. but gimp is gud enough eepberries"
+    [1014] eepberries: "i hate gimp"
+    [1015] cooldduuudde: "ms office 2003 works rlly bad in wine eepberries"
+    [1016] subodh: "eepberries - can you give me the command for this"
+    [1017] eepberries: "subodh: sudo apt-get install wine"
+    [1020] eepberries: "that will install a windows emulator"
+    [1021] eepberries: "then you will be able to run windows executable programs, so you'll be able to i..."
+    [1022] subodh: "eepberries, wine already running ...i need photoshop command to run in wine"
+    [1023] eepberries: "there aren't any guarantees though. it could work perfectly or not work at all"
+    [1024] cooldduuudde: "subodh just double click on the setup file"
+    [1025] eepberries: "subodh: you don't need any special commands. you can run the exe files the same ..."
+    [1026] arvind_k: "!appdb > subodh"
+    [1027] ubottu: "subodh, please see my private message"
+    [1031] subodh: "ubottu, thanks i'll first run exe from wine :)"
+    [1032] ubottu: "Error: I am only a bot, please don't think I'm intelligent :)"
+    [1061] rww: "eepberries: Wine Is Not an Emulator."
+    [1062] eepberries: "i know"
+    [1064] eepberries: "loose terminology"
+    [1067] cooldduuudde: "rww WINE=WINdows Emulator"
+    [1069] cooldduuudde: ":)"
+    [1070] Nytrix: "wine=crossover"
+    [1071] Nytrix: "!crossover"
+    [1072] ubottu: "Sorry, I don't know anything about crossover"
+    [1073] Nytrix: "!codeweavers"
+    [1074] ubottu: "Sorry, I don't know anything about codeweavers"
+    [1075] Nytrix: "hmm ok"
+    [1077] rww: "!botabuse > Nytrix"
+    [1078] ubottu: "Nytrix, please see my private message"
+  Thread 2:
+    [1028] SYSTEM: "=== arvind_k is now known as arvind_khadri"
+  Thread 3:
+    [1000] UNKNOWN: "[10:00]  * ActionParsnip gives quibbler a spoon"
+    [1001] quibbler: "ActionParsnip: ;-)"
+    [1003] Futurama140: "it does not exist"
+    [1007] quibbler: "Futurama140: then add it on the end of the file"
+    [1009] Futurama140: "ok"
+    [1018] Futurama140: "Section "module""
+    [1019] Futurama140: "EndSection"
+    [1029] Futurama140: "actionparsnip: is that right?"
+    [1030] ActionParsnip: "Futurama140: you didnt specify DRI, I gave you the exactl lines you need to add ..."
+    [1033] ActionParsnip: "Futurama140: scroll up, its there"
+    [1034] quibbler: "Futurama140: between Section "module" and EndSection add: 	Load		"dri""
+    [1036] ActionParsnip: "Futurama140: and now quibbler has given you the lines,"
+    [1038] Futurama140: " Section "module""
+    [1039] Futurama140: "Load "DRI""
+    [1040] Futurama140: "EndSection"
+    [1043] quibbler: "Futurama140: save the file and do ctrl+alt+backspace  to restart x"
+    [1045] ActionParsnip: "quibbler: wow he's hard work"
+    [1046] quibbler: "ActionParsnip: thanks for the spoon i needed it ;)"
+    [1048] ActionParsnip: "no...he needs it :("
+    [1052] ActionParsnip: "dont you just wish you could ssh onto users systems and fix their rigs in like 3..."
+    [1059] quibbler: "ActionParsnip: ja i do that sometimes with a daughter"
+    [1060] shear: "ubuntu and ssh was the best thing that ever happened to my parent's computer. I'..."
+    [1063] b1n42y: "hehe"
+    [1065] quibbler: "shear: saves a lot of tears"
+    [1066] shear: "quibbler, and traveltime"
+    [1068] quibbler: "shear: ;)"
+  Thread 4:
+    [1035] eepberries: "what gets weird is when you use wine to run an emulator. emulating an emulator i..."
+    [1037] cooldduuudde: "eepberries lol. why would someone do dat"
+    [1042] eepberries: "cooldduuudde: windows has the best emulators"
+    [1044] cooldduuudde: "eepberries yeah. if you are talkin about psp and gameboy emulators"
+    [1047] eepberries: "cooldduuudde: i wonder if pcsx2 runs in wine :)"
+    [1049] cooldduuudde: "hmm never tried dat"
+    [1050] cooldduuudde: ":)"
+    [1054] eepberries: "it would be funny to try if only to see how horrible it would perform"
+    [1058] cooldduuudde: "eepberries yeah. hey duz disabling loggin make your system faster?"
+  Thread 5:
+    [1041] SYSTEM: "=== solid_li` is now known as solid_liq"
+
+PREDICTED THREADS:
+  Thread 1:
+    [989] Futurama140: "could you tell me what exactly to type? im completely unfamiliar with the struct..."
+    [1000] UNKNOWN: "[10:00]  * ActionParsnip gives quibbler a spoon"
+    [1004] cooldduuudde: "subodh use gimp man"
+    [1005] eepberries: "subodh: no"
+    [1006] eepberries: "subodh: you can try installing it using wine though"
+    [1007] quibbler: "Futurama140: then add it on the end of the file"
+    [1008] cooldduuudde: "eepberries but that may not be reliable"
+    [1010] eepberries: "cooldduuudde: better than not being able to use it at all"
+    [1012] eepberries: "somet things actually works really well in wine"
+    [1013] cooldduuudde: "true. but gimp is gud enough eepberries"
+    [1014] eepberries: "i hate gimp"
+    [1015] cooldduuudde: "ms office 2003 works rlly bad in wine eepberries"
+    [1016] subodh: "eepberries - can you give me the command for this"
+    [1017] eepberries: "subodh: sudo apt-get install wine"
+    [1020] eepberries: "that will install a windows emulator"
+    [1021] eepberries: "then you will be able to run windows executable programs, so you'll be able to i..."
+    [1022] subodh: "eepberries, wine already running ...i need photoshop command to run in wine"
+    [1023] eepberries: "there aren't any guarantees though. it could work perfectly or not work at all"
+    [1024] cooldduuudde: "subodh just double click on the setup file"
+    [1025] eepberries: "subodh: you don't need any special commands. you can run the exe files the same ..."
+    [1026] arvind_k: "!appdb > subodh"
+    [1027] ubottu: "subodh, please see my private message"
+    [1030] ActionParsnip: "Futurama140: you didnt specify DRI, I gave you the exactl lines you need to add ..."
+    [1031] subodh: "ubottu, thanks i'll first run exe from wine :)"
+    [1032] ubottu: "Error: I am only a bot, please don't think I'm intelligent :)"
+    [1033] ActionParsnip: "Futurama140: scroll up, its there"
+    [1034] quibbler: "Futurama140: between Section "module" and EndSection add: 	Load		"dri""
+    [1036] ActionParsnip: "Futurama140: and now quibbler has given you the lines,"
+    [1037] cooldduuudde: "eepberries lol. why would someone do dat"
+    [1043] quibbler: "Futurama140: save the file and do ctrl+alt+backspace  to restart x"
+    [1046] quibbler: "ActionParsnip: thanks for the spoon i needed it ;)"
+    [1054] eepberries: "it would be funny to try if only to see how horrible it would perform"
+    [1057] ubottu: "theCarpenter: If you want to share the internet connection of your ubuntu machin..."
+    [1058] cooldduuudde: "eepberries yeah. hey duz disabling loggin make your system faster?"
+    [1059] quibbler: "ActionParsnip: ja i do that sometimes with a daughter"
+    [1060] shear: "ubuntu and ssh was the best thing that ever happened to my parent's computer. I'..."
+    [1061] rww: "eepberries: Wine Is Not an Emulator."
+    [1062] eepberries: "i know"
+    [1063] b1n42y: "hehe"
+    [1064] eepberries: "loose terminology"
+    [1065] quibbler: "shear: saves a lot of tears"
+    [1066] shear: "quibbler, and traveltime"
+    [1067] cooldduuudde: "rww WINE=WINdows Emulator"
+    [1068] quibbler: "shear: ;)"
+    [1069] cooldduuudde: ":)"
+    [1070] Nytrix: "wine=crossover"
+    [1071] Nytrix: "!crossover"
+    [1072] ubottu: "Sorry, I don't know anything about crossover"
+    [1073] Nytrix: "!codeweavers"
+    [1074] ubottu: "Sorry, I don't know anything about codeweavers"
+    [1075] Nytrix: "hmm ok"
+    [1077] rww: "!botabuse > Nytrix"
+    [1078] ubottu: "Nytrix, please see my private message"
+    [1101] stevr1it: ""bln42y" no application in the reporsitory,i have already installed camorama, bu..."
+    [1102] stevr1it: "I already did it"
+    [1103] arvind_khadri: "stevr1it, cheese?"
+    [1104] b1n42y: "stevr1it: maybe it was 3rd party"
+    [1105] stevr1it: "cheese is a software?"
+    [1106] ActionParsnip: "!info cheese | stevr1it"
+    [1107] ubottu: "cheese (source: cheese): A tool to take pictures and videos from your webcam. In..."
+    [1109] ActionParsnip: "!ask | rogerio"
+    [1110] ubottu: "rogerio: Please don't ask to ask a question, simply ask the question (all on ONE..."
+    [1112] stevr1it: "!info cheese"
+    [1113] ubottu: "cheese (source: cheese): A tool to take pictures and videos from your webcam. In..."
+    [1114] stevr1it: "i don't understand"
+    [1115] alfatah3: "??"
+    [1116] ActionParsnip: "stevr1it: looks like it uses the gspcav1 driver, look into how to install it. I ..."
+  Thread 2:
+    [1001] quibbler: "ActionParsnip: ;-)"
+    [1029] Futurama140: "actionparsnip: is that right?"
+    [1038] Futurama140: " Section "module""
+    [1039] Futurama140: "Load "DRI""
+    [1040] Futurama140: "EndSection"
+    [1042] eepberries: "cooldduuudde: windows has the best emulators"
+    [1044] cooldduuudde: "eepberries yeah. if you are talkin about psp and gameboy emulators"
+    [1045] ActionParsnip: "quibbler: wow he's hard work"
+    [1047] eepberries: "cooldduuudde: i wonder if pcsx2 runs in wine :)"
+    [1048] ActionParsnip: "no...he needs it :("
+    [1049] cooldduuudde: "hmm never tried dat"
+    [1050] cooldduuudde: ":)"
+  Thread 3:
+    [1051] amruthraj: "Hi, I am looking at the smaps data for a particular process. My understanding of..."
+    [1052] ActionParsnip: "dont you just wish you could ssh onto users systems and fix their rigs in like 3..."
+    [1056] ActionParsnip: "!ics | theCarpenter"
+    [1082] ubottu: "Hi! I'm #ubuntu's favorite infobot, you can search my brain yourself at http://u..."
+    [1084] ActionParsnip: "yogi_: yes get fully updated"
+    [1085] yogi_: "ok straight away"
+    [1086] ActionParsnip: "stevr1it: run lsusb, you will get a hex identifier, you can use this to websearc..."
+    [1087] ActionParsnip: "!webcam | stevr1it"
+    [1088] ubottu: "stevr1it: Instructions for using webcams with Ubuntu can be found at https://hel..."
+    [1089] b1n42y: "stevr1it: ActionParsnip: isnt there an application in repos that identifies it a..."
+    [1091] ubottu: "The Instant Messenger Client Pidgin (formerly Gaim) (http://help.ubuntu.com/comm..."
+    [1092] stevr1it: "gosh i am trying"
+    [1093] ActionParsnip: "b1n42y: lsusb will identify it"
+    [1094] stevr1it: "Bus 005 Device 003: ID 0ac8:0323 Z-Star Microelectronics Corp. Luxya WC-1200 USB"
+    [1095] yogi_: "what about my softwaresources option?"
+    [1097] yogi_: "should i leave that default?"
+    [1098] ActionParsnip: "stevr1it: ok then websearch for: ubuntu 0ac8:0323"
+    [1099] b1n42y: "ActionParsnip:  yeah i messed with an application about 4 months ago , from memo..."
+    [1100] ActionParsnip: "yogi_: default is fine"
+    [1118] ActionParsnip: "b1n42y: could look into hdparm (can be risky if yu go silly with it)"
+    [1119] stevr1it: "ok i try"
+    [1121] b1n42y: "ActionParsnip: been there seems like all options are correct"
+    [1122] ActionParsnip: "b1n42y: you can throttle your drive a little to get more speed"
+    [1123] b1n42y: "ActionParsnip: thanks, might get into it hardcore and give it another go"
+    [1128] yogi_: "ok i think is fully updated"
+    [1132] VSpike: "Ethosser: freetds"
+    [1133] Ethosser: "thanks mate, i'll look into it :)"
+    [1134] stevr1it: "I have stried to install gspcav but with the folllowing result: http://pastebin...."
+    [1135] VSpike: "Ethosser: not the greatest, but it does kinda work :)"
+    [1138] Ethosser: "VSpike, ;)"
+    [1139] Silicium: "TUCKER1979:"
+    [1140] Silicium: "actually i mean thats a bug"
+    [1141] Silicium: "i had the same Problem on my dualhead environment mit GF7"
+    [1142] Silicium: "there are some Problem with incompatible b0rked DVI protocol statements from che..."
+    [1143] TUCKER1979: "what do i do then,"
+    [1144] Silicium: "TUCKER1979: you can use a DVItoVGA adapter to fix it"
+    [1145] Silicium: "then after screen is up change from VGA to DVI again"
+    [1146] Silicium: "(if needed)"
+    [1147] Silicium: "i run only at DVI for now"
+    [1148] Silicium: "err"
+    [1149] Silicium: "only on VGA"
+    [1150] TUCKER1979: "i think i got a apadter"
+    [1151] Silicium: "there should be one shipped with the GFXCard or the screen"
+    [1152] TUCKER1979: "yeah i know, will that sort the problem"
+    [1153] Silicium: " to the log in screen, i just see a mess of graphics and i couple of mouse point..."
+    [1154] Silicium: "but this is really funny"
+    [1155] Silicium: "it coult be the same Problem"
+    [1156] Silicium: "or it could be not :D"
+    [1157] TUCKER1979: "yeah, i do not see the login box, just the background and mouse points"
+    [1158] Silicium: "hmm"
+    [1160] Silicium: "then i think it is another PRoblem"
+    [1161] Silicium: "have you tried to kill X and run startx ?"
+    [1162] TUCKER1979: "how do i do that"
+    [1163] Silicium: "startx as user"
+    [1164] Silicium: "ctrl+alt+backspace"
+    [1166] Silicium: "or ctrl+alt+F2"
+    [1168] Silicium: "then login as root"
+    [1169] Silicium: "and killall gdm"
+    [1170] Silicium: "respectivley ps aux |grep -in gdm"
+    [1171] Silicium: "respectivley ps aux |grep -i gdm"
+    [1172] stevr1it: "with cheese it give me the following error: libv4l2: error dequeuing buf: Errore..."
+    [1174] Nytrix: "futsuriai, what program are you trying to install?"
+    [1175] Nytrix: "Futurama140, what program are you trying to install?"
+    [1176] Futurama140: "world of warcraft"
+    [1181] Nytrix: "Futurama140, probably will not work with wine"
+    [1184] Futurama140: "Nytrix: why not"
+    [1188] vicmen: "thanks"
+    [1230] rogerio: "Anybody know that this error is?"
+  Thread 4:
+    [1180] vicmen: "where is a good resource for learning how to move or copy files from one directo..."
+    [1182] fyrestrtr: "!shell | vicmen"
+    [1183] ubottu: "vicmen: The linux terminal or command-line interface is very powerful. Open a te..."
+    [1185] fyrestrtr: "vicmen: try the link"
+    [1186] Nytrix: "have you tried in a windows machine to see if there is any files in the cd?"
+    [1187] yogi_: "i have a 15.4" wxga intel celeron laptop. not sure what kind of graphics card it..."
+    [1190] Nytrix: "Futurama140, have you tried in a windows machine to see if there is any files in..."
+    [1191] franic: "Futurama140: Wow works fine with the latest Wine, I use it myself :)"
+    [1192] fyrestrtr: "!fixres | yogi_"
+    [1193] ubottu: "yogi_: The X Window System is the part of your system that's responsible for gra..."
+    [1195] Futurama140: "yes it works in windows"
+    [1196] Nytrix: "Futurama140, msg me"
+    [1199] Nytrix: "Futurama140, try http://www.codeweavers.com/products/cxgames/"
+    [1200] ghoulsblade: "solved ($(patsubst pattern,replacement,text))"
+    [1201] Futurama140: "i have no money to buy a program"
+    [1202] franic: "Futurama140: in a Terminal something like "wine /media/cdrom/Setup.exe""
+    [1204] rogerio: "installed ubuntu 8:10"
+    [1205] yogi_: "ubottu: thanks. i'll have a go at that... should i just copy and paste the comma..."
+    [1206] ubottu: "Error: I am only a bot, please don't think I'm intelligent :)"
+    [1208] yogi_: "does that work with ubuntu 8.10?"
+    [1209] fyrestrtr: "yes"
+    [1211] rogerio: "in getting me error"
+    [1212] rogerio: "boot args(cat /proc/cmdline)"
+    [1213] yogi_: "i have a 15.4" wxga intel celeron laptop. not sure what kind of graphics card it..."
+    [1215] rogerio: "check root=(did the system wait long enough?)"
+    [1219] rogerio: "check root=(did the system wait for the right device?)"
+    [1220] rogerio: "missing modules (cat /proc/modules; ls /dev)"
+    [1221] yogi_: "anyone?"
+    [1222] fyrestrtr: "Scix: startup/shutdown"
+    [1226] Scix: "fyrestrtr, where K is shutdown and S is startup?"
+    [1229] rogerio: "alert! /dev/disk/by-uuid/67821a1b-b152-4992-9f74-e50dd6c7864e does not exist dop..."
+    [1232] rogerio: "the machine does not boot"
+    [1234] Neocicak: "has anyone have any success with installing nvidia driver on 8.10 ?"
+    [1235] taz_: "ubuntu it does have program HTML ?"
+    [1237] rogerio: "taz_: nvu"
+    [1238] taz_: "rogerio: ok thanks i will look  in add/remove"
+    [1239] rogerio: "look in synaptic too"
+    [1240] taz_: "rogerio:  i did check in nvu and it dont have one ?"
+    [1241] Neocicak: "hmm......"
+    [1243] Hans_: "i use Xchat gnome . and you?"
+    [1248] ikonia: "Futurama140: you may get more specialised support in #winehq"
+  Thread 5:
+    [1228] WoTL: "I was wondering, anyone knows what the alternative api way of calling /usr/bin/g..."
+    [1247] Nytrix: "why i do i get a black screen when i Remote Desktop someone's computer?!"
+    [1249] ikonia: "Nytrix: what are you using to remote desktop from - and what are you remote desk..."
+
+Thread count: Gold=57, Predicted=6
+2026-05-18 20:36:22,774 - __main__ - INFO - 
+============================================================
+2026-05-18 20:36:22,774 - __main__ - INFO - DEBUG PREDICTED PAIRS for 2009-02-23_10
+2026-05-18 20:36:22,774 - __main__ - INFO - ============================================================
+2026-05-18 20:36:22,774 - __main__ - INFO - Idx    Child  ChildSpk     PredPar  PredSpk      GoldPar  GoldSpk      Match  P(self)  P(pred)  P(gold)  Text
+2026-05-18 20:36:22,784 - __main__ - INFO - 923    1205   yogi_        1180     vicmen       1193     ubottu       NO     0.0000   0.0222   0.0214   ubottu: thanks. i'll have a go at that... should i just copy
+2026-05-18 20:36:22,794 - __main__ - INFO - 788    1032   ubottu       989      Futurama140  1031     subodh       NO     0.0000   0.0234   0.0212   Error: I am only a bot, please don't think I'm intelligent :
+2026-05-18 20:36:22,810 - __main__ - INFO - 766    1008   cooldduuudde 989      Futurama140  1006     eepberries   NO     0.0000   0.0222   0.0210   eepberries but that may not be reliable
+2026-05-18 20:36:22,820 - __main__ - INFO - 949    1249   ikonia       1228     WoTL         1247     Nytrix       NO     0.0000   0.0229   0.0226   Nytrix: what are you using to remote desktop from - and what
+2026-05-18 20:36:22,830 - __main__ - INFO - 830    1084   ActionParsnip 1051     amruthraj    1076     yogi_        NO     0.0000   0.0220   0.0212   yogi_: yes get fully updated
+2026-05-18 20:36:22,839 - __main__ - INFO - 822    1071   Nytrix       1030     ActionParsnip 1070     Nytrix       NO     0.0000   0.0225   0.0198   !crossover
+2026-05-18 20:36:22,848 - __main__ - INFO - 817    1066   shear        1030     ActionParsnip 1065     quibbler     NO     0.0000   0.0225   0.0208   quibbler, and traveltime
+2026-05-18 20:36:22,856 - __main__ - INFO - 795    1040   Futurama140  1001     quibbler     1039     Futurama140  NO     0.0000   0.0231   0.0204   EndSection
+2026-05-18 20:36:22,865 - __main__ - INFO - 948    1248   ikonia       1199     Nytrix       1245     Futurama140  NO     0.0000   0.0229   0.0227   Futurama140: you may get more specialised support in #winehq
+2026-05-18 20:36:22,874 - __main__ - INFO - 786    1030   ActionParsnip 989      Futurama140  1029     Futurama140  NO     0.0000   0.0235   0.0225   Futurama140: you didnt specify DRI, I gave you the exactl li
+2026-05-18 20:36:22,874 - __main__ - INFO - Results saved to: /home/s4901673/workspace/irc-disentanglement-bert-pytorch/logs/eval_20260518_203518.log
