@@ -8,12 +8,12 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Self-Links Exclusion Bug FIXED**: Fixed off-by-one error in `src/data_loader.py` line 376. Changed `range(..., i + 1)` to `range(..., i)` to properly exclude self-links without creating 0 samples. Training now produces real learning signal.
-- ✅ **Log Recording Fixed**: `train_synthetic.sh` now redirects output to dated log files in `/scratch/user/$USER/ircbert_runs/logs/` using `2>&1 | tee`.
-- ✅ **Predicted Position Distribution Added**: `src/evaluate.py` now logs predicted position distribution (top 10) after each eval to detect recency bias vs content learning.
-- ✅ **Synthetic Data Script Rewritten**: `scripts/generate_synthetic_data.py` creates interleaved threads for testing content-based learning.
-- ✅ **Context Files Updated**: Added "No Local Training" rule to `context/INSTRUCTIONS.md`.
-- ✅ **All Tests Pass**: 117 passed, 3 skipped (verified after fixes).
+- ✅ **Self-Links Exclusion Bug FIXED**: Fixed off-by-one error in `src/data_loader.py` line 376. Changed `range(..., i + 1)` to `range(..., i)` to properly exclude self-links without creating 0 samples.
+- ✅ **learning_signal.sh created**: Validates learning signal on full dataset with `--max-dist 15` and `--test-end 156` (1/8 of data). All output tee'd to `logs/learning_signal_*.log`. Run on Bunya: `bash learning_signal.sh`.
+- ✅ **Cleaned up scripts**: Removed `train_synthetic.sh`, `evaluate_2.sh`, `smoke_test.slurm`. Updated `run_job.slurm`, `eval_job.slurm`, `evaluate.sh` to use `--max-dist 15` and remove synthetic data eval blocks.
+- ✅ **INSTRUCTIONS.md updated**: Explicitly states ALL `.sh` and `.slurm` files run on Bunya HPC GPU nodes only.
+- ✅ **Predicted Position Distribution Added**: `src/evaluate.py` now logs predicted position distribution (top 10) after each eval.
+- ✅ **All changes pushed to GitHub**: Commit `7f01fea` — 8 files changed.
 
 ## SHORT-TERM GOAL (4-Day Sprint to Demo)
 **Priority**: Get a learning signal → get defensible metrics. No more rabbit holes.
