@@ -168,8 +168,8 @@ def load_conversation(ascii_path: str, annotation_path: str) -> IRCConversation:
         for line in f:
             parts = line.strip().split()
             if len(parts) >= 2 and parts[0] != "-":
-                child = int(parts[0])
-                parent = int(parts[1])
+                parent = int(parts[0])  # first column = parent
+                child = int(parts[1])  # second column = child
                 gold_links.setdefault(child, []).append(parent)
 
     logger.info(f"  Loaded {len(gold_links)} gold links from annotation file")
@@ -434,7 +434,9 @@ class IRCDisentanglementDataset(Dataset):
             # to verify the label indexing is correct (debugging off-by-one prediction bias).
             samples_added_so_far = len(self.samples) - samples_before
             if samples_added_so_far <= 3 and gold_parent_idx >= 0:
-                gold_msg_idx = candidate_indices[gold_parent_idx][2]  # j_c = message index
+                gold_msg_idx = candidate_indices[gold_parent_idx][
+                    2
+                ]  # j_c = message index
                 logger.info(
                     f"  LABEL CHECK [{conv.name} sample #{len(self.samples) - 1}]: "
                     f"gold_parent_idx={gold_parent_idx}, "
