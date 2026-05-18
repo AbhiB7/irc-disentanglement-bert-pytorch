@@ -18,7 +18,13 @@ export CHECKPOINT_DIR=$RUN_ROOT/checkpoints_tiny_test
 export TINY_DIR=$REPO_DIR/data/tiny
 
 echo "=== Setting up directories ==="
-mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
+mkdir -p $LOG_DIR $CHECKPOINT_DIR
+
+# Capture all script output (including echo statements) to a log file
+SCRIPT_LOG="$LOG_DIR/train_$(date +%Y%m%d_%H%M%S).log"
+exec > >(tee -a "$SCRIPT_LOG")
+exec 2>&1
+echo "Script log: $SCRIPT_LOG"
 
 # Setup conda environment (matches Bunya HPC setup)
 echo "=== Setting up environment ==="
@@ -40,7 +46,7 @@ python src/train.py \
     --eval-every 1 \
     --save-every 1 \
     --output-dir "$CHECKPOINT_DIR" \
-    --device cuda 2>&1 | tee $LOG_DIR/train_$(date +%Y%m%d_%H%M%S).log
+    --device cuda
 
 # Evaluate latest checkpoint
 echo ""
