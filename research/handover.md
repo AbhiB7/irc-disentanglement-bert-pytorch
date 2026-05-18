@@ -58,22 +58,44 @@ Self-links are NOT dominant. The earlier theory was wrong.
 
 ## 5. Training Log (learning_signal_20260518_203340.log)
 
-**What happened**: The `learning_signal.sh` script ran on Bunya L40 (48GB GPU). Training completed fully — no OOM, no crashes. But the model was loaded from `checkpoints_maxdist50/checkpoint_epoch_10.pt` which was trained on 0 samples (before the parent/child fix), so weights are effectively random initialization.
+**What happened**: The `learning_signal.sh` script ran on Bunya L40 (48GB GPU). Training **failed with OOM cascade** — every single training batch OOM'd on the forward pass.
 
-Key stats:
-- 49,676 training samples, 3,105 batches at batch_size=16
-- ~2.2 batches/sec through evaluation throughput
-- **Accuracy: 0.0098** (effectively random — 1/49 ≈ 2%)
+### OOM Details
+```
+Batch 1:   CUDA Out of Memory — 44478/44532MB
+Batch 2:   CUDA Out of Memory — 44477/44532MB
+...
+Batch 10:  CUDA Out of Memory — 44477/44532MB
+```
+Root exception:
+```
+torch.OutOfMemoryError: Tried to allocate 1.15 GiB. GPU 0 has 44.39 GiB total,
+409.25 MiB free. 43.99 GiB in use, 43.43 GiB allocated by PyTorch.
+```
+Followed by:
+```
+RuntimeError: OOM cascade: 10 consecutive OOM batches. Reduce --batch-size or --max-dist.
+```
+
+### Why
+The model was loaded from the old checkpoint (trained on 0 samples). The training batch processes `batch_size * C * seq_len` tokens per forward pass. At batch_size=16, C up to 50, seq_len=128 → 102,400 tokens/batch through DeBERTa-v3-base (184M params). With gradients + optimizer states (AdamW: 2x model size for momentum + variance), total memory exceeds the L40's 48GB.
+
+The old checkpoint weights being near-random don't cause OOM. The OOM is architecture-driven: DeBERTa-v3-base's memory footprint at batch_size=16 with variable C (up to 50) is too large.
+
+### What Didn't OOM
+The evaluation phase (same checkpoint, batch_size=64) ran successfully because no gradients are computed:
+- **Accuracy: 0.0098** (random — 1/49 ≈ 2%)
 - **F1: 0.0078**
-- **Loss: 3.8236** (matches expected ~3.9 for random init)
-- Predictions cluster at positions 0-9, gold labels cluster at 44-48 (disjoint → random weights)
+- **Loss: 3.8236**
+- Evaluation at batch_size=64 uses only ~20GB due to no backprop
 
-Gold label distribution (top) (top 5):
-- Position 46: 13.2%, 45: 12.5%, 47: 11.3%, 44: 10.1%, 43: 7.9%
-- Recency check (positions 46-49): 29.9%
-- "Always predict position 46" baseline: 13.2%
+### Solution
+Reduce batch_size or use gradient accumulation. Options:
+1. `--batch-size 8` (halves memory)
+2. `--batch-size 4` with `--gradient-accumulation-steps 4` (effective batch=16, peak memory = batch=4)
+3. `--max-length 96` instead of 128
 
-**Bottom line**: The fix works. Now needs a fresh training run from scratch. Delete the old `checkpoints_maxdist50/` first, then run `bash learning_signal.sh`.
+**Bottom line**: The fix works (49,676 valid samples produced). Training needs `--batch-size` reduced to 4-8.
 
 ## 6. Clustering Metrics (From eval log)
 
