@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=ircbert_train
 #SBATCH --partition=gpu_cuda
-#SBATCH --gres=gpu:a100:1
+#SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=8
@@ -23,7 +23,6 @@ export SINGULARITY_TMPDIR=/scratch/user/$USER
 # Bunya storage layout: relocate heavy outputs to /scratch
 export RUN_ROOT=/scratch/user/$USER/ircbert_runs
 export LOG_DIR=$RUN_ROOT/logs
-# New checkpoint directory for max_dist=50 run (separate from max_dist=15 checkpoints)
 export CHECKPOINT_DIR=$RUN_ROOT/checkpoints_maxdist50
 
 # Create directories (including repo-local logs for slurm output/error files)
@@ -33,33 +32,22 @@ mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 # Use 'source' so conda activation and env vars persist in the current shell
 source setup.sh
 
-# Run training directly (not via train.sh) to avoid double conda activation
-# which can cause "ModuleNotFoundError: No module named 'psutil'" errors.
-#
-# Hyperparameters validated by debug run on 2026-05-10:
-#   - 16,754 training samples from 153 files (data/train/)
-#   - 462 dev samples from 10 files (data/dev/)
-#   - 4189 batches/epoch at batch_size=4
-#   - ~8 min/epoch on H100, ~40 min for 5 epochs
-#   - Loss: 2.35 → 1.49 over 5 epochs (still improving)
-#   - Dev Accuracy: 1.0000, Test Accuracy: 1.0000
-#   - Test F1: 0.7333 on 922 held-out samples
-#   - 0 NaN batches, 0 OOM — fully stable
-#
-# Overnight config: 20 epochs, batch_size=16 (GPU has 80GB, plenty of headroom)
+# Full training on Ubuntu IRC dataset with gradient accumulation
+# --batch-size 4 with gradient-accumulation-steps 4 = effective batch size 16
+# --max-length 96 covers 95%+ of IRC messages at reduced memory
+# --gres=gpu:l40s:1 requests a full L40S (48GB) avoiding MIG partition issues
 python src/train.py \
     --mode train \
-    --batch-size 16 \
-    --num-workers 4 \
-    --epochs 20 \
+    --batch-size 4 \
+    --gradient-accumulation-steps 4 \
+    --epochs 10 \
     --learning-rate 5e-5 \
-    --max-length 128 \
+    --max-length 96 \
     --max-dist 50 \
     --warmup-ratio 0.1 \
-    --patience 5 \
+    --patience 3 \
     --eval-every 1 \
     --save-every 1 \
-    --test-end 1000000000 \
     --output-dir "$CHECKPOINT_DIR" \
     --device cuda
 
@@ -67,14 +55,14 @@ echo ""
 echo "=== Training complete. Running final evaluation on DEV and TEST sets ==="
 echo ""
 
-# Find the latest checkpoint
+# Find latest checkpoint
 LATEST_CHECKPOINT=$(ls -t "$CHECKPOINT_DIR"/checkpoint_epoch_*.pt 2>/dev/null | head -1)
 if [ -z "$LATEST_CHECKPOINT" ]; then
     echo "WARNING: No checkpoint found in $CHECKPOINT_DIR — skipping final evaluation."
 else
     echo "Latest checkpoint: $LATEST_CHECKPOINT"
     echo ""
-    echo "=== Evaluating on DEV set (pairwise + clustering metrics) ==="
+    echo "=== Evaluating on DEV set ==="
     python src/evaluate.py \
         --checkpoint "$LATEST_CHECKPOINT" \
         --split dev \
@@ -83,7 +71,7 @@ else
         --metrics both
 
     echo ""
-    echo "=== Evaluating on TEST set (pairwise + clustering metrics) ==="
+    echo "=== Evaluating on TEST set ==="
     python src/evaluate.py \
         --checkpoint "$LATEST_CHECKPOINT" \
         --split test \
