@@ -123,6 +123,7 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ## 6. Robustness & Diagnostics
 - **OOM Recovery**: Training and evaluation loops catch CUDA Out-of-Memory errors, log memory state, clear cache, and skip the problematic batch.
+- **Annotation Format Bug (Found 2026-05-18)**: The annotation files use format `PARENT CHILD -` (first column = parent, second = child). The code was parsing this as `child = int(parts[0]), parent = int(parts[1])`, which assigned every cross-link to the wrong message index. Only self-links survived because they are symmetric. Fixed by swapping the variable assignment. Invariant: annotation column 0 is always the parent.
 - **Numerical Safety**: NaN/Inf loss detection triggers batch skipping to prevent weight corruption.
 - **NaN Loss Prevention — Fix A (collate_fn, 2026-05-10)**: Two fixes prevent NaN from out-of-range labels:
   1. `max_candidates` cap follows `--max-dist` instead of hardcoded 15 (Option B).
@@ -139,45 +140,25 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 
 ---
 
-## 7. Evaluation Results (2026-05-11)
+## 7. Evaluation Results — INVALIDATED (2026-05-18)
 
-### Pairwise Accuracy: 100% on Dev and Test
-The model achieves **100% pairwise accuracy** on both dev (462 samples) and test (922 samples) sets. This is a **multiclass** accuracy: from up to 50 candidate parents, the model picks the correct one every time.
+**The 100% accuracy results reported below are invalid.** The parent/child column swap bug in annotation parsing (see Section 6) caused all cross-links to be silently assigned to the wrong message index. The model was only ever trained and evaluated on self-links (24.1% of the dataset). The 100% accuracy was a self-link memorization artifact of the bug, not genuine disentanglement.
 
-### Diagnostic Baselines (Prove No Shortcut)
-| Baseline | Dev | Test |
-|----------|-----|------|
-| Model | **100%** | **100%** |
-| "Predict last candidate" (position 49) | 16.0% | 15.4% |
-| "Predict most common position" (47/48) | 16.2% | 16.6% |
-| Recency check (% in positions 46-49) | 59.5% | 53.6% |
+The bug was fixed on 2026-05-18. All evaluation results prior to this date should be disregarded.
 
-Gold labels are spread across **21 positions (dev)** and **24 positions (test)**. The model achieves 1.000 accuracy at every single position, including those far from the window end (e.g., position 28 with 2 samples). This rules out a recency shortcut.
+### Pre-Fix Results (Kept for reference — no longer valid)
+- Pairwise accuracy: **100%** on both dev (462 samples) and test (922 samples)
+- "Predict last candidate" baseline: 16.0% dev, 15.4% test
+- "Predict most common position" baseline: 16.2% dev, 16.6% test
+- Recency check (positions 46-49): 59.5% dev, 53.6% test
+- Clusters: Dev 494 (55% singleton), Test 961 (63% singleton)
+- ARI ≈ 0, VI ≈ 0 (not meaningful due to singleton dominance)
 
-### Coverage: Annotation-Limited (3.7-6.1%)
-The dataset (Kummerfeld et al., ACL 2019) only annotates messages 1,000+ in each conversation. Messages 0-999 are context. Our model only produces predictions for messages whose gold parent falls within the max_dist window. This is **by dataset design**, not a model limitation. The literature (ALT 2021, ROCLING 2025) evaluates on the same subset.
-
-### Clustering Metrics (ARI=0, VI≈0)
-- **VI ≈ 0**: Predicted clusters are identical to gold clusters for covered messages. Confirms 100% pairwise accuracy.
-- **ARI = 0**: Numerical edge case. When most gold clusters are singletons (55% dev, 63% test) and the valid_messages filter restricts to 4-6% of messages, the ARI denominator collapses.
-- **Key insight**: ARI is not meaningful on this dataset. Report pairwise accuracy as primary metric.
-
-### Gold Cluster Analysis
-- **Dev**: 494 clusters, 55% singletons (size=1), non-singleton sizes 2-68 (mean=10.0)
-- **Test**: 961 clusters, 63% singletons, non-singleton sizes 2-191 (mean=12.4)
-
-### Literature Comparison
-| Paper | Model | Dev Accuracy |
-|-------|-------|-------------|
-| ALT 2021 (Zhu et al.) | BERT+MF | ~85% |
-| ROCLING 2025 (Lam & Yang) | StructBERT | ~88% |
-| **Ours** | DeBERTa-v3-base + features | **100%** |
-
-Our 100% accuracy is publishable because:
-1. Baselines prove it's not a recency shortcut (6x better than trivial strategies)
-2. Gold labels are spread across 21-24 positions (not just the last few)
-3. Perfect accuracy at every position, from position 26 to 49
-4. Matches the evaluation protocol used in the literature
+### Post-Fix Status
+- Cross-links: 52,641 (75.9%) of total gold links
+- Training dataset: 49,676 valid samples
+- **No training has completed yet** with corrected annotations — batch_size=16 OOMs on L40 at every batch
+- Evaluation on untrained checkpoint: Accuracy=0.0098 (effectively random), Loss=3.8236
 
 ## 8. Clustering & Thread-Level Metrics
 - **Current**: Only link-level F1 is computed.
@@ -186,16 +167,20 @@ Our 100% accuracy is publishable because:
 - **Metrics Needed**: VI (Variational Inference), ARI (Adjusted Rand Index), MCF (Message Clustering F1) for thesis visualization component.
 - **Status**: ARI/VI implemented but not meaningful on this dataset due to annotation sparsity (55-63% singleton clusters). Pairwise accuracy is the primary metric.
 
-## 9. Self-Links as "New Thread" Labels (Architecture Note)
+## 9. Self-Links Architecture Note
 
-### The Misconception
-Self-links in the Kummerfeld et al. annotation schema are **not bugs** — they are the dataset's way of encoding "this message starts a new conversation thread." A message whose gold parent is itself is a valid training label, not an error to be excluded.
+### Status (2026-05-18)
+The "self-links are dominant" theory is **incorrect**. Diagnostic confirmed:
+- Self-links: 16,754 (24.1%) — minority of gold links
+- Cross-links: 52,641 (75.9%) — majority
+- Cross-link median distance: 3 messages
+- Cross-links within max_dist=50: 51,632 (98.1%)
 
-### The Problem with Excluding Self-Links
-- Most gold labels in the Ubuntu IRC dataset are self-links (new conversation starters)
-- The remaining cross-message links often span >15 messages apart
-- With self-links excluded and `max_dist=15`, near-zero training signal remains
-- Even with `max_dist=50`, coverage is only ~3-5% of messages
+Self-links are still meaningful as "new thread" labels, but they are NOT the primary training signal. The real problem was the annotation format bug (parent/child columns swapped), which masked all cross-links.
+
+### The Original Argument (Kept for reference — partially valid)
+Self-links in the Kummerfeld et al. annotation schema are **not bugs** — they are the dataset's way of encoding "this message starts a new conversation thread." 
+A message whose gold parent is itself is a valid training label.
 
 ### Proposed Architecture: SELF-as-Candidate
 Reformulate the candidate list to include a special SELF token:
@@ -218,14 +203,10 @@ Where `SELF` is a special embedding appended at the end of the candidate list. T
 
 **Thesis contribution**: *"We identified that prior work conflates two sub-tasks (new thread detection vs. reply linking) and propose a unified candidate formulation."*
 
-### Current Status (2026-05-18)
-- Self-links are currently **excluded** via `range(..., i)` in `data_loader.py` line 376
-- `max_dist=50` is used as a workaround to get non-self training samples
-- The SELF-as-candidate refactor is the correct long-term solution but requires:
-  1. Adding a SELF token/embedding to the model
-  2. Modifying `_create_samples_for_conversation` to include SELF as the last candidate
-  3. Updating `collate_fn` to handle variable-C with SELF
-  4. Updating evaluation to handle SELF predictions
+### Current Priority (2026-05-18)
+- Self-links are **excluded** via `range(..., i)` in `data_loader.py` line 376 (correct behavior — self-links are a separate task)
+- **Priority**: Train the model with corrected annotations first. If cross-link accuracy is reasonable, SELF-as-candidate is unnecessary.
+- The SELF-as-candidate refactor remains a valid longer-term option but should not be prioritized until cross-link-only training is evaluated.
 
 ## 10. Technical Reference
 

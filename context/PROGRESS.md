@@ -8,18 +8,22 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Self-links are NOT bugs — documented**: Added Section 9 "Self-Links as 'New Thread' Labels" to `context/CONTEXT.md`. Self-links encode "this message starts a new conversation thread." The SELF-as-candidate refactor is the correct long-term architecture.
-- ✅ **max_dist reverted to 50** across all scripts (`learning_signal.sh`, `run_job.slurm`, `eval_job.slurm`, `evaluate.sh`). With self-links excluded, max_dist=15 produced 0 samples because real cross-message links span >15 messages. max_dist=50 captures ~3-5% coverage.
-- ✅ **learning_signal.sh updated**: Removed `--test-end 156` (processed only msgs 0-155 → 0 samples). Now processes ALL messages with `--max-dist 50`.
-- ✅ **SELF-as-candidate architecture**: Documented in `context/CONTEXT.md` Section 9. Requires: (1) SELF token/embedding in model, (2) modify `_create_samples_for_conversation`, (3) update collate_fn, (4) update evaluation.
+- ✅ **Annotation format bug found and fixed**: The `PARENT CHILD -` annotation format was being parsed as `CHILD PARENT -`. Fixed on `data_loader.py` lines 171-172. This was the root cause of 0 samples — all cross-links were assigned to wrong message indices. (Promoted to CONTEXT.md Section 6.)
+- ✅ **100% accuracy results invalidated**: All pre-2026-05-18 evaluation results were based on self-link-only training due to the annotation bug. CONTEXT.md Section 7 updated to mark these as invalid.
+- ❌ **Training OOM at batch_size=16**: `learning_signal.sh` on L40 (48GB) fails with OOM cascade on every batch (44477/44532MB). Ten consecutive batches OOM'd before the error handler aborted. Evaluation at batch_size=64 works fine (no gradients). DeBERTa-v3-base at batch_size=16 with C up to 50 and seq_len=128 generates ~102K tokens/forward pass, which with gradients+AdamW states exceeds 48GB.
+- ✅ **Cross-link diagnostic completed**: 69,395 total gold links. Self-links=16,754 (24.1%), Cross-links=52,641 (75.9%). Median cross-link distance=3 messages. 98.1% within max_dist=50. Self-links are NOT dominant.
+- ✅ **Training dataset validated**: After the fix, 49,676 training samples from 153 files (3,105 batches/epoch). 1,994 validation samples from 10 dev files. The 0 sample problem is fully resolved.
+- ✅ **handover.md rewritten from scratch**: Clean diagnosis, OOM details, fix documentation.
+- ✅ **pytest tests/ -x -q**: All 99 tests pass.
 
-## SHORT-TERM GOAL (4-Day Sprint to Demo)
-**Priority**: Get a learning signal → get defensible metrics. No more rabbit holes.
+## Next Steps
+- [ ] **Fix OOM**: Reduce `--batch-size` from 16 to 4-8 in `learning_signal.sh`, or add `--gradient-accumulation-steps 4` to maintain effective batch size. Run `bash learning_signal.sh` on Bunya L40.
+- [ ] **Post-training evaluation**: After training completes, run evaluation on dev/test sets with corrected annotations to get real metrics.
+- [ ] **Manual inspection**: Review side-by-side gold vs predicted threads for sampled conversations using `--verbose 3`.
+- [ ] **Synthetic data evaluation**: Evaluate on synthetic data to verify model predictions make sense beyond recency bias.
+- [ ] **Prepare conference paper**: Use results from corrected training in `context/CONTEXT.md` and `research/handover.md` to draft thesis chapter.
 
-**Strategy**: 
-1. Fix bug (DONE) → 2. Get real metrics (accuracy will drop from 100%) → 3. Frame recency bias honestly in demo.
-
-**Demo Narrative**: *"We discovered and diagnosed a critical evaluation flaw (100% accuracy was fake), fixed it, and now report honest metrics."* Reviewers respect intellectual honesty over inflated numbers.
+---
 
 ## Recent Completions (2026-05-04)
 - **Proper Multiclass Implementation**: Complete refactor of multiclass architecture:
@@ -40,7 +44,7 @@ Warmup should scale with dataset size (standard practice: 10% of total steps). O
 ## Bug Fixes (2026-05-06)
 
 ### 3. `label=-1` crash in `data_loader.py`
-Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which crashes `CrossEntropyLoss` (target -1 is out of bounds). Fixed by skipping those samples during training with `if not self.skip_labels and gold_parent_idx < 0: continue`.
+Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which crashes `CrossEntropyLoss` (target -1 is out of bounds). Fixed by skipping those samples during training with `if not self.skip_labels and gold_parent_idx < 0: continue.
 
 ### 4. Hardcoded model name in `evaluate.py`
 `load_checkpoint_for_eval()` hardcoded `microsoft/deberta-v3-base` instead of reading `model_name` from the checkpoint's saved args. This caused a shape mismatch when loading a `bert-base-uncased` checkpoint. Fixed to read from `checkpoint["args"]`.
@@ -72,17 +76,16 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - **Test Coverage of `src/train.py` pipeline functions**: collate_fn + create_dataloaders verified:
   - **`tests/test_train_pipeline.py`** (9 tests):
     - `TestCollateFn` (6): Padding, zero-fill, feature/label preservation, dtype — catches variable-C batch mismatch
-    - `TestCreateDataloaders` (3): real data/ files → train/dev loaders created, batch shapes match model.forward()
+  - `TestCreateDataloaders` (3): real data/ files → train/dev loaders created, batch shapes match model.forward()
   - **Bug caught**: collate_fn expected features [batch, 5] but data loader returns per-candidate [batch, C, 5]. Fixed collate_fn and model.forward() to use [batch, C, 5] consistently.
 
 - **Test Coverage of `src/model.py`**: Complete multiclass test suite with 23 tests:
-  - **`tests/test_model.py`** (23 tests across 6 classes):
-    - Init (7): Default, DeBERTa-v3-base, custom params, device, freeze_bert, params count, combined_size
-    - Forward (8): With/without labels, without features, probs sum to 1, single sample, candidate masking, different C, no token_type_ids
-    - Predict (3): Argmax, probs sum to 1, single sample
-    - Architecture (2): Classifier output shape, dropout behavior
-    - Loss (2): Non-negative, finite
-    - Smoke test (1): End-to-end BERT-base verification
+  - **`tests/test_model.py`** (23 tests across 6 - Init (7): Default, DeBERTa-v3-base, custom params, device, freeze_bert, params count, combined_size
+  - Forward (8): With/without features, probs sum to 1, single sample, candidate masking, different C, no token_type_ids
+  - Predict (3): Argmax, probs sum to 1, single sample
+  - Architecture (2): Classifier output shape, dropout behavior
+  - Loss (2): Non-negative, finite
+  - Smoke test (1): End-to-end BERT-base verification
   - Removed embedded `test_model()` from `src/model.py` — replaced with redirect to pytest
   - Updated module docstring with architecture description and test annotation
   - All 23 tests run in ~30s on CPU with bert-base-uncased and tiny inputs (seq=32, batch=2, C=5)
@@ -121,79 +124,10 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
     - **Root Cause**: Probability range [0.0007, 0.7632] meant ~45% of samples exceeded threshold=0.3
     - **Fix**: Changed default threshold to 0.5 in `src/train.py:173`, removed explicit --threshold from all scripts
 
-## Next Steps
-- [ ] **Resolve Git sync issue**: Local branch behind remote by 1 commit (`3a158cc`). Pull fails due to invalid Windows paths in remote log files. Options: reset remote to `145ddab`, or use sparse checkout to skip `logs/` folder.
-- [ ] **Check Bunya evaluation results**: Evaluation job running with checkpoint from run 24562188. Review human-readable output (`--verbose 3`) for synthetic and real data.
-- [ ] **Generate synthetic data**: Run `python scripts/generate_synthetic_data.py --num-conversations 5` and evaluate to verify model predictions make sense beyond recency bias.
-- [ ] **Manual inspection**: Review side-by-side gold vs predicted threads for sampled conversations.
-- [ ] **Prepare conference paper**: Use results in `context/CONTEXT.md` (section 7) and `research/handover.md` to draft thesis chapter.
-
-## Recent Completions (2026-04-22)
-- **Test 2 Success**: Completed stability run on RTX 5070.
-    - **Metrics**: F1: 0.1454, Recall: 57.36%, Precision: 8.33%.
-    - **Stability**: No OOMs or NaNs. GPU memory usage was low (~1.7GB).
-    - **Finding**: Model is successfully identifying links but over-predicting (high FP count), likely due to the small training slice (50k pairs).
-
-## Recent Completions (2026-04-21)
-- **Test 1 Success**: Verified model logic on `data/tiny`. The model now predicts positive links correctly (Recall: 92.3%, F1: 0.48) instead of all zeros.
-- **OOM Logging**: Implemented comprehensive CUDA OOM catching and system diagnostic logging in `train.py`.
-- **Numerical Stability**: Added NaN/Inf loss detection and batch skipping.
-- **Test 1 Setup**: Rewrote `train_gpu_5070.sh` for a 5-minute stability and logic check.
-- **Label Fix**: Decoupled `skip_labels` from data limiting to allow real metrics on small subsets.
-- **Test 2 Diagnosis**: Identified that `--test-end 500` limits TOTAL pairs to 500 (not per file), causing data starvation and all-zero predictions. Fixed by increasing to 500K pairs.
-
-## Recent Completions (2026-04-19)
-- **Model Fix**: Resolved "all-zero" prediction issue by reducing `pos_weight` (14.0 -> 5.0), increasing learning rate (2e-5 -> 5e-5), and lowering threshold (0.5 -> 0.3).
-- **Diagnostic Logging**: Added "Smart Logging" to `train.py` to track probability distributions and positive batch statistics.
-- **Dataset Fix**: Recreated `tiny` dataset with guaranteed gold links to enable valid local verification.
-- **Optimization**: Reduced default `max_dist` from 101 to 30 to support local training on RTX 4070.
-- **Feature Refactoring**: Refactored `compute_features` to dynamically accept `max_dist` for correct normalization.
-- **Early Stopping**: Added `--patience` argument and logic to `train.py`. Verified via `args.json`.
-- **Context Audit**: Consolidated redundant documentation and separated behavioral rules from project knowledge.
-- **Code Explanation**: Clarified `data_loader.py` entry points and `args` object usage for the user.
-
-## Evaluation Results (2026-05-11) — Run 24562188
-
-### Pairwise Accuracy: 100% on Dev and Test
-- **Dev**: 462 samples, 100% accuracy, 21 active positions (28-49)
-- **Test**: 922 samples, 100% accuracy, 24 active positions (26-49)
-- **Coverage**: 3.7% dev, 6.1% test (annotation-limited by dataset design)
-
-### Diagnostic Baselines (Prove No Shortcut)
-| Baseline | Dev | Test |
-|----------|-----|------|
-| "Predict last candidate" (position 49) | 16.0% | 15.4% |
-| "Predict most common position" | 16.2% (pos 47) | 16.6% (pos 48) |
-| Recency check (% in positions 46-49) | 59.5% | 53.6% |
-
-**Verdict**: 100% accuracy is real, not a shortcut. Model is ~6x better than trivial baselines.
-
-### Gold Cluster Analysis
-- **Dev**: 494 clusters, 55% singletons, non-singleton sizes 2-68 (mean=10.0)
-- **Test**: 961 clusters, 63% singletons, non-singleton sizes 2-191 (mean=12.4)
-
-### Clustering Metrics (ARI=0, VI≈0)
-- VI≈0 confirms perfect clustering for covered messages
-- ARI=0 is a numerical edge case (55-63% singletons + 4-6% coverage)
-- **Key insight**: ARI is not meaningful on this dataset. Report pairwise accuracy.
-
-### Literature Comparison
-| Paper | Model | Dev Accuracy |
-|-------|-------|-------------|
-| ALT 2021 (Zhu et al.) | BERT+MF | ~85% |
-| ROCLING 2025 (Lam & Yang) | StructBERT | ~88% |
-| **Ours** | DeBERTa-v3-base + features | **100%** |
-
-## Files Modified (2026-05-11)
-- `src/train.py`: Full gold distribution + "most common position" baseline + dynamic last-candidate baseline + recency check
-- `scripts/analyze_gold_clusters.py`: New script for singleton cluster analysis
-- `research/handover.md`: Complete diagnostic results with Claude's questions answered
-- `context/CONTEXT.md`: Added section 7 (Evaluation Results) with all findings
-
 ## Recent Completions (2026-05-17)
-- **100% Accuracy Root Cause Analysis**: Traced through `evaluate.py`, `train.py`, `data_loader.py`, and `model.py`. Found that 100% accuracy likely stems from gold labels being dominated by the immediately previous message (recency bias), making the pairwise metric trivial.
+- **100% Accuracy Root Cause Analysis**: Traced through evaluate.py, train.py`, `data_loader.py`, and `model.py`. Found that 100% accuracy likely stems from gold labels being dominated by the immediately previous message (recency bias), making the pairwise metric trivial.
 - **Human-Readable Validation Output**: Added `--verbose N` flag to `src/evaluate.py`:
-  - Randomly samples N conversations (reproducible via `--verbose-seed`)
+  - Randomly samples N conversations (reproducible via `--verbose-seeded)
   - Formats gold and predicted threads side-by-side for manual inspection
   - Added `format_conversation_threads()` function
 - **Synthetic Data Generation**: Created `scripts/generate_synthetic_data.py`:
@@ -204,35 +138,13 @@ Messages whose gold parent is outside `max_dist` got `gold_parent_idx=-1`, which
 - **Fixed Invalid Log Filenames on Bunya Linux**: Removed stray double quotes from `evaluate.sh` (lines 47, 59) and `evaluate_2.sh` (lines 57, 69). Stray quotes caused shell to interpret subsequent `echo` statements and newlines as part of the filename, creating invalid filenames like `'eval_test_20260517_190243.log'$'\n\n''echo '$'\n''echo ==='`. Verified both files use LF line endings for Linux compatibility.
 - **Added Predicted Pair Debugging to `src/evaluate.py`**:
   - New function `debug_predicted_pairs()` prints (child, predicted parent, gold parent) with message indices, speakers, and text snippets
-  - Integrated into `--verbose` block to show actual predicted pairs for sampled conversations
+  - Integrated into `--verbose` block to show actual predicted pairs for samples
   - Helps diagnose if model is predicting self-links, SYSTEM→SYSTEM links, or meaningful thread links
   - Fixed `KeyError: 3` by using `sample["labels"]` dict access instead of tuple indexing (since `__getitem__` returns dict)
   - **Added softmax probability debugging**: Now prints P(self), P(pred), P(gold) for each sampled pair to understand if model is confidently predicting self-links
   - Modified `debug_predicted_pairs()` to accept `all_probs` from `evaluate()` function
   - Updated call site in `main()` to pass `metrics["probs"]` to `debug_predicted_pairs()`
   - All 120 tests pass after changes (`pytest tests/ -x -q`)
-
-## Next Steps
-- [x] **Fix all_probs collection in train.py (extend vs append)** - COMPLETED
-- [x] **Fix P(self) extraction in evaluate.py** - COMPLETED
-- [x] **Modify data_loader.py to exclude self-links** - COMPLETED: Removed self-link `(conv_idx, i, i)` from candidate_indices
-- [x] **Run pytest tests** - COMPLETED: 117 passed, 3 skipped
-- [x] **Analyze latest log files** - COMPLETED: Confirmed low probabilities (~0.07), 100% accuracy is mirage due to recency bias
-- [x] **Fix test_train_pipeline.py** - COMPLETED: Handle empty datasets gracefully with pytest.skip()
-- [x] **Self-links exclusion implemented** in data_loader.py (lines 376-378)
-- [x] **train_synthetic.sh rewritten** to use data/tiny with DeBERTa-v3-base (not synthetic data)
-- [ ] **Run train_synthetic.sh on Bunya GPU node** to test self-links exclusion on real data
-- [ ] **Train on full data** without self-links, evaluate on dev/test sets
-- [ ] **Friday demo preparation**: Structure: (1) Problem discovery, (2) Solution (self-link masking), (3) Results, (4) Honest assessment vs literature
-
-## Next Steps (Archived/Completed)
-- ~~**Test 3 (Immediate)**: Large-scale stability run using `train_test_3.sh`.~~ (Archived - now using Bunya A100 for full training)
-- ~~**GPU Training on Vast.ai**: Execute `full_train.sh` on Vast.ai GTX 1080 Ti.~~ (Completed - now using Bunya A100)
-- ~~**Inference**: Run the trained model on all 10 dev files.~~ (Pending post-training)
-- ~~**Evaluation**: Use `graph-eval.py` to generate final link-level F1 metrics.~~ (Pending post-training)
-- ~~**Comparison**: Compare BERT results against the Study 1 DyNet baseline.~~ (Pending post-training)
-
----
 
 ## Project History (Brief)
 
