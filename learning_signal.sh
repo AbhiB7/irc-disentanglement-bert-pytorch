@@ -31,7 +31,7 @@ echo "================================================" | tee -a "$LOG_FILE"
 echo ""
 
 echo "=== Setting up environment ===" | tee -a "$LOG_FILE"
-source setup.sh 2>&1 | tee -a "$LOG_FILE"
+source setup.sh 
 
 # Use conda python explicitly (source setup.sh activates conda inside a pipe subshell,
 # so $CONDA_PREFIX must be used to guarantee the right interpreter)
