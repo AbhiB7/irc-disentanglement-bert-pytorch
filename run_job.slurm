@@ -20,6 +20,8 @@ set -e
 export SINGULARITY_CACHEDIR=/scratch/user/$USER
 export SINGULARITY_TMPDIR=/scratch/user/$USER
 
+REPO_DIR=$(pwd)
+
 # Bunya storage layout: relocate heavy outputs to /scratch
 export RUN_ROOT=/scratch/user/$USER/ircbert_runs
 export LOG_DIR=$RUN_ROOT/logs
@@ -35,9 +37,9 @@ source setup.sh
 # Full training on Ubuntu IRC dataset with gradient accumulation
 # --batch-size 4 with gradient-accumulation-steps 4 = effective batch size 16
 # --max-length 96 covers 95%+ of IRC messages at reduced memory
-# --gres=gpu:l40s:1 requests a full L40S (48GB) avoiding MIG partition issues
 python src/train.py \
     --mode train \
+    --data-dir "$REPO_DIR/data" \
     --batch-size 4 \
     --gradient-accumulation-steps 4 \
     --epochs 10 \
@@ -65,6 +67,7 @@ else
     echo "=== Evaluating on DEV set ==="
     python src/evaluate.py \
         --checkpoint "$LATEST_CHECKPOINT" \
+        --data-dir "$REPO_DIR/data" \
         --split dev \
         --batch-size 64 \
         --max-dist 50 \
@@ -74,6 +77,7 @@ else
     echo "=== Evaluating on TEST set ==="
     python src/evaluate.py \
         --checkpoint "$LATEST_CHECKPOINT" \
+        --data-dir "$REPO_DIR/data" \
         --split test \
         --batch-size 64 \
         --max-dist 50 \
