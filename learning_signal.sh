@@ -33,10 +33,14 @@ echo ""
 echo "=== Setting up environment ===" | tee -a "$LOG_FILE"
 source setup.sh 2>&1 | tee -a "$LOG_FILE"
 
+# Use conda python explicitly (source setup.sh activates conda inside a pipe subshell,
+# so $CONDA_PREFIX must be used to guarantee the right interpreter)
+PYTHON="$CONDA_PREFIX/bin/python"
+
 echo "" | tee -a "$LOG_FILE"
 echo "=== Training on full dataset (max_dist=15, test_end=156) ===" | tee -a "$LOG_FILE"
 echo "" | tee -a "$LOG_FILE"
-python src/train.py \
+$PYTHON src/train.py \
     --mode train \
     --data-dir "$DATA_DIR" \
     --model-name microsoft/deberta-v3-base \
@@ -61,7 +65,7 @@ if [ -z "$LATEST" ]; then
     exit 1
 fi
 echo "Checkpoint: $LATEST" | tee -a "$LOG_FILE"
-python src/evaluate.py \
+$PYTHON src/evaluate.py \
     --checkpoint "$LATEST" \
     --data-dir "$DATA_DIR" \
     --split dev \
@@ -74,7 +78,7 @@ python src/evaluate.py \
 echo "" | tee -a "$LOG_FILE"
 echo "=== Evaluating on TEST set ===" | tee -a "$LOG_FILE"
 echo "" | tee -a "$LOG_FILE"
-python src/evaluate.py \
+$PYTHON src/evaluate.py \
     --checkpoint "$LATEST" \
     --data-dir "$DATA_DIR" \
     --split test \
