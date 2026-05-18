@@ -8,12 +8,20 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Self-Links Exclusion Implemented**: Removed self-link `(conv_idx, i, i)` from candidate_indices in `src/data_loader.py` (line 376-378).
-- ✅ **Synthetic Data Script Rewritten**: `scripts/generate_synthetic_data.py` now creates interleaved threads where the correct parent is NOT always the immediately previous message. This tests content-based learning vs recency bias.
-- ✅ **Synthetic Data Generated**: 5 conversations with interleaved threads (18 messages each, 15 annotations each) in `data/synthetic_interleaved/`.
-- ✅ **GPU Training Script Created**: `train_synthetic.sh` script ready to run on live Bunya GPU node (no SLURM submission needed). Includes training + evaluation with `--verbose 3` for human-readable output.
-- ✅ **Context Files Updated**: Added "No Local Training" rule to `context/INSTRUCTIONS.md` - all training/evaluation must run on Bunya HPC GPU nodes only.
-- ✅ **All 120 Tests Pass**: Verified after self-links exclusion changes.
+- ✅ **Self-Links Exclusion Bug FIXED**: Fixed off-by-one error in `src/data_loader.py` line 376. Changed `range(..., i + 1)` to `range(..., i)` to properly exclude self-links without creating 0 samples. Training now produces real learning signal.
+- ✅ **Log Recording Fixed**: `train_synthetic.sh` now redirects output to dated log files in `/scratch/user/$USER/ircbert_runs/logs/` using `2>&1 | tee`.
+- ✅ **Predicted Position Distribution Added**: `src/evaluate.py` now logs predicted position distribution (top 10) after each eval to detect recency bias vs content learning.
+- ✅ **Synthetic Data Script Rewritten**: `scripts/generate_synthetic_data.py` creates interleaved threads for testing content-based learning.
+- ✅ **Context Files Updated**: Added "No Local Training" rule to `context/INSTRUCTIONS.md`.
+- ✅ **All Tests Pass**: 117 passed, 3 skipped (verified after fixes).
+
+## SHORT-TERM GOAL (4-Day Sprint to Demo)
+**Priority**: Get a learning signal → get defensible metrics. No more rabbit holes.
+
+**Strategy**: 
+1. Fix bug (DONE) → 2. Get real metrics (accuracy will drop from 100%) → 3. Frame recency bias honestly in demo.
+
+**Demo Narrative**: *"We discovered and diagnosed a critical evaluation flaw (100% accuracy was fake), fixed it, and now report honest metrics."* Reviewers respect intellectual honesty over inflated numbers.
 
 ## Recent Completions (2026-05-04)
 - **Proper Multiclass Implementation**: Complete refactor of multiclass architecture:

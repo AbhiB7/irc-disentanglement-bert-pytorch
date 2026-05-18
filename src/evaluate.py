@@ -12,6 +12,7 @@ import logging
 import sys
 from pathlib import Path
 from datetime import datetime
+from collections import Counter
 
 import torch
 from torch.utils.data import DataLoader
@@ -635,6 +636,15 @@ def main():
         logger.info(f"Precision: {metrics['precision']:.4f}")
         logger.info(f"Recall: {metrics['recall']:.4f}")
         logger.info(f"F1: {metrics['f1']:.4f}")
+        
+        # Log predicted position distribution to check for recency bias
+        if "predictions" in metrics:
+            pred_positions = metrics["predictions"].tolist()
+            pos_counter = Counter(pred_positions)
+            logger.info("Predicted position distribution (top 10):")
+            for pos, count in pos_counter.most_common(10):
+                logger.info(f"  Position {pos}: {count} samples ({count/len(pred_positions)*100:.1f}%)")
+        
         logger.info("=" * 80)
     
     if args.metrics in ["clustering", "both"]:

@@ -369,13 +369,11 @@ class IRCDisentanglementDataset(Dataset):
         ):
             msg_i = messages[i]
 
-            # Collect candidates within max_dist (excluding self-link)
+            # Collect candidates within max_dist (j < i, no self-link possible)
             candidates = []
             candidate_indices = []  # (conv_idx, msg_i_idx, candidate_idx)
 
-            for j in range(max(0, i - self.max_dist + 1), i + 1):
-                if j == i:
-                    continue  # Exclude self-link
+            for j in range(max(0, i - self.max_dist + 1), i):
                 msg_j = messages[j]
 
                 # Skip system messages as parents

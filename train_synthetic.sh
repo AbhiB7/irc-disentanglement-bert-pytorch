@@ -40,7 +40,7 @@ python src/train.py \
     --eval-every 1 \
     --save-every 1 \
     --output-dir "$CHECKPOINT_DIR" \
-    --device cuda
+    --device cuda 2>&1 | tee $LOG_DIR/train_$(date +%Y%m%d_%H%M%S).log
 
 # Evaluate latest checkpoint
 echo ""
