@@ -43,7 +43,7 @@ python src/evaluate.py \
     --checkpoint "$CHECKPOINT" \
     --split dev \
     --batch-size 64 \
-    --max-dist 15 \
+    --max-dist 50 \
     --metrics both \
     --verbose 3 \
     --verbose-seed 42
@@ -54,7 +54,7 @@ python src/evaluate.py \
     --checkpoint "$CHECKPOINT" \
     --split test \
     --batch-size 64 \
-    --max-dist 15 \
+    --max-dist 50 \
     --metrics both \
     --verbose 3 \
     --verbose-seed 42

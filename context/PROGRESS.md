@@ -8,12 +8,10 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Self-Links Exclusion Bug FIXED**: Fixed off-by-one error in `src/data_loader.py` line 376. Changed `range(..., i + 1)` to `range(..., i)` to properly exclude self-links without creating 0 samples.
-- ✅ **learning_signal.sh created**: Validates learning signal on full dataset with `--max-dist 15` and `--test-end 156` (1/8 of data). All output tee'd to `logs/learning_signal_*.log`. Run on Bunya: `bash learning_signal.sh`.
-- ✅ **Cleaned up scripts**: Removed `train_synthetic.sh`, `evaluate_2.sh`, `smoke_test.slurm`. Updated `run_job.slurm`, `eval_job.slurm`, `evaluate.sh` to use `--max-dist 15` and remove synthetic data eval blocks.
-- ✅ **INSTRUCTIONS.md updated**: Explicitly states ALL `.sh` and `.slurm` files run on Bunya HPC GPU nodes only.
-- ✅ **Predicted Position Distribution Added**: `src/evaluate.py` now logs predicted position distribution (top 10) after each eval.
-- ✅ **All changes pushed to GitHub**: Commit `7f01fea` — 8 files changed.
+- ✅ **Self-links are NOT bugs — documented**: Added Section 9 "Self-Links as 'New Thread' Labels" to `context/CONTEXT.md`. Self-links encode "this message starts a new conversation thread." The SELF-as-candidate refactor is the correct long-term architecture.
+- ✅ **max_dist reverted to 50** across all scripts (`learning_signal.sh`, `run_job.slurm`, `eval_job.slurm`, `evaluate.sh`). With self-links excluded, max_dist=15 produced 0 samples because real cross-message links span >15 messages. max_dist=50 captures ~3-5% coverage.
+- ✅ **learning_signal.sh updated**: Removed `--test-end 156` (processed only msgs 0-155 → 0 samples). Now processes ALL messages with `--max-dist 50`.
+- ✅ **SELF-as-candidate architecture**: Documented in `context/CONTEXT.md` Section 9. Requires: (1) SELF token/embedding in model, (2) modify `_create_samples_for_conversation`, (3) update collate_fn, (4) update evaluation.
 
 ## SHORT-TERM GOAL (4-Day Sprint to Demo)
 **Priority**: Get a learning signal → get defensible metrics. No more rabbit holes.

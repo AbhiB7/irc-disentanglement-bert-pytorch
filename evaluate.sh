@@ -40,7 +40,7 @@ python src/evaluate.py \
     --checkpoint "$CHECKPOINT" \
     --split dev \
     --batch-size 64 \
-    --max-dist 15 \
+    --max-dist 50 \
     --metrics both \
     $VERBOSE \
     --verbose-seed 42 2>&1 | tee -a logs/eval_dev_$(date +%Y%m%d_%H%M%S).log
@@ -51,7 +51,7 @@ python src/evaluate.py \
     --checkpoint "$CHECKPOINT" \
     --split test \
     --batch-size 64 \
-    --max-dist 15 \
+    --max-dist 50 \
     --metrics both \
     $VERBOSE \
     --verbose-seed 42 2>&1 | tee -a logs/eval_test_$(date +%Y%m%d_%H%M%S).log

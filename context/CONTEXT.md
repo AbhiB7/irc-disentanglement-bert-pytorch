@@ -186,7 +186,48 @@ Our 100% accuracy is publishable because:
 - **Metrics Needed**: VI (Variational Inference), ARI (Adjusted Rand Index), MCF (Message Clustering F1) for thesis visualization component.
 - **Status**: ARI/VI implemented but not meaningful on this dataset due to annotation sparsity (55-63% singleton clusters). Pairwise accuracy is the primary metric.
 
-## 9. Technical Reference
+## 9. Self-Links as "New Thread" Labels (Architecture Note)
+
+### The Misconception
+Self-links in the Kummerfeld et al. annotation schema are **not bugs** — they are the dataset's way of encoding "this message starts a new conversation thread." A message whose gold parent is itself is a valid training label, not an error to be excluded.
+
+### The Problem with Excluding Self-Links
+- Most gold labels in the Ubuntu IRC dataset are self-links (new conversation starters)
+- The remaining cross-message links often span >15 messages apart
+- With self-links excluded and `max_dist=15`, near-zero training signal remains
+- Even with `max_dist=50`, coverage is only ~3-5% of messages
+
+### Proposed Architecture: SELF-as-Candidate
+Reformulate the candidate list to include a special SELF token:
+
+```
+candidates = [msg_0, msg_1, ..., msg_{i-1}, SELF]
+```
+
+Where `SELF` is a special embedding appended at the end of the candidate list. The gold label is either:
+- The index of the gold parent (if cross-message link exists within window)
+- The index of `SELF` (if the message starts a new thread)
+
+**Why this works:**
+- No samples are dropped (every message has a valid candidate)
+- Self-link prediction becomes a learnable signal — the model learns "does this message start a new thread?"
+- Cross-message links train the content-based ranking
+- Recency bias now competes with a real "new thread" class, breaking the trivial shortcut
+
+**Literature support**: Kummerfeld's own feedforward model uses a threshold below which a message links to itself. This formulation makes that explicit as a candidate class.
+
+**Thesis contribution**: *"We identified that prior work conflates two sub-tasks (new thread detection vs. reply linking) and propose a unified candidate formulation."*
+
+### Current Status (2026-05-18)
+- Self-links are currently **excluded** via `range(..., i)` in `data_loader.py` line 376
+- `max_dist=50` is used as a workaround to get non-self training samples
+- The SELF-as-candidate refactor is the correct long-term solution but requires:
+  1. Adding a SELF token/embedding to the model
+  2. Modifying `_create_samples_for_conversation` to include SELF as the last candidate
+  3. Updating `collate_fn` to handle variable-C with SELF
+  4. Updating evaluation to handle SELF predictions
+
+## 10. Technical Reference
 
 ### Project Structure
 - `src/data_loader.py`: Handles file discovery, message parsing, and multiclass sample generation.
@@ -223,7 +264,7 @@ Our 100% accuracy is publishable because:
 
 ---
 
-## 10. Key References
+## 11. Key References
 1. Kummerfeld et al. (2019). "A Large-Scale Corpus for Conversation Disentanglement." ACL 2019.
 2. Zhu et al. (2021). "BERT for Conversation Disentanglement." (Key feature comparison paper).
 3. Huang et al. (2022). "Bi-Level Contrastive Learning for Conversation Disentanglement."
