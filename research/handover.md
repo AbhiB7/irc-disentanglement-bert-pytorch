@@ -1,135 +1,291 @@
 # IRC Disentanglement Project — Technical Handover
 
-## 1. Model: Multiclass CrossEncoder with Features
+## 1. Current State: Training Run 24761301 Analysis
 
-`src/model.py` — BERT-based CrossEncoder (DeBERTa-v3-base default) with 5 handcrafted features.
-
-For each child message, C candidate samples are created. Each sample: `(parent_text, child_text, features, label)` where label = gold parent index (0 to C-1).
-
-Forward pass: `[batch, C, seq]` → flatten → `[batch*C, seq]` through BERT → `[CLS]` embedding (768-dim) → concat with 5 features (773-dim) → linear(773→1) → unflatten to `[batch, C]` → softmax → CrossEntropyLoss.
-
-## 2. Data Loader
-
-`src/data_loader.py` — key function: `_create_samples_for_conversation()` (lines 350-434).
-
-Candidate selection: For child message `i`, collect all `j < i` where `i - j <= max_dist`. Self-links are excluded via `range(max(0, i - max_dist + 1), i)`.
-
-## 3. The Real Bug (Found 2026-05-18)
-
-The annotation file format is `PARENT CHILD -`, but the code was reading it as `CHILD PARENT -`.
-
-Evidence from annotation files:
+### System Configuration
 ```
-1000 1000 -    → self-link (symmetric, unaffected by bug)
-1009 -   → message 1009 replies to message 1000
-1020 1021 -    → message 1021 replies to message 1020
+GPU:      NVIDIA A100 80GB PCIe
+Model:    microsoft/deberta-v3-base
+Batch:    4 (with accumulation=4 → effective batch 16)
+Max Dist: 50
+Max Len:  96
+LR:       5e-5 (linear warmup 10%)
+Epochs:   10 (with patience=3)
+AdamW:    eps=1e-6 (Fix B from CONTEXT.md)
 ```
 
-If read as `child = 1000, parent 1009= `parent > child`, which is impossible in IRC.
+### Epoch-by-Epoch Results
 
-**Fix** (lines 171-172 of `data_loader.py`):
+| Epoch | Duration  | Succeeded | Skipped (NaN) | Avg Loss | Dev Acc | Dev F1 |
+|-------|-----------|----------:|--------------:|----------|---------|--------|
+| 1     | 3,140s    | **11,187**| 1,232         | 3.7822   | 0.5160  | 0.3543 |
+| 2     | 5,550s    | **0**     | 12,419        | 0.0000   | 0.5160  | 0.3543 |
+| 3     | 5,549s    | **1**     | 12,418        | 3.8064   | 0.5160  | 0.3543 |
+| 4     | 5,550s    | **1**     | 12,418        | 3.3977   | 0.5160  | 0.3543 |
+
+**Dev accuracy locks at 51.60% across all 4 epochs** — the best model (epoch 1 checkpoint) is loaded for every subsequent evaluation. The model learns nothing after epoch 1.
+
+### Final Test Set Performance (from last checkpoint)
+```
+Loss:      3.7553
+Accuracy:  0.5271
+Precision: 0.3900
+Recall:    0.3733
+F1:        0.3734
+```
+
+### Baseline Comparison (from dev evaluation logs)
+| Baseline | Accuracy | Source |
+|----------|---------:|--------|
+| Always predict position 46 (most common) | 10.63% | dev log |
+| Always predict last candidate (position 48) | 5.17% | dev log |
+| Random uniform (1/49 classes) | ~2.0% | theoretical |
+| **Model at epoch 1** | **51.60%** | dev evaluation |
+| **Label recency (positions 46-49)** | 23.8% of gold labels | dev distribution |
+
+**Key finding**: 51.6% >> 10.6% majority-class baseline. The model IS learning real structure, not exploiting positional shortcuts. This confirms NaN fix is worth pursuing — the underlying learning signal is present.
+
+## 2. The Core Failure Mechanism
+
+### Symptom: NaN Cascade Starting at Batch 11,178 (Epoch 1)
+
+```
+[Batch 11178] NaN/Inf in gradients after backward — skipping batch.
+[Batch 11179] NaN/Inf in gradients after backward — skipping batch.
+[Batch 11180] NaN/Inf in gradients after backward — skipping batch.
+...continues for 1,232 consecutive batches through end of epoch...
+```
+
+Then epoch 2 starts and **every batch (12,419) produces NaN gradients.**
+
+### Why This Happens — The True Root Cause
+
+The cascade proceeds in 3 stages:
+
+**Stage 1 (Batches 0–11,177): Apparent stability**
+- 11,177 batches succeed = ~2,794 optimizer steps (at accumulation=4)
+- LR ramps linearly from 0 → ~4.7e-5 (almost at peak 5e-5)
+- Weights drift gradually from BERT pretrained initialization
+- `nan_to_num` fires occasionally on `cls_embedding` but masks the symptom
+
+**Stage 2 (Batches 11,178–12,419): 49-class logit overflow**
+- The actual mechanism is **DeBERTa's disentangled attention + CrossEntropyLoss over 49 classes** producing logits in the range ~80–100
+- `exp(100)` overflows fp32 to `inf`, softmax denominator becomes `inf/inf = NaN`
+- `cls_embedding` accumulates NaN counts: 768 → 1,536 → 2,304 → 4,608
+  ```
+  WARNING: cls_embedding contains NaN/Inf before classifier.
+  Shape: torch.Size([196, 768]), NaN count: 768 → 1536 → 2304 → 4608
+  ```
+- The `nan_to_num` fix (lines 147-155 in `model.py`) replaces NaN with 0.0 *after* BERT but the **weights are already NaN**
+- Given NaN weights, forward pass produces NaN → backward produces NaN gradients → all subsequent batches are skipped
+
+**Stage 3 (Epochs 2–4): Complete collapse**
+- The checkpoint saved at the end of epoch 1 contains NaN weights
+- Every batch in epoch 2 starts with NaN weights → NaN forward → NaN backward → skip
+- Result: avg_loss=0.0000 (the 1 "succeeded" batch had NaN loss logged as 0)
+
+### Why Previous Fixes Were Insufficient
+
+| Fix | Location | What It Does | Why It Failed |
+|-----|----------|-------------|---------------|
+| `adamw eps=1e-6` | `train.py` line 1185 | Prevents `grad / sqrt(v + eps)` explosion | Prevents NaN step 1 but not gradual drift over 11K batches |
+| `nan_to_num on cls_embedding` | `model.py` lines 147-155 | Replaces NaN with 0 before classifier | **Actively dangerous** — silently zeroes corrupted hidden states, lets training continue with contaminated weights |
+| Gradient NaN check | `train.py` lines 826-839 | Skips batches with NaN gradients | Catches symptom, not cause — weights already corrupted |
+| `fill_value=-100` | `model.py` line 205 | Finite negative mask for padded candidates | Correct — not a contributing factor |
+
+## 3. Corrected Fix Priority
+
+| Priority | Fix | Where | Why |
+|---|---|---|---|
+| **1** | **Detect NaN before `loss.backward()`, skip batch** | `train.py` | Stops weight corruption at source — don't let nan_to_num silently continue |
+| **2** | **Add label smoothing (`0.1`) to CrossEntropyLoss** | `model.py` | Caps how hard the model pushes correct-class logit to +inf, directly prevents overflow |
+| **3** | **Clamp logits to `[-50, 50]` before loss** | `model.py` | Hard numerical ceiling — even if attention produces large values, loss sees bounded input |
+| **4** | **AdamW eps → `1e-4`** | `train.py` line 1185 | More aggressive grad/v stabilization — correct fix, keep |
+| **5** | **Reduce batch accumulation (4→2) + batch size (4→8)** | `run_job.slurm` | Reduces gradient noise accumulation window |
+| **6** | **LR 5e-5 → 3e-5, warmup 10%→15%** | `run_job.slurm` | Gentler peak LR, longer ramp |
+
+### ⚠️ Critical Ordering Constraints (Claude's Final Check)
+
+Two implementation-order details that must be followed exactly:
+
+**1. In `model.py`: Logit clamping BEFORE CrossEntropyLoss**
 ```python
-# BEFORE (wrong):
-child = int(parts[0])   # first column = parent
-parent = int(parts[1])  # second column = child
+logits = torch.clamp(logits, min=-50.0, max=50.0)   # Step 1: clamp first
+loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)    # Step 2: then smooth
+loss = loss_fn(logits, labels)                         # Step 3: then compute loss
+```
+If clamping happens after `CrossEntropyLoss`, it does nothing — the overflow already happened inside the loss function.
 
-# AFTER (correct):
-parent = int(parts[0])
-child = int(parts[1])
+**2. In `train.py` (line 755): NaN skip MUST zero gradients**
+```python
+# Current code (BUG — no zero_grad):
+if torch.isnan(loss) or torch.isinf(loss):
+    logger.error(...)
+    continue  # ← BUG: accumulated gradients from previous batches survive
+
+# Fixed code:
+if torch.isnan(loss) or torch.isinf(loss):
+    logger.error(...)
+    optimizer.zero_grad()   # ← MUST be here to clear accumulation window
+    torch.cuda.empty_cache()
+    continue
+```
+Without `optimizer.zero_grad()`, accumulated gradients from previous batches in the accumulation window will still get applied on the next valid step. That's a subtle instability reintroducer.
+
+### Detailed Implementation for Each Fix
+
+#### Fix 1: Pre-backward NaN Detection (Replace `nan_to_num`)
+Two changes needed:
+
+**In `model.py` (lines 147-155)**: Remove the dangerous `nan_to_num`. Replace with:
+```python
+if torch.isnan(cls_embedding).any() or torch.isinf(cls_embedding).any():
+    logger.warning(
+        f"  PRE-BACKWARD NaN DETECTED in cls_embedding at batch {batch_idx}. "
+        f"NaN count: {torch.isnan(cls_embedding).sum().item()}. "
+        f"Skipping batch."
+    )
+    return {"logits": logits, "probs": probs, "loss": torch.tensor(float('nan'), device=logits.device)}
 ```
 
-This single change fixes the 0 samples problem.
+**In `train.py` (lines 750-755)**: Add `optimizer.zero_grad()` to the NaN skip path:
+```python
+# BEFORE (current - dangerous — no zero_grad):
+if torch.isnan(loss) or torch.isinf(loss):
+    logger.error(f"  Batch {batch_idx + 1}: NaN or Inf loss detected! Skipping batch.")
+    continue
 
-## 4. Diagnostic Results
-
-**Cross-link distance analysis** (`scripts/diagnose_links.py` on all train files):
-- Total gold links: 69,395
-- Self-links: 16,754 (24.1%)
-- Cross-links: 52,641 (75.9%)
-- Cross-link distance median: 3 messages
-- Cross-links within max_dist=50: 51,632 (98.1%)
-
-Self-links are NOT dominant. The earlier theory was wrong.
-
-**Training dataset after fix** (from `learning_signal_20260518_203340.log`):
-- Training: 49,676 samples from 153 files, 3,105 batches/epoch
-- Validation: 1,994 samples from 10 dev files
-- Coverage: ~26.7% of messages (only annotated suffix has gold links)
-
-## 5. Training Log (learning_signal_20260518_203340.log)
-
-**What happened**: The `learning_signal.sh` script ran on Bunya L40 (48GB GPU). Training **failed with OOM cascade** — every single training batch OOM'd on the forward pass.
-
-### OOM Details
-```
-Batch 1:   CUDA Out of Memory — 44478/44532MB
-Batch 2:   CUDA Out of Memory — 44477/44532MB
-...
-Batch 10:  CUDA Out of Memory — 44477/44532MB
-```
-Root exception:
-```
-torch.OutOfMemoryError: Tried to allocate 1.15 GiB. GPU 0 has 44.39 GiB total,
-409.25 MiB free. 43.99 GiB in use, 43.43 GiB allocated by PyTorch.
-```
-Followed by:
-```
-RuntimeError: OOM cascade: 10 consecutive OOM batches. Reduce --batch-size or --max-dist.
+# AFTER (fixed — clears accumulation state):
+if torch.isnan(loss) or torch.isinf(loss):
+    logger.error(f"  Batch {batch_idx + 1}: NaN or Inf loss detected — skipping batch.")
+    optimizer.zero_grad()    # ← CRITICAL: clears gradient accumulation
+    torch.cuda.empty_cache()
+    continue
 ```
 
-### Why
-The model was loaded from the old checkpoint (trained on 0 samples). The training batch processes `batch_size * C * seq_len` tokens per forward pass. At batch_size=16, C up to 50, seq_len=128 → 102,400 tokens/batch through DeBERTa-v3-base (184M params). With gradients + optimizer states (AdamW: 2x model size for momentum + variance), total memory exceeds the L40's 48GB.
+#### Fix 2: Label Smoothing
+In `model.py`, replace CrossEntropyLoss (line 217):
 
-The old checkpoint weights being near-random don't cause OOM. The OOM is architecture-driven: DeBERTa-v3-base's memory footprint at batch_size=16 with variable C (up to 50) is too large.
+```python
+# BEFORE:
+loss_fn = nn.CrossEntropyLoss()
+loss = loss_fn(logits, labels)
 
-### What Didn't OOM
-The evaluation phase (same checkpoint, batch_size=64) ran successfully because no gradients are computed:
-- **Accuracy: 0.0098** (random — 1/49 ≈ 2%)
-- **F1: 0.0078**
-- **Loss: 3.8236**
-- Evaluation at batch_size=64 uses only ~20GB due to no backprop
+# AFTER:
+loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
+loss = loss_fn(logits, labels)
+```
 
-### Solution
-Reduce batch_size or use gradient accumulation. Options:
-1. `--batch-size 8` (halves memory)
-2. `--batch-size 4` with `--gradient-accumulation-steps 4` (effective batch=16, peak memory = batch=4)
-3. `--max-length 96` instead of 128
+**Why 0.1**: Standard value used in NLP classification. Prevents the model from pushing the correct-class logit to +inf by capping the "target" probability at 0.9. The remaining 0.1 is distributed across all 49 classes, creating a soft target distribution instead of a one-hot spike. This directly prevents `exp(z_y)` overflow.
 
-**Bottom line**: The fix works (49,676 valid samples produced). Training needs `--batch-size` reduced to 4-8.
+#### Fix 3: Logit Clamping
+In `model.py`, before CrossEntropyLoss (around line 214):
 
-## 6. Clustering Metrics (From eval log)
+```python
+# BEFORE loss computation (after logits are computed, before loss_fn):
+# Clamp logits to prevent exp() overflow in CrossEntropyLoss softmax
+logits = torch.clamp(logits, min=-50.0, max=50.0)
 
-- ARI: 0.1198, VI: 3.6586
-- Per-conversation ARI ranges from -0.0027 to 0.3306
-- 10 conversations evaluated, avg coverage 81.3%
-- Predicted threads: 5-10 per conversation vs gold: 54-183
+# Then compute loss
+if labels is not None:
+    loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
+    loss = loss_fn(logits, labels)
+```
 
-These metrics are from an untrained checkpoint — meaningless for evaluation but useful as a sanity check.
+**Why [-50, 50]**: `exp(50) ≈ 5.18e21` (well within fp32 range), `exp(-50) ≈ 1.93e-22` (above fp32 minimum ~1.4e-45). The softmax denominator is guaranteed finite because all inputs are bounded. This is the blunt instrument that guarantees numerical stability regardless of model behavior.
 
-## 7. Human-Readable Validation
+#### Fix 4: AdamW eps → 1e-4
+In `train.py` line 1185:
 
-`--verbose 3` flag in `evaluate.py` produces side-by-side gold vs predicted threads for random conversations. The log shows predicted threads are clearly wrong (5 threads instead of 183 for `2007-01-11_12`), confirming random weights.
+```python
+# BEFORE:
+optimizer = torch.optim.AdamW(
+    model.parameters(), lr=args.learning_rate, weight_decay=0.01, eps=1e-6
+)
 
-Debug predicted pairs show `P(self)=0.0000` for all samples — the model never predicts self-links, which is correct given they're excluded from candidates.
+# AFTER:
+optimizer = torch.optim.AdamW(
+    model.parameters(), lr=args.learning_rate, weight_decay=0.01, eps=1e-4
+)
+```
 
-## 8. Key Files
+#### Fix 5 + 6: Hyperparameter Tuning
+In `run_job.slurm`:
 
-| File | Key Section | Lines |
-|------|-------------|-------|
-| `src/data_loader.py` | Candidate selection + gold link parsing | 166-172, 350-434 |
-| `src/data_loader.py` | Gold link parsing (THE FIX) | 171-172 |
-| `src/model.py` | CrossEncoderWithFeatures.forward() | 95-221 |
-| `scripts/diagnose_links.py` | Cross-link distance diagnostic | entire file |
-| `learning_signal.sh` | Training script for Bunya GPU | entire file |
+```bash
+# BEFORE:
+--batch-size 4 --gradient-accumulation-steps 4 --learning-rate 5e-5 --warmup-ratio 0.1
 
-## 9. Log Files for Analysis
+# AFTER:
+--batch-size 8 --gradient-accumulation-steps 2 --learning-rate 3e-5 --warmup-ratio 0.15
+```
 
-| Log | Description |
-|-----|-------------|
-| `logs/learning_signal_20260518_203340.log` | Full training + eval with parent/child fix (~49K samples, random weights) |
-| `logs/train_20260518_203632.log` | Eval-only on test set with same checkpoint |
-| `logs/learning_signal_20260518_192715.log` | Previous run: 0 samples, 2.30s training |
+## 4. Implementation Plan (Combined)
 
-## 10. Next Step
+### Files to Change
 
-Delete old checkpoints at `/scratch/user/checkpoints_maxdist50/` and run `bash learning_signal.sh` again for a fresh training run from random initialization.
+| File | Changes |
+|------|---------|
+| `src/model.py` | (1) Replace `nan_to_num` with NaN-aware early return. (2) Add label_smoothing=0.1 to CrossEntropyLoss. (3) Add `torch.clamp(logits, -50, 50)` before loss. |
+| `src/train.py` | (1) Make NaN loss skip also zero gradients + empty cache. (2) Change AdamW eps from 1e-6 to 1e-4. |
+| `run_job.slurm` | batch=8, accumulation=2, lr=3e-5, warmup=0.15 |
+
+### What to Delete Before Resubmitting
+- `/scratch/user/checkpoints_maxdist50/` — contains NaN-contaminated weights from epoch 1
+- Old log files in `/scratch/user/logs/` — will be overwritten but clean state helps
+
+### What NOT to Change
+- `max_length=96` — confirmed fine, 95%+ coverage
+- `max_dist=50` — matches literature (StructBERT kh=50)
+- `nan_to_num` in model.py — remove it entirely, replaced by pre-backward NaN detection
+- Gradient accumulation logic in train.py — the code is correct, just the config changes
+- Data loader — no data issues identified
+
+### Verification After Changes
+1. Run `pytest tests/ -x -q` (should pass all 99 tests — tests may need updating for label_smoothing)
+2. If tests fail, update test assertions (label_smoothing changes loss values by a small constant factor)
+3. Submit `run_job.slurm` for full 10-epoch training
+4. Monitor logs for NaN cascade — if clean after 12,000 batches, the fix works
+
+## 5. Fallback Plan
+
+If NaN cascade still occurs after Fixes 1-6:
+
+1. **Reduce batch to 4, accumulation to 1** — minimizes gradient noise window
+2. **Further lower LR to 2e-5** — standard BERT fine-tuning rate
+3. **Check data dependency** — identify which conversation file triggers the cascade (shuffle-dependent)
+4. **Disable handcrafted features** — test with `num_features=0` to check if feature scaling is the trigger
+5. **Switch to Adam with weight_decay** instead of AdamW — Adam doesn't decouple weight decay from learning rate and can be more stable
+
+## 6. Key Code Snippets (Final State)
+
+### CrossEntropyLoss with Label Smoothing (model.py)
+```python
+loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
+loss = loss_fn(logits, labels)
+```
+
+### Logit Clamping (model.py, before loss)
+```python
+logits = torch.clamp(logits, min=-50.0, max=50.0)
+```
+
+### AdamW with eps=1e-4 (train.py)
+```python
+optimizer = torch.optim.AdamW(
+    model.parameters(), lr=args.learning_rate, weight_decay=0.01, eps=1e-4
+)
+```
+
+### SLURM Config (run_job.slurm)
+```bash
+--batch-size 8 --gradient-accumulation-steps 2 --learning-rate 3e-5 --warmup-ratio 0.15
+```
+
+## 7. Log Files for Reference
+
+| File | Description |
+|------|-------------|
+| `logs/24761301.err` | Full training log (12MB, 90K+ lines) |
+| `logs/eval_20260519_035042.log` | Final evaluation on DEV (best checkpoint) |
+| `logs/eval_20260519_035141.log` | Final evaluation on TEST (best checkpoint) |

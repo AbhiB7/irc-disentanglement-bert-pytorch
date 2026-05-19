@@ -35,19 +35,20 @@ mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
 # Use 'source' so conda activation and env vars persist in the current shell
 source setup.sh
 
-# Full training on Ubuntu IRC dataset with gradient accumulation
-# --batch-size 4 with gradient-accumulation-steps 4 = effective batch size 16
-# --max-length 96 covers 95%+ of IRC messages at reduced memory
+# Full training on Ubuntu IRC dataset with reduced gradient accumulation
+# --batch-size 8 with gradient-accumulation-steps 2 = effective batch size 16
+# --lr 3e-5 and --warmup-ratio 0.15 for gentler warmup (was 5e-5, 0.1)
+# See research/handover.md for the full NaN cascade fix analysis
 python src/train.py \
     --mode train \
     --data-dir "$REPO_DIR/data" \
-    --batch-size 4 \
-    --gradient-accumulation-steps 4 \
+    --batch-size 8 \
+    --gradient-accumulation-steps 2 \
     --epochs 10 \
-    --learning-rate 5e-5 \
+    --learning-rate 3e-5 \
     --max-length 96 \
     --max-dist 50 \
-    --warmup-ratio 0.1 \
+    --warmup-ratio 0.15 \
     --patience 3 \
     --eval-every 1 \
     --save-every 1 \

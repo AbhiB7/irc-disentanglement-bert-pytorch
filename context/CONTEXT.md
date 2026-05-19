@@ -135,11 +135,23 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
   1. `max_candidates` cap follows `--max-dist` instead of hardcoded 15 (Option B).
   2. Labels are clamped to `min(label, max_candidates - 1)` to prevent `CrossEntropyLoss` from receiving an out-of-range target.
   See [`tests/test_train_pipeline.py`](tests/test_train_pipeline.py) for `test_label_clamp_out_of_bounds`.
-- **NaN Loss Prevention — Fix B (model + optimizer, 2026-05-10)**: **THE REAL ROOT CAUSE.**
-  - **What**: AdamW's default `eps=1e-8` was too small for DeBERTa-v3-base fine-tuning. With only 1 warmup step on the tiny dataset (61 samples), AdamW's second moment (`v`) was near zero during the first few steps. The update formula `grad / sqrt(v + eps)` with `eps=1e-8` caused numerical instability when `v` was very small, producing NaN weights after the first optimizer step.
+- **NaN Loss Prevention — Fix B (model + optimizer, 2026-05-10)**: **ORIGINAL ROOT CAUSE — Partially superseded by Fix C.**
+  - **What**: AdamW's default `eps=1e-8` was too small for DeBERTa-v3-base fine-tuning. The update formula `grad / sqrt(v + eps)` with `eps=1e-8` caused numerical instability when `v` was very small.
   - **Fix**: Changed AdamW `eps` from `1e-8` to `1e-6` (DeBERTa's HuggingFace training guide recommendation). Also moved `nan_to_num` safety net to **before** the classifier (was after — useless placement). Added pre-clip gradient norm logging, weight NaN check after `optimizer.step()`, and LR logging.
-  - **Debugging arc**: 2 weeks, 5 HPC runs, 4 fix attempts. The `-inf` masking value was a red herring — the real problem was AdamW's epsilon.
-  - **Invariant**: When fine-tuning DeBERTa-v3-base with AdamW, use `eps=1e-6` instead of the default `1e-8`. The default is fine for training from scratch on large datasets, but for fine-tuning with small batch sizes and few warmup steps, the second moment (`v`) can be too small and cause `grad / sqrt(v + eps)` to explode.
+  - **Debugging arc**: 2 weeks, 5 HPC runs, HPC runs, 4 fix attempts.
+  - **Status**: Superseded by Fix C on 2026-05-19. The primary NaN driver was logit overflow from 49-class CrossEntropyLoss, not AdamW epsilon alone.
+- **NaN Loss Prevention — Fix C (model + train.py + config, 2026-05-19)**: **DEFINITIVE FIX — 49-class logit overflow prevention.**
+  - **What**: The true root cause is logit overflow in the 49-class CrossEntropyLoss softmax. Unclamped logits drifted to ~80–100 during training, causing `exp(100)` to overflow fp32 to `inf`, making the softmax denominator `inf/inf = NaN`. This cascaded to corrupt weights, and the `nan_to_num` fix on `cls_embedding` silently masked the symptom while letting contamination continue.
+  - **Three changes in `src/model.py`**:
+    1. **Removed `nan_to_num` on `cls_embedding`** (was actively dangerous — masked NaN and let weight contamination continue). Now NaN propagates naturally to produce NaN loss, which `train.py` catches and skips.
+    2. **Added `torch.clamp(logits, -50, 50)` before loss computation**: Hard numerical ceiling guarantees `exp(z)` stays within fp32 range. `exp(50) ≈ 5.18e21` (well below fp32 max 3.4e38), making softmax denominator finite by construction.
+    3. **Added `label_smoothing=0.1` to `CrossEntropyLoss`**: Prevents the model from pushing the correct-class logit to +inf by capping the target probability at 0.9. The remaining 0.1 is distributed across all classes, creating a soft target instead of a one-hot spike.
+  - **Two changes in `src/train.py`**:
+    1. NaN loss skip path now calls `optimizer.zero_grad()` + `torch.cuda.empty_cache()` (was just `continue` with no cleanup). Without this, accumulated gradients from previous batches in the accumulation window survived and got applied on the next valid optimizer step, reintroducing instability.
+    2. AdamW `eps` increased from `1e-6` to `1e-4` — stronger `grad / sqrt(v + eps)` stabilization across the full training run (not just the first few steps).
+  - **Config changes in `run_job.slurm`**: batch=8, accumulation=2, lr=3e-5, warmup=15% (was batch=4, acc=4, lr=5e-5, warmup=10%). Reduces gradient noise accumulation window.
+  - **Invariant**: Any training on 49-class softmax with DeBERTa-v3-base must use (1) logit clamping to [-50, 50], (2) label smoothing ≥ 0.1, (3) AdamW eps ≥ 1e-4. The `nan_to_num` safety net on `cls_embedding` is explicitly forbidden — it masks the symptom and leaves weights corrupted.
+  - See `research/handover.md` for the full analysis chain.
 - **Smart Logging**: Logs probability distribution stats every 50 batches (avg/min/max prob) to monitor model calibration.
 - **Data Starvation Prevention**: Test runs must use message offsets (e.g., 300+ or 1000+) or the `tiny` dataset to avoid the link-less "join/quit" noise at the start of IRC logs.
 - **Atomic Checkpointing**: Checkpoints are saved to `.tmp` files and renamed to avoid Windows file-locking conflicts (Error 1224).

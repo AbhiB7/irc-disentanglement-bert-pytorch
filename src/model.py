@@ -141,28 +141,21 @@ class CrossEncoderWithFeatures(nn.Module):
         # Apply dropout
         cls_embedding = self.dropout(cls_embedding)
 
-        # === CLS EMBEDDING DIAGNOSTIC (catches NaN from BERT LayerNorm on padded input) ===
-        # This MUST be before the classifier — the old placement was after the classifier
-        # had already used cls_embedding, making the safety net useless.
+        # === CLS EMBEDDING NaN DETECTION ===
+        # Previously this block silently replaced NaN with zeros via nan_to_num,
+        # which was actively dangerous — it let training continue with corrupted
+        # hidden states, contaminating weights before the gradient check could fire.
+        #
+        # Now: NaN in cls_embedding propagates naturally to produce NaN loss,
+        # which train.py catches and skips with optimizer.zero_grad().
+        # The warning is retained for diagnostics.
         if torch.isnan(cls_embedding).any() or torch.isinf(cls_embedding).any():
             logger.warning(
-                f"  WARNING: cls_embedding contains NaN/Inf before classifier. "
+                f"  NaN/Inf detected in cls_embedding before classifier. "
                 f"Shape: {cls_embedding.shape}, "
                 f"NaN count: {torch.isnan(cls_embedding).sum().item()}, "
                 f"Inf count: {torch.isinf(cls_embedding).sum().item()}. "
-                f"Applying nan_to_num fix."
-            )
-            cls_embedding = torch.nan_to_num(cls_embedding, nan=0.0, posinf=1.0, neginf=-1.0)
-
-        # Log embedding stats every forward pass in debug mode (remove for full training)
-        cls_min = cls_embedding.min().item()
-        cls_max = cls_embedding.max().item()
-        cls_mean = cls_embedding.mean().item()
-        if abs(cls_max) > 100 or abs(cls_min) > 100:
-            logger.warning(
-                f"  WARNING: cls_embedding has large values — "
-                f"min={cls_min:.4f} max={cls_max:.4f} mean={cls_mean:.4f}. "
-                f"May cause gradient explosion through classifier."
+                f"NaN will propagate to loss — train.py will skip this batch."
             )
 
         # Reshape features to match cls_embedding: [batch_size, C, num_features] -> [batch_size * C, num_features]
@@ -212,9 +205,18 @@ class CrossEncoderWithFeatures(nn.Module):
 
         # Compute loss if labels provided
         if labels is not None:
-            # Use CrossEntropyLoss for multiclass classification
-            # No pos_weight needed - each sample has exactly 1 positive class
-            loss_fn = nn.CrossEntropyLoss()
+            # Clamp logits before loss to prevent exp() overflow in CrossEntropyLoss
+            # softmax. Without clamping, logits drifting to ~80-100 cause exp(100) to
+            # overflow fp32 to inf, making the softmax denominator inf/inf = NaN.
+            # [-50, 50] keeps exp values well within fp32 range while preserving
+            # the ability to rank candidates (see handover.md for full analysis).
+            logits = torch.clamp(logits, min=-50.0, max=50.0)
+
+            # Label smoothing (0.1) prevents the model from pushing the correct-class
+            # logit to +inf by capping the target probability at 0.9. The remaining
+            # 0.1 is distributed across all classes, creating a soft target distribution
+            # instead of a one-hot spike. This directly prevents the primary NaN mechanism.
+            loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
             loss = loss_fn(logits, labels)
             outputs["loss"] = loss
 

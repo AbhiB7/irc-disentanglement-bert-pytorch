@@ -750,8 +750,14 @@ def train_epoch(
             # Check for NaN/Inf loss
             if torch.isnan(loss) or torch.isinf(loss):
                 logger.error(
-                    f"  Batch {batch_idx + 1}: NaN or Inf loss detected! Skipping batch."
+                    f"  Batch {batch_idx + 1}: NaN or Inf loss detected — skipping batch."
                 )
+                # CRITICAL: Must zero gradients to clear the accumulation window.
+                # Without this, accumulated gradients from previous batches in the
+                # accumulation window survive and get applied on the next valid optimizer
+                # step, reintroducing instability (see handover.md §3 Fix 1).
+                optimizer.zero_grad()
+                torch.cuda.empty_cache()
                 continue
 
             probs = outputs["probs"]
@@ -1182,9 +1188,9 @@ def main():
     # Create optimizer and scheduler
     if args.mode in ["train", "dev-only"]:
         optimizer = torch.optim.AdamW(
-            model.parameters(), lr=args.learning_rate, weight_decay=0.01, eps=1e-6
+            model.parameters(), lr=args.learning_rate, weight_decay=0.01, eps=1e-4
         )
-        logger.info(f"Created AdamW optimizer with lr={args.learning_rate}")
+        logger.info(f"Created AdamW optimizer with lr={args.learning_rate}, eps=1e-4")
 
         if train_loader:
             # total_steps should count optimizer steps, not batch steps.

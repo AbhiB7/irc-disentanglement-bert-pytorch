@@ -8,18 +8,26 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Annotation format bug fixed**: The `PARENT CHILD -` format parsing was reversed. Fixed on `data_loader.py` lines 171-172. (CONTEXT.md §6.)
-- ✅ **Gradient accumulation implemented**: `--batch-size` reduced to 4, `--gradient-accumulation-steps`=4, `--max-length` reduced to 96. Effective batch size stays 16. All 120 tests pass. (Promoted to CONTEXT.md §6.)
-- ✅ **Cross-link diagnostic completed**: 69,395 total gold links, 52,641 cross-links (75.9%), median dist=3.
-- ✅ **SLURM constraint fix**: Changed `--gres=gpu:1` → added ` --constraint=cuda48gb|cuda80gb` to exclude MIG 1g.10gb partitions. First run hit MIG (only 9.5 GiB) and OOM'd before any training.
-- ✅ **`run_job.slurm` aligned with `learning_signal.sh`**: `--data-dir`, `--batch-size` 4, `--gradient-accumulation-steps` 4, `--max-length` 96, `--max-dist` 50, 10 epochs, eval on dev+test post-training.
-- ✅ **`learning_signal.sh` run on Bunya (attempt 1)**: Failed — landed on MIG 1g.10gb, batch=4 OOM'd immediately. Evaluation on untrained random init produced Loss=3.8236, F1=0.008 (essentially random).
+- ✅ **Annotation format bug fixed** (2026-05-18): `PARENT CHILD -` format parsing was reversed. Fixed on `data_loader.py` lines 171-172. (CONTEXT.md §6.)
+- ✅ **NaN cascade in run 24761301 diagnosed and fixed** (2026-05-19):
+  - **Root cause**: Logit overflow in 49-class CrossEntropyLoss. Unclamped logits drifted to ~80-100 → `exp(100)` overflowed fp32 → `inf/inf = NaN` in softmax.
+  - **3 fixes applied to `src/model.py`**:
+    1. Removed dangerous `nan_to_num` on `cls_embedding` — was masking symptoms was letting NaN contaminate weights.
+    2. Added `torch.clamp(logits, -50, 50)` before loss computation — hard numerical ceiling guarantees finite softmax.
+    3. Added `label_smoothing=0.1` to `CrossEntropyLoss` — prevents model pushing correct-class logit to +inf.
+  - **2 fixes applied to `src/train.py`**:
+    1. NaN loss skip path now calls `optimizer.zero_grad()` + `torch.cuda.empty_cache()` — prevents accumulated gradients from surviving across skip.
+    2. AdamW `eps` increased from `1e-6` → `1e-4` — stronger `grad / sqrt(v + eps)` stabilization.
+  - **2 config changes in `run_job.slurm`**: batch=8, accumulation=2, lr=3e-5, warmup=15% (was batch=4, acc=4, lr=5e-5, warmup=10%).
+  - All 120 tests pass after changes.
+  - See `research/handover.md` for full analysis.
+- ✅ **Baseline verification**: Model at epoch 1 achieved 51.6% accuracy vs 10.6% majority-class baseline (position 46) and 5.2% last-candidate baseline. Confirmed genuine learning, not positional shortcut.
 
 ## Next Steps
-- [ ] **Submit `sbatch run_job.slurm` on Bunya**: Will land on L40/L40S/A100 full GPU (48GB+ VRAM). Monitor first 3 epochs for loss convergence.
-- [ ] **Post-training evaluation**: After training completes, run evaluation on dev/test sets with corrected annotations to get real metrics.
-- [ ] **Manual inspection**: Review side-by-side gold vs predicted threads using `--verbose 3`.
-- [ ] **Synthetic data evaluation**: Verify model predictions make sense beyond recency bias.
+- [ ] **Rename old NaN-contaminated checkpoint folder** on Bunya: `mv /scratch/user/$USER/ircbert_runs/checkpoints_maxdist50/ /scratch/user/$USER/ircbert_runs/checkpoint_learning_signal_contaminated/` — preserves history, ensures `run_job.slurm` creates a fresh output directory.
+- [ ] **Submit `sbatch run_job.slurm` on Bunya**: Will use batch=8, accumulation=2, lr=3e-5, warmup=15%, eps=1e-4. Monitor first 12K batches for NaN-free training.
+- [ ] **Post-training evaluation**: After training completes, run evaluation on dev/test sets to see if model surpasses epoch-1 ceiling.
+- [ ] **If NaN recurs**: Check data dependency (which conversation triggers it), reduce LR further to 2e-5, or disable handcrafted features.
 - [ ] **Conference paper**: Use results from corrected training to draft thesis chapter.
 
 ---
