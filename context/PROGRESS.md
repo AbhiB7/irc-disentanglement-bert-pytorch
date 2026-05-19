@@ -8,27 +8,15 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Annotation format bug fixed** (2026-05-18): `PARENT CHILD -` format parsing was reversed. Fixed on `data_loader.py` lines 171-172. (CONTEXT.md §6.)
-- ✅ **NaN cascade in run 24761301 diagnosed and fixed** (2026-05-19):
-  - **Root cause**: Logit overflow in 49-class CrossEntropyLoss. Unclamped logits drifted to ~80-100 → `exp(100)` overflowed fp32 → `inf/inf = NaN` in softmax.
-  - **3 fixes applied to `src/model.py`**:
-    1. Removed dangerous `nan_to_num` on `cls_embedding` — was masking symptoms was letting NaN contaminate weights.
-    2. Added `torch.clamp(logits, -50, 50)` before loss computation — hard numerical ceiling guarantees finite softmax.
-    3. Added `label_smoothing=0.1` to `CrossEntropyLoss` — prevents model pushing correct-class logit to +inf.
-  - **2 fixes applied to `src/train.py`**:
-    1. NaN loss skip path now calls `optimizer.zero_grad()` + `torch.cuda.empty_cache()` — prevents accumulated gradients from surviving across skip.
-    2. AdamW `eps` increased from `1e-6` → `1e-4` — stronger `grad / sqrt(v + eps)` stabilization.
-  - **2 config changes in `run_job.slurm`**: batch=8, accumulation=2, lr=3e-5, warmup=15% (was batch=4, acc=4, lr=5e-5, warmup=10%).
-  - All 120 tests pass after changes.
-  - See `research/handover.md` for full analysis.
-- ✅ **Baseline verification**: Model at epoch 1 achieved 51.6% accuracy vs 10.6% majority-class baseline (position 46) and 5.2% last-candidate baseline. Confirmed genuine learning, not positional shortcut.
+- ✅ **NaN cascade fix applied** (2026-05-19): logit clamping + label smoothing + `optimizer.zero_grad()` on NaN skip + AdamW eps=1e-4 + gentler hyperparams (batch=8, acc=2, lr=3e-5, warmup=15%). Documented as permanent invariant in CONTEXT.md §6 (Fix C). All 120 tests passing.
+- ✅ **Baseline verified**: Epoch 1 achieved 51.6% dev accuracy — 5x the strongest baseline (10.6% majority-class). Model genuinely learns; NaN fix is worth pursuing.
 
 ## Next Steps
-- [ ] **Rename old NaN-contaminated checkpoint folder** on Bunya: `mv /scratch/user/$USER/ircbert_runs/checkpoints_maxdist50/ /scratch/user/$USER/ircbert_runs/checkpoint_learning_signal_contaminated/` — preserves history, ensures `run_job.slurm` creates a fresh output directory.
-- [ ] **Submit `sbatch run_job.slurm` on Bunya**: Will use batch=8, accumulation=2, lr=3e-5, warmup=15%, eps=1e-4. Monitor first 12K batches for NaN-free training.
-- [ ] **Post-training evaluation**: After training completes, run evaluation on dev/test sets to see if model surpasses epoch-1 ceiling.
-- [ ] **If NaN recurs**: Check data dependency (which conversation triggers it), reduce LR further to 2e-5, or disable handcrafted features.
-- [ ] **Conference paper**: Use results from corrected training to draft thesis chapter.
+- [ ] **On Bunya**: `mv .../checkpoints_maxdist50/ .../checkpoint_learning_signal_contaminated/` then `sbatch run_job.slurm`
+- [ ] **Monitor first 12K batches** for NaN-free training — if clean, progress to multi-epoch convergence
+- [ ] **Post-training evaluation**: run eval on dev/test, compare to epoch-1 51.6% ceiling
+- [ ] **If NaN recurs**: check data dependency, reduce LR to 2e-5, or disable handcrafted features
+- [ ] **Conference paper**: Draft thesis chapter using results
 
 ---
 

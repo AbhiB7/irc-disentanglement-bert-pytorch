@@ -1,0 +1,3401 @@
+{
+  "name": "tiny.dev",
+  "messages": [
+    {
+      "index": 0,
+      "timestamp": "03:01",
+      "speaker": "LinuxJones",
+      "text": "night all :)",
+      "is_system": false
+    },
+    {
+      "index": 1,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== yohannes [~yohannes@adsl-67-112-218-21.dsl.sntc01.pacbell.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 2,
+      "timestamp": "03:10",
+      "speaker": "yohannes",
+      "text": "can anyone recommend any app to create/open *.rar file?",
+      "is_system": false
+    },
+    {
+      "index": 3,
+      "timestamp": "03:10",
+      "speaker": "Hikaru79",
+      "text": "yohannes, why not WinRAR?",
+      "is_system": false
+    },
+    {
+      "index": 4,
+      "timestamp": "03:10",
+      "speaker": "Hikaru79",
+      "text": "http://www.rarlab.com/",
+      "is_system": false
+    },
+    {
+      "index": 5,
+      "timestamp": "03:10",
+      "speaker": "yohannes",
+      "text": "i am trying to weight my option. any other apps?",
+      "is_system": false
+    },
+    {
+      "index": 6,
+      "timestamp": "03:10",
+      "speaker": "Hikaru79",
+      "text": "Just download RAR 3.41 for Linux",
+      "is_system": false
+    },
+    {
+      "index": 7,
+      "timestamp": "03:10",
+      "speaker": "Hikaru79",
+      "text": "Oh",
+      "is_system": false
+    },
+    {
+      "index": 8,
+      "timestamp": "03:10",
+      "speaker": "Hikaru79",
+      "text": "I see",
+      "is_system": false
+    },
+    {
+      "index": 9,
+      "timestamp": "03:10",
+      "speaker": "Hikaru79",
+      "text": "Only one I know of, sorry =(",
+      "is_system": false
+    },
+    {
+      "index": 10,
+      "timestamp": "03:11",
+      "speaker": "yohannes",
+      "text": "btw, how can i install that darn thing? :)",
+      "is_system": false
+    },
+    {
+      "index": 11,
+      "timestamp": "03:11",
+      "speaker": "yohannes",
+      "text": "i downloaded winrar, does not have any instruction to install",
+      "is_system": false
+    },
+    {
+      "index": 12,
+      "timestamp": "03:11",
+      "speaker": "Nafallo",
+      "text": "file-roller",
+      "is_system": false
+    },
+    {
+      "index": 13,
+      "timestamp": "03:11",
+      "speaker": "yohannes",
+      "text": "i suspect i need to do something with the makefile included",
+      "is_system": false
+    },
+    {
+      "index": 14,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== mubix [~mubix@ca-29palms-cmts2d-189.losaca.adelphia.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 15,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== ud [~ud@25.b.001.ham.iprimus.net.au]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 16,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== blocke [~blocke@pool-70-18-134-61.pghk.east.verizon.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 17,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== lev is now known as lev-away",
+      "is_system": true
+    },
+    {
+      "index": 18,
+      "timestamp": "03:18",
+      "speaker": "blocke",
+      "text": "hi... is anyone elses laptop spinning down the hard drive after like one second of inactivity since updating in the last few days?  its driving me nuts and I'm afraid of damage to the hard drive :(",
+      "is_system": false
+    },
+    {
+      "index": 19,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== miked593 [~miked593@ip68-6-239-231.sd.sd.cox.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 20,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== LKSEONG_ is now known as KentutMerah",
+      "is_system": true
+    },
+    {
+      "index": 21,
+      "timestamp": "03:20",
+      "speaker": "Nafallo",
+      "text": "blocke: 5 seconds. that's the minimum you can have. hdparm -S 1 that is :-).",
+      "is_system": false
+    },
+    {
+      "index": 22,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== GnuHippy [~jason@blk-222-217-193.eastlink.ca]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 23,
+      "timestamp": "03:20",
+      "speaker": "blocke",
+      "text": "any idea what is setting it by default in ubuntu?",
+      "is_system": false
+    },
+    {
+      "index": 24,
+      "timestamp": "03:20",
+      "speaker": "Nafallo",
+      "text": "blocke: /etc/acpi/power.sh",
+      "is_system": false
+    },
+    {
+      "index": 25,
+      "timestamp": "03:20",
+      "speaker": "blocke",
+      "text": "it didn't used to be so short on this laptop until I upgraded to hoary... can't be good for the hard drive",
+      "is_system": false
+    },
+    {
+      "index": 26,
+      "timestamp": "03:21",
+      "speaker": "GnuHippy",
+      "text": "the gimp ScriptFU filters are broken in hoary",
+      "is_system": false
+    },
+    {
+      "index": 27,
+      "timestamp": "03:21",
+      "speaker": "Nafallo",
+      "text": "blocke: it makes battery time :-P",
+      "is_system": false
+    },
+    {
+      "index": 28,
+      "timestamp": "03:21",
+      "speaker": "Nafallo",
+      "text": "blocke: in warty default is 12.",
+      "is_system": false
+    },
+    {
+      "index": 29,
+      "timestamp": "03:21",
+      "speaker": "blocke",
+      "text": "yeah I see that, strange",
+      "is_system": false
+    },
+    {
+      "index": 30,
+      "timestamp": "03:21",
+      "speaker": "blocke",
+      "text": "its not respecting it",
+      "is_system": false
+    },
+    {
+      "index": 31,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== natea [~natea@h000f66a887c6.ne.client2.attbi.com]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 32,
+      "timestamp": "03:22",
+      "speaker": "blocke",
+      "text": "its literally spinning down after a second of inactivity",
+      "is_system": false
+    },
+    {
+      "index": 33,
+      "timestamp": "03:22",
+      "speaker": "Nafallo",
+      "text": "blocke: sudo hdparm -i /dev/hda",
+      "is_system": false
+    },
+    {
+      "index": 34,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== Hydroxide [user@adsl-98-2.bway.net]  has left #ubuntu []",
+      "is_system": true
+    },
+    {
+      "index": 35,
+      "timestamp": "03:24",
+      "speaker": "blocke",
+      "text": "http://www.pastebin.com/116669",
+      "is_system": false
+    },
+    {
+      "index": 36,
+      "timestamp": "03:25",
+      "speaker": "GnuHippy",
+      "text": "wow it is scary how much work they have done on hoary already and how fast updates and fixes are made",
+      "is_system": false
+    },
+    {
+      "index": 37,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== holycow [~yada@S0106002078ccd651.vf.shawcable.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 38,
+      "timestamp": "03:25",
+      "speaker": "jdub",
+      "text": "GnuHippy: that's largely merging with sid.",
+      "is_system": false
+    },
+    {
+      "index": 39,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== poin_t [point@203.130.197.108]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 40,
+      "timestamp": "03:25",
+      "speaker": "GnuHippy",
+      "text": "Do they have 1000 Keebler elves working around the clock?",
+      "is_system": false
+    },
+    {
+      "index": 41,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== draconian [~draconian@ip68-7-178-227.sd.sd.cox.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 42,
+      "timestamp": "03:25",
+      "speaker": "GnuHippy",
+      "text": "ic jdub",
+      "is_system": false
+    },
+    {
+      "index": 43,
+      "timestamp": "03:26",
+      "speaker": "GnuHippy",
+      "text": "was Sarge released yet?",
+      "is_system": false
+    },
+    {
+      "index": 44,
+      "timestamp": "03:26",
+      "speaker": "usual",
+      "text": "hey jdub, how goes it",
+      "is_system": false
+    },
+    {
+      "index": 45,
+      "timestamp": "03:26",
+      "speaker": "usual",
+      "text": "sarge wont be released until i have grandkids",
+      "is_system": false
+    },
+    {
+      "index": 46,
+      "timestamp": "03:27",
+      "speaker": "GnuHippy",
+      "text": "I'll take that as a no",
+      "is_system": false
+    },
+    {
+      "index": 47,
+      "timestamp": "03:27",
+      "speaker": "blocke",
+      "text": "gah... stop spinning down!",
+      "is_system": false
+    },
+    {
+      "index": 48,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== ajmitch checks to see if his packages are in hoary/universe",
+      "is_system": true
+    },
+    {
+      "index": 49,
+      "timestamp": "03:27",
+      "speaker": "Nafallo",
+      "text": "blocke: hmm, that didn't say spindown time :-P. well, sudo hdparm -S 12 /dev/hda does what you want :-).",
+      "is_system": false
+    },
+    {
+      "index": 50,
+      "timestamp": "03:27",
+      "speaker": "blocke",
+      "text": "I did that several minutes ago",
+      "is_system": false
+    },
+    {
+      "index": 51,
+      "timestamp": "03:27",
+      "speaker": "ud",
+      "text": "In universe there is fluxbox_0.1.14-4_i386.deb and fluxbox_0.9.9-1_i386.deb but i can only manage to apt 0.1.14-4. How can I get the 0.9.9-1 release?",
+      "is_system": false
+    },
+    {
+      "index": 52,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== blocke reboots in the vein hope that its just a fluke...",
+      "is_system": true
+    },
+    {
+      "index": 53,
+      "timestamp": "03:28",
+      "speaker": "ajmitch",
+      "text": "great, I have about 10 packages in universe for hoary :)",
+      "is_system": false
+    },
+    {
+      "index": 54,
+      "timestamp": "03:29",
+      "speaker": "KentutMerah",
+      "text": "ud, dpkg ?",
+      "is_system": false
+    },
+    {
+      "index": 55,
+      "timestamp": "03:29",
+      "speaker": "ud",
+      "text": "umm.. I use apt-get. But should I try dpkg?",
+      "is_system": false
+    },
+    {
+      "index": 56,
+      "timestamp": "03:30",
+      "speaker": "jdub",
+      "text": "ud: 0.9.9 is most likely the hoary version, not the warty version",
+      "is_system": false
+    },
+    {
+      "index": 57,
+      "timestamp": "03:30",
+      "speaker": "jdub",
+      "text": "ud: dpkg won't help you",
+      "is_system": false
+    },
+    {
+      "index": 58,
+      "timestamp": "03:30",
+      "speaker": "jdub",
+      "text": "(well, it could, but it's not advisable)",
+      "is_system": false
+    },
+    {
+      "index": 59,
+      "timestamp": "03:30",
+      "speaker": "ud",
+      "text": "ahh but its in the the same repo?",
+      "is_system": false
+    },
+    {
+      "index": 60,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== nomasteryoda is away: IM me @ nomasteryoda on AIM / YIM",
+      "is_system": true
+    },
+    {
+      "index": 61,
+      "timestamp": "03:31",
+      "speaker": "jdub",
+      "text": "it's in the same pool",
+      "is_system": false
+    },
+    {
+      "index": 62,
+      "timestamp": "03:31",
+      "speaker": "jdub",
+      "text": "all the warty and hoary packages are in the same pool",
+      "is_system": false
+    },
+    {
+      "index": 63,
+      "timestamp": "03:31",
+      "speaker": "ud",
+      "text": "ahh ok",
+      "is_system": false
+    },
+    {
+      "index": 64,
+      "timestamp": "03:31",
+      "speaker": "jdub",
+      "text": "but they're for different releases",
+      "is_system": false
+    },
+    {
+      "index": 65,
+      "timestamp": "03:31",
+      "speaker": "ud",
+      "text": "I wondered if that was the case",
+      "is_system": false
+    },
+    {
+      "index": 66,
+      "timestamp": "03:32",
+      "speaker": "ud",
+      "text": "Because it wouldnt show the newer release with apt-cache search",
+      "is_system": false
+    },
+    {
+      "index": 67,
+      "timestamp": "03:32",
+      "speaker": "ud",
+      "text": "Is there a way I can use the newer release?",
+      "is_system": false
+    },
+    {
+      "index": 68,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== logic [~me@222-152-218-210.jetstream.xtra.co.nz]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 69,
+      "timestamp": "03:33",
+      "speaker": "jdub",
+      "text": "ud: hoary is the development branch",
+      "is_system": false
+    },
+    {
+      "index": 70,
+      "timestamp": "03:34",
+      "speaker": "jdub",
+      "text": "ud: unless you're very familiar with debian, i wouldn't recommend it",
+      "is_system": false
+    },
+    {
+      "index": 71,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== blocke [~blocke@pool-70-18-134-61.pghk.east.verizon.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 72,
+      "timestamp": "03:34",
+      "speaker": "Nafallo",
+      "text": "ud: there is, but as jdub just said, it's not advisible :-).",
+      "is_system": false
+    },
+    {
+      "index": 73,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== defendguin [~supertux@adsl-6-68-108.msy.bellsouth.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 74,
+      "timestamp": "03:34",
+      "speaker": "ud",
+      "text": "ok thanks for your help, ill just have to wait :)",
+      "is_system": false
+    },
+    {
+      "index": 75,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== CPayan [~chatzilla@user-1120jfl.dsl.mindspring.com]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 76,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== hazmat [~hazmat@j71055.upc-j.chello.nl]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 77,
+      "timestamp": "03:35",
+      "speaker": "CPayan",
+      "text": "brettcar: sad",
+      "is_system": false
+    },
+    {
+      "index": 78,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== Tex___ [tex@beer.tclug.org]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 79,
+      "timestamp": "03:37",
+      "speaker": "blocke",
+      "text": "hmm I had to hdparm -B 255 to stop the spinning down, oh well, at least I have a workaround",
+      "is_system": false
+    },
+    {
+      "index": 80,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== Striss [~Strain@blk-222-170-205.eastlink.ca]  has joined #Ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 81,
+      "timestamp": "03:38",
+      "speaker": "Nafallo",
+      "text": "blocke: hehe",
+      "is_system": false
+    },
+    {
+      "index": 82,
+      "timestamp": "03:38",
+      "speaker": "Striss",
+      "text": "hey guys, I just installed Fluxbox, and I\"m running it...all the fonts in my gnome apps look kinda gross now",
+      "is_system": false
+    },
+    {
+      "index": 83,
+      "timestamp": "03:38",
+      "speaker": "Striss",
+      "text": "they don't look like they did in gnome",
+      "is_system": false
+    },
+    {
+      "index": 84,
+      "timestamp": "03:41",
+      "speaker": "dopey",
+      "text": "fluxbox is in ubuntu?",
+      "is_system": false
+    },
+    {
+      "index": 85,
+      "timestamp": "03:41",
+      "speaker": "jdub",
+      "text": "dopey: in universe, of course.",
+      "is_system": false
+    },
+    {
+      "index": 86,
+      "timestamp": "03:41",
+      "speaker": "dopey",
+      "text": "that makes more sense",
+      "is_system": false
+    },
+    {
+      "index": 87,
+      "timestamp": "03:41",
+      "speaker": "djtansey",
+      "text": "does anyone here have k3b experience? i can record things with cdrecord but k3b won't let me (did k3bsetup and all and it seems happy. but k3b says my device isn't a cd writer)",
+      "is_system": false
+    },
+    {
+      "index": 88,
+      "timestamp": "03:41",
+      "speaker": "dopey",
+      "text": "i thought universe was unsupported though",
+      "is_system": false
+    },
+    {
+      "index": 89,
+      "timestamp": "03:41",
+      "speaker": "jdub",
+      "text": "it is",
+      "is_system": false
+    },
+    {
+      "index": 90,
+      "timestamp": "03:42",
+      "speaker": "Nafallo",
+      "text": "djtansey: k3b won't work with kernel 2.6.8|2.6.8.1",
+      "is_system": false
+    },
+    {
+      "index": 91,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== Dethread [~Dethread@24-205-231-52.slo-cres.charterpipeline.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 92,
+      "timestamp": "03:43",
+      "speaker": "djtansey",
+      "text": "Nafallo: so go back to 2.6.7?",
+      "is_system": false
+    },
+    {
+      "index": 93,
+      "timestamp": "03:44",
+      "speaker": "Nafallo",
+      "text": "djtansey: yepp, or upgrade to 2.6.9",
+      "is_system": false
+    },
+    {
+      "index": 94,
+      "timestamp": "03:44",
+      "speaker": "CPayan",
+      "text": "hmm progression or regression",
+      "is_system": false
+    },
+    {
+      "index": 95,
+      "timestamp": "03:44",
+      "speaker": "djtansey",
+      "text": "Nafallo: thanks. i'll see if ubuntu has 2.6.9 packaged",
+      "is_system": false
+    },
+    {
+      "index": 96,
+      "timestamp": "03:44",
+      "speaker": "jdub",
+      "text": "it will work with the ubuntu kernel",
+      "is_system": false
+    },
+    {
+      "index": 97,
+      "timestamp": "03:44",
+      "speaker": "djtansey",
+      "text": "jdub: k3b will?",
+      "is_system": false
+    },
+    {
+      "index": 98,
+      "timestamp": "03:44",
+      "speaker": "jdub",
+      "text": "no, there's no 2.6.9 in warty or hoary",
+      "is_system": false
+    },
+    {
+      "index": 99,
+      "timestamp": "03:44",
+      "speaker": "jdub",
+      "text": "yes",
+      "is_system": false
+    },
+    {
+      "index": 100,
+      "timestamp": "03:45",
+      "speaker": "jdub",
+      "text": "there are plenty of people using it",
+      "is_system": false
+    },
+    {
+      "index": 101,
+      "timestamp": "03:45",
+      "speaker": "Nafallo",
+      "text": "jdub: never worked with ANY 2.6 for me :-P",
+      "is_system": false
+    },
+    {
+      "index": 102,
+      "timestamp": "03:45",
+      "speaker": "djtansey",
+      "text": "jdub: then any guess as to what the problem is?",
+      "is_system": false
+    },
+    {
+      "index": 103,
+      "timestamp": "03:45",
+      "speaker": "Nafallo",
+      "text": "jdub: that's with both ubuntu and debian kernels.",
+      "is_system": false
+    },
+    {
+      "index": 104,
+      "timestamp": "03:45",
+      "speaker": "jdub",
+      "text": "dunno if there's a FAQ or something on the website, but it would make sense to check",
+      "is_system": false
+    },
+    {
+      "index": 105,
+      "timestamp": "03:45",
+      "speaker": "djtansey",
+      "text": "jdub: i did. nothing i could find that was related",
+      "is_system": false
+    },
+    {
+      "index": 106,
+      "timestamp": "03:45",
+      "speaker": "Nafallo",
+      "text": "opss, typo! 2.6.8* ;-)",
+      "is_system": false
+    },
+    {
+      "index": 107,
+      "timestamp": "03:46",
+      "speaker": "djtansey",
+      "text": "jdub: other than some k3bsetup .ICEauthority issues",
+      "is_system": false
+    },
+    {
+      "index": 108,
+      "timestamp": "03:46",
+      "speaker": "djtansey",
+      "text": "Nafallo: but it works with 2.6.7 for you?",
+      "is_system": false
+    },
+    {
+      "index": 109,
+      "timestamp": "03:46",
+      "speaker": "Nafallo",
+      "text": "jdub: k3b and 2.6.8|2.6.8.1 on both my computers with burners fail.",
+      "is_system": false
+    },
+    {
+      "index": 110,
+      "timestamp": "03:46",
+      "speaker": "Nafallo",
+      "text": "djtansey: yes.",
+      "is_system": false
+    },
+    {
+      "index": 111,
+      "timestamp": "03:47",
+      "speaker": "Nafallo",
+      "text": "djtansey: and it should be fixed in 2.6.9 also :-)",
+      "is_system": false
+    },
+    {
+      "index": 112,
+      "timestamp": "03:47",
+      "speaker": "jdub",
+      "text": "Nafallo: the ubuntu kernels do not have those bugs.",
+      "is_system": false
+    },
+    {
+      "index": 113,
+      "timestamp": "03:47",
+      "speaker": "djtansey",
+      "text": "Nafallo: thanks.",
+      "is_system": false
+    },
+    {
+      "index": 114,
+      "timestamp": "03:48",
+      "speaker": "jdub",
+      "text": "plenty of other people are using k3b with ubuntu",
+      "is_system": false
+    },
+    {
+      "index": 115,
+      "timestamp": "03:48",
+      "speaker": "Nafallo",
+      "text": "jdub: how come when I TRIED with ubuntu k3b couldn't see my burner?",
+      "is_system": false
+    },
+    {
+      "index": 116,
+      "timestamp": "03:48",
+      "speaker": "Nafallo",
+      "text": "jdub: same thing with my girlfriend.",
+      "is_system": false
+    },
+    {
+      "index": 117,
+      "timestamp": "03:48",
+      "speaker": "jdub",
+      "text": "i don't know your particular circumstances",
+      "is_system": false
+    },
+    {
+      "index": 118,
+      "timestamp": "03:48",
+      "speaker": "jdub",
+      "text": "i can only relate what i know",
+      "is_system": false
+    },
+    {
+      "index": 119,
+      "timestamp": "03:48",
+      "speaker": "Nafallo",
+      "text": "it just doesn't work :-)",
+      "is_system": false
+    },
+    {
+      "index": 120,
+      "timestamp": "03:48",
+      "speaker": "Nafallo",
+      "text": "jdub: same here.",
+      "is_system": false
+    },
+    {
+      "index": 121,
+      "timestamp": "03:48",
+      "speaker": "jdub",
+      "text": "that may be true in your case",
+      "is_system": false
+    },
+    {
+      "index": 122,
+      "timestamp": "03:48",
+      "speaker": "jdub",
+      "text": "but it is not the case for many other users",
+      "is_system": false
+    },
+    {
+      "index": 123,
+      "timestamp": "03:50",
+      "speaker": "Nafallo",
+      "text": "jdub: maybe it's just drive specific?",
+      "is_system": false
+    },
+    {
+      "index": 124,
+      "timestamp": "03:50",
+      "speaker": "jdub",
+      "text": "i don't know",
+      "is_system": false
+    },
+    {
+      "index": 125,
+      "timestamp": "03:50",
+      "speaker": "Nafallo",
+      "text": "jdub: but then, I got both a samsung and a toshiba ;-).",
+      "is_system": false
+    },
+    {
+      "index": 126,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== logic is now known as logic|away",
+      "is_system": true
+    },
+    {
+      "index": 127,
+      "timestamp": "03:51",
+      "speaker": "Nafallo",
+      "text": "it might be that I'm running my cd-rws as ide-cd :-)",
+      "is_system": false
+    },
+    {
+      "index": 128,
+      "timestamp": "03:51",
+      "speaker": "djtansey",
+      "text": "Nafallo: but i can use cdrecord dev=/dev/hdc without problem. you'd think k3b would be equally capable",
+      "is_system": false
+    },
+    {
+      "index": 129,
+      "timestamp": "03:52",
+      "speaker": "Nafallo",
+      "text": "djtansey: yepp, I've given up on the subject anyway :-P. ubuntu showed me the way nautilus does it :-P.",
+      "is_system": false
+    },
+    {
+      "index": 130,
+      "timestamp": "03:52",
+      "speaker": "phill",
+      "text": "Hi, I have a rather long question, so I have posted it here on the ubuntu forums. If anyone here has any answers to it, I would very much appreciate the help!",
+      "is_system": false
+    },
+    {
+      "index": 131,
+      "timestamp": "03:52",
+      "speaker": "phill",
+      "text": "http://www.ubuntuforums.org/showthread.php?p=11009#post11009",
+      "is_system": false
+    },
+    {
+      "index": 132,
+      "timestamp": "03:52",
+      "speaker": "djtansey",
+      "text": "Nafallo: usually that's what i do. unfortunately i am burning audio CDs for a roadtrip :)",
+      "is_system": false
+    },
+    {
+      "index": 133,
+      "timestamp": "03:53",
+      "speaker": "ajmitch",
+      "text": "djtansey: running k3b with sudo?",
+      "is_system": false
+    },
+    {
+      "index": 134,
+      "timestamp": "03:54",
+      "speaker": "ajmitch",
+      "text": "not that it should matter with the patched kernel",
+      "is_system": false
+    },
+    {
+      "index": 135,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== Elyran [~mirspcm@lns-th2-4f-81-56-180-71.adsl.proxad.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 136,
+      "timestamp": "03:54",
+      "speaker": "djtansey",
+      "text": "ajmitch: no. but i gave k3b my root password so those apps have root permissions",
+      "is_system": false
+    },
+    {
+      "index": 137,
+      "timestamp": "03:54",
+      "speaker": "Nafallo",
+      "text": "phill: my friend installed that on his lappy yesterday. he just had to apt-get and s/ati/fglrx/ :-)",
+      "is_system": false
+    },
+    {
+      "index": 138,
+      "timestamp": "03:55",
+      "speaker": "Nafallo",
+      "text": "phill: and then restart x and gdm ofcourse :-)",
+      "is_system": false
+    },
+    {
+      "index": 139,
+      "timestamp": "03:55",
+      "speaker": "Nafallo",
+      "text": "djtansey: k3b doesn't have root permissions.",
+      "is_system": false
+    },
+    {
+      "index": 140,
+      "timestamp": "03:55",
+      "speaker": "Nafallo",
+      "text": "djtansey: cdrecord and cdrdao have :-).",
+      "is_system": false
+    },
+    {
+      "index": 141,
+      "timestamp": "03:56",
+      "speaker": "phill",
+      "text": "hi, ok, how do i restard x/gdm?",
+      "is_system": false
+    },
+    {
+      "index": 142,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== GnuHippy [~jason@blk-222-217-193.eastlink.ca]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 143,
+      "timestamp": "03:57",
+      "speaker": "djtansey",
+      "text": "Nafallo: that's why i meants by \"those apps.\" would giving k3b root help? (not that it matters now. i just finished my last CD using cdrecord)",
+      "is_system": false
+    },
+    {
+      "index": 144,
+      "timestamp": "03:57",
+      "speaker": "Nafallo",
+      "text": "phill: logout from X, when you're at the login screen, press CTRL+F1, login and typ sudo /etc/init.d/gdm restart",
+      "is_system": false
+    },
+    {
+      "index": 145,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== draconian [~draconian@ip68-7-178-227.sd.sd.cox.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 146,
+      "timestamp": "03:59",
+      "speaker": "HrdwrBoB",
+      "text": "ctrl+alt+f1",
+      "is_system": false
+    },
+    {
+      "index": 147,
+      "timestamp": "03:59",
+      "speaker": "Nafallo",
+      "text": "HrdwrBoB: thanks :-)",
+      "is_system": false
+    },
+    {
+      "index": 148,
+      "timestamp": "03:59",
+      "speaker": "phill",
+      "text": "ok will give it a go :)",
+      "is_system": false
+    },
+    {
+      "index": 149,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 150,
+      "timestamp": "03:59",
+      "speaker": "phill",
+      "text": "so i don't need to apt-get install linux-686 or whatever the binarydriverhowto said?",
+      "is_system": false
+    },
+    {
+      "index": 151,
+      "timestamp": "04:00",
+      "speaker": "Nafallo",
+      "text": "ahh, yes. you have to switch kernel to :-).",
+      "is_system": false
+    },
+    {
+      "index": 152,
+      "timestamp": "04:00",
+      "speaker": "Nafallo",
+      "text": "phill: that makes it easier, because you have to restart to make the new kernel load ;-).",
+      "is_system": false
+    },
+    {
+      "index": 153,
+      "timestamp": "04:01",
+      "speaker": "ghc",
+      "text": "Hi all. Is this a good place to ask for some technical help on installing ubuntu on some hardware which is being difficult?",
+      "is_system": false
+    },
+    {
+      "index": 154,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== Striss [~Strain@blk-222-170-205.eastlink.ca]  has joined #Ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 155,
+      "timestamp": "04:02",
+      "speaker": "Striss",
+      "text": "woo fluxbox is working perfect",
+      "is_system": false
+    },
+    {
+      "index": 156,
+      "timestamp": "04:02",
+      "speaker": "Striss",
+      "text": "ubuntu is so great",
+      "is_system": false
+    },
+    {
+      "index": 157,
+      "timestamp": "04:02",
+      "speaker": "phill",
+      "text": "i have to what? :(",
+      "is_system": false
+    },
+    {
+      "index": 158,
+      "timestamp": "04:02",
+      "speaker": "ghc",
+      "text": "I've got an IBM ThinkCenter with a SATA chipset which I can't get working.",
+      "is_system": false
+    },
+    {
+      "index": 159,
+      "timestamp": "04:02",
+      "speaker": "Nafallo",
+      "text": "phill: follow the howto :-)",
+      "is_system": false
+    },
+    {
+      "index": 160,
+      "timestamp": "04:02",
+      "speaker": "phill",
+      "text": "ok",
+      "is_system": false
+    },
+    {
+      "index": 161,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== Elroy-J [~mirak@adsl-68-74-28-228.dsl.sfldmi.ameritech.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 162,
+      "timestamp": "04:03",
+      "speaker": "Gmail",
+      "text": "bob2: i am going to /msg you now",
+      "is_system": false
+    },
+    {
+      "index": 163,
+      "timestamp": "04:04",
+      "speaker": "phill",
+      "text": "since i'm using a 386 kernel at the moment i should just get that and it will replace my current one?",
+      "is_system": false
+    },
+    {
+      "index": 164,
+      "timestamp": "04:04",
+      "speaker": "Nafallo",
+      "text": "phill: you need to run 686 yes.",
+      "is_system": false
+    },
+    {
+      "index": 165,
+      "timestamp": "04:04",
+      "speaker": "phill",
+      "text": "oh",
+      "is_system": false
+    },
+    {
+      "index": 166,
+      "timestamp": "04:04",
+      "speaker": "phill",
+      "text": "i need to get linux-686",
+      "is_system": false
+    },
+    {
+      "index": 167,
+      "timestamp": "04:04",
+      "speaker": "phill",
+      "text": "?",
+      "is_system": false
+    },
+    {
+      "index": 168,
+      "timestamp": "04:04",
+      "speaker": "Nafallo",
+      "text": "yes",
+      "is_system": false
+    },
+    {
+      "index": 169,
+      "timestamp": "04:05",
+      "speaker": "phill",
+      "text": "and then make sure grub uses that?",
+      "is_system": false
+    },
+    {
+      "index": 170,
+      "timestamp": "04:05",
+      "speaker": "phill",
+      "text": "at what point do i reboot? after the kernel installs and then continue isntalling fglrx after i have linux-686 going? will linux-686 pickup my nvidia agpgart?",
+      "is_system": false
+    },
+    {
+      "index": 171,
+      "timestamp": "04:07",
+      "speaker": "usual",
+      "text": "can I do a cryptoloop on my root running reiserfs?",
+      "is_system": false
+    },
+    {
+      "index": 172,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== timello [~tiago@201.7.63.18]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 173,
+      "timestamp": "04:07",
+      "speaker": "Nafallo",
+      "text": "phill: install linux-686 and fglrx-driver, then sed then reboot and it will work.",
+      "is_system": false
+    },
+    {
+      "index": 174,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has left #ubuntu []",
+      "is_system": true
+    },
+    {
+      "index": 175,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 176,
+      "timestamp": "04:11",
+      "speaker": "phill",
+      "text": "natfallo: alright. last time i tried x wouldn't start :( but i'll give it another shot",
+      "is_system": false
+    },
+    {
+      "index": 177,
+      "timestamp": "04:11",
+      "speaker": "Nafallo",
+      "text": "last time, did you have i686-kernel?",
+      "is_system": false
+    },
+    {
+      "index": 178,
+      "timestamp": "04:11",
+      "speaker": "phill",
+      "text": "yes",
+      "is_system": false
+    },
+    {
+      "index": 179,
+      "timestamp": "04:11",
+      "speaker": "phill",
+      "text": "i did the guide",
+      "is_system": false
+    },
+    {
+      "index": 180,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== usual [~colin@alb-69-200-178-150.nycap.rr.com]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 181,
+      "timestamp": "04:14",
+      "speaker": "cuga",
+      "text": "Hey i just noticed this, ubuntu's ssh server is called openserver-ssh... is it still openssh just rebranded ?",
+      "is_system": false
+    },
+    {
+      "index": 182,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== danhunt [~dan_hunt@hssxpa204-83-181-43.sasknet.sk.ca]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 183,
+      "timestamp": "04:14",
+      "speaker": "bob2",
+      "text": "cuga: no it's not",
+      "is_system": false
+    },
+    {
+      "index": 184,
+      "timestamp": "04:14",
+      "speaker": "bob2",
+      "text": "it's called openssh-server",
+      "is_system": false
+    },
+    {
+      "index": 185,
+      "timestamp": "04:14",
+      "speaker": "bob2",
+      "text": "it is openssh.",
+      "is_system": false
+    },
+    {
+      "index": 186,
+      "timestamp": "04:14",
+      "speaker": "Elroy-J",
+      "text": "lol",
+      "is_system": false
+    },
+    {
+      "index": 187,
+      "timestamp": "04:15",
+      "speaker": "cuga",
+      "text": "bob2: man, i must be dislexic.. if i could spell it",
+      "is_system": false
+    },
+    {
+      "index": 188,
+      "timestamp": "04:16",
+      "speaker": "HrdwrBoB",
+      "text": "dyslexis",
+      "is_system": false
+    },
+    {
+      "index": 189,
+      "timestamp": "04:16",
+      "speaker": "HrdwrBoB",
+      "text": "dyslexic",
+      "is_system": false
+    },
+    {
+      "index": 190,
+      "timestamp": "04:16",
+      "speaker": "HrdwrBoB",
+      "text": "I can spell, just not type",
+      "is_system": false
+    },
+    {
+      "index": 191,
+      "timestamp": "04:16",
+      "speaker": "cuga",
+      "text": "i was only off by one letter.. tahts hot",
+      "is_system": false
+    },
+    {
+      "index": 192,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== _timello [~tiago@201.7.53.31]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 193,
+      "timestamp": "04:20",
+      "speaker": "_timello",
+      "text": "sorry, but I lost my link, repeating the question: anybody knows why I can't play any .mpg, etc? it shows me the sound, but not shows me the screen",
+      "is_system": false
+    },
+    {
+      "index": 194,
+      "timestamp": "04:21",
+      "speaker": "bob2",
+      "text": "RestrictedFormats on the wiki",
+      "is_system": false
+    },
+    {
+      "index": 195,
+      "timestamp": "04:21",
+      "speaker": "Nafallo",
+      "text": "_timello: probably missing codecs",
+      "is_system": false
+    },
+    {
+      "index": 196,
+      "timestamp": "04:21",
+      "speaker": "Nafallo",
+      "text": "hmm",
+      "is_system": false
+    },
+    {
+      "index": 197,
+      "timestamp": "04:22",
+      "speaker": "Nafallo",
+      "text": "anyone else got troubles with docbook-dsssl?",
+      "is_system": false
+    },
+    {
+      "index": 198,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== dasenjo [~dasenjo@201.245.164.26]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 199,
+      "timestamp": "04:22",
+      "speaker": "Nafallo",
+      "text": "version 1.57-4",
+      "is_system": false
+    },
+    {
+      "index": 200,
+      "timestamp": "04:22",
+      "speaker": "Nafallo",
+      "text": "typo",
+      "is_system": false
+    },
+    {
+      "index": 201,
+      "timestamp": "04:22",
+      "speaker": "Nafallo",
+      "text": "version 1.78-4",
+      "is_system": false
+    },
+    {
+      "index": 202,
+      "timestamp": "04:24",
+      "speaker": "danhunt",
+      "text": "check http://www.desktopos.com/reviews.php?op=PrintReview&id=21 for .mpg tips.",
+      "is_system": false
+    },
+    {
+      "index": 203,
+      "timestamp": "04:24",
+      "speaker": "Nafallo",
+      "text": "hmm, odd",
+      "is_system": false
+    },
+    {
+      "index": 204,
+      "timestamp": "04:24",
+      "speaker": "Nafallo",
+      "text": "it works now :-P",
+      "is_system": false
+    },
+    {
+      "index": 205,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== atariboy [~atari@dsl-203-142-136-122.mel.directcorp.net.au]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 206,
+      "timestamp": "04:25",
+      "speaker": "Nafallo",
+      "text": "finally I'm on warty again ;-)",
+      "is_system": false
+    },
+    {
+      "index": 207,
+      "timestamp": "04:26",
+      "speaker": "Nafallo",
+      "text": "takes a bit more to downgrade through aptitude than upgrade ;-)",
+      "is_system": false
+    },
+    {
+      "index": 208,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== natea [~natea@h000f66a887c6.ne.client2.attbi.com]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 209,
+      "timestamp": "04:29",
+      "speaker": "_timello",
+      "text": "danhunt, I installed mplayer and the essential codecs package, but it still isn't working. I didn't find why",
+      "is_system": false
+    },
+    {
+      "index": 210,
+      "timestamp": "04:30",
+      "speaker": "Nafallo",
+      "text": "_timello: run mplayer from a terminal and check the output?",
+      "is_system": false
+    },
+    {
+      "index": 211,
+      "timestamp": "04:34",
+      "speaker": "_timello",
+      "text": "it shows errors like: can't open ~/.mplayer/codecs.conf, font, but I don't think so that it is the real problem",
+      "is_system": false
+    },
+    {
+      "index": 212,
+      "timestamp": "04:34",
+      "speaker": "bob2",
+      "text": "it's not an error, it's a warning",
+      "is_system": false
+    },
+    {
+      "index": 213,
+      "timestamp": "04:35",
+      "speaker": "_timello",
+      "text": "yes, sorry",
+      "is_system": false
+    },
+    {
+      "index": 214,
+      "timestamp": "04:35",
+      "speaker": "billytwowilly",
+      "text": "how do I enable panel support in xchat?",
+      "is_system": false
+    },
+    {
+      "index": 215,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== _timello is now known as timello",
+      "is_system": true
+    },
+    {
+      "index": 216,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== doko [doko@dsl-082-082-066-197.arcor-ip.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 217,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== ghc [~geoffc@sdcarl02.strategicdata.com.au]  has left #ubuntu []",
+      "is_system": true
+    },
+    {
+      "index": 218,
+      "timestamp": "04:42",
+      "speaker": "timello",
+      "text": "maybe has a package for X that allows it? Totem doesn't show me nothing either",
+      "is_system": false
+    },
+    {
+      "index": 219,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== poin__t [point@203.130.197.108]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 220,
+      "timestamp": "04:43",
+      "speaker": "timello",
+      "text": "I'm using a nvidia gforce mx440",
+      "is_system": false
+    },
+    {
+      "index": 221,
+      "timestamp": "04:44",
+      "speaker": "Pizbit",
+      "text": "billytwowilly: panel support = ?",
+      "is_system": false
+    },
+    {
+      "index": 222,
+      "timestamp": "04:45",
+      "speaker": "Pizbit",
+      "text": "timello: You installed the w32codecs package eh? Tried changing from totem-gst to totem-xine ?",
+      "is_system": false
+    },
+    {
+      "index": 223,
+      "timestamp": "04:46",
+      "speaker": "timello",
+      "text": "Pizbit, just for mplayer... I' ll go try",
+      "is_system": false
+    },
+    {
+      "index": 224,
+      "timestamp": "04:46",
+      "speaker": "Pizbit",
+      "text": "(although personally I use xine)",
+      "is_system": false
+    },
+    {
+      "index": 225,
+      "timestamp": "04:47",
+      "speaker": "timello",
+      "text": "apt-get install xine-ui?",
+      "is_system": false
+    },
+    {
+      "index": 226,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== jg [~jg@h005018015b26.ne.client2.attbi.com]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 227,
+      "timestamp": "04:48",
+      "speaker": "Pizbit",
+      "text": "Yeah",
+      "is_system": false
+    },
+    {
+      "index": 228,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== janice [~janice@adsl-11-179-21.mia.bellsouth.net]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 229,
+      "timestamp": "04:49",
+      "speaker": "Nafallo",
+      "text": "WTF!",
+      "is_system": false
+    },
+    {
+      "index": 230,
+      "timestamp": null,
+      "speaker": "SYSTEM",
+      "text": "=== benh` [~benh@h000c414a0141.ne.client2.attbi.com]  has joined #ubuntu",
+      "is_system": true
+    },
+    {
+      "index": 231,
+      "timestamp": "04:49",
+      "speaker": "janice",
+      "text": "Hi All! I took the plunge and installed Ubuntu. However, I need some help.",
+      "is_system": false
+    },
+    {
+      "index": 232,
+      "timestamp": "04:49",
+      "speaker": "nomasteryoda",
+      "text": "excellent",
+      "is_system": false
+    },
+    {
+      "index": 233,
+      "timestamp": "04:49",
+      "speaker": "Nafallo",
+      "text": "@ogre:/mnt/mirrors/ubuntu/pool/main/g/gnutls10$ ls -al",
+      "is_system": false
+    },
+    {
+      "index": 234,
+      "timestamp": "04:49",
+      "speaker": "Nafallo",
+      "text": "lrwxrwxrwx    1 root     root           77 2004-11-02 22:07 libgnutls10-dev_1.0.4-3ubuntu1_amd64.deb -> ../../../../pool/universe/g/gnutls10/libgnutls10-dev_1.0.4-3ubuntu1_amd64.deb",
+      "is_system": false
+    },
+    {
+      "index": 235,
+      "timestamp": "04:49",
+      "speaker": "benh`",
+      "text": "is it possible (or desirable) to dist-upgrade to hoary?",
+      "is_system": false
+    },
+    {
+      "index": 236,
+      "timestamp": "04:50",
+      "speaker": "HrdwrBoB",
+      "text": "benh`: yes and maybe",
+      "is_system": false
+    },
+    {
+      "index": 237,
+      "timestamp": "04:50",
+      "speaker": "benh`",
+      "text": "ok, just s/wart/hoary in sources.list?",
+      "is_system": false
+    },
+    {
+      "index": 238,
+      "timestamp": "04:50",
+      "speaker": "timello",
+      "text": "Pizbit, it comes with codecs?",
+      "is_system": false
+    },
+    {
+      "index": 239,
+      "timestamp": "04:50",
+      "speaker": "nomasteryoda",
+      "text": "HrdwrBoB: Ubuntu has given me excellent results with TVtime too",
+      "is_system": false
+    },
+    {
+      "index": 240,
+      "timestamp": "04:50",
+      "speaker": "nomasteryoda",
+      "text": "much better on my old wintv card",
+      "is_system": false
+    },
+    {
+      "index": 241,
+      "timestamp": "04:50",
+      "speaker": "nomasteryoda",
+      "text": "than mandrake",
+      "is_system": false
+    },
+    {
+      "index": 242,
+      "timestamp": "04:50",
+      "speaker": "bob2",
+      "text": "benh`: are you willing to deal with broken things and to file bug reports?",
+      "is_system": false
+    },
+    {
+      "index": 243,
+      "timestamp": "04:50",
+      "speaker": "janice",
+      "text": "I have an unsupported USRobotics wireless PCI card and I need to use ndiswrapper. Unfortunately, the install cd (Warty 4.10 Full Release) does not have ndiswrapper. What is the URL from the ubutnu website that I can download it from?",
+      "is_system": false
+    },
+    {
+      "index": 244,
+      "timestamp": "04:50",
+      "speaker": "HrdwrBoB",
+      "text": "heh",
+      "is_system": false
+    },
+    {
+      "index": 245,
+      "timestamp": "04:50",
+      "speaker": "HrdwrBoB",
+      "text": "good to hear :)",
+      "is_system": false
+    },
+    {
+      "index": 246,
+      "timestamp": "04:51",
+      "speaker": "HrdwrBoB",
+      "text": "janice: if you start synaptic",
+      "is_system": false
+    },
+    {
+      "index": 247,
+      "timestamp": "04:51",
+      "speaker": "HrdwrBoB",
+      "text": "and you enable 'restricted'",
+      "is_system": false
+    },
+    {
+      "index": 248,
+      "timestamp": "04:51",
+      "speaker": "HrdwrBoB",
+      "text": "you can install ndiswrapper",
+      "is_system": false
+    },
+    {
+      "index": 249,
+      "timestamp": "04:51",
+      "speaker": "benh`",
+      "text": "bob2, depends on how broken and yes",
+      "is_system": false
+    }
+  ],
+  "links": [
+    {
+      "child": 3,
+      "parent": 2
+    },
+    {
+      "child": 11,
+      "parent": 10
+    },
+    {
+      "child": 13,
+      "parent": 11
+    },
+    {
+      "child": 21,
+      "parent": 18
+    },
+    {
+      "child": 23,
+      "parent": 21
+    },
+    {
+      "child": 24,
+      "parent": 23
+    },
+    {
+      "child": 27,
+      "parent": 25
+    },
+    {
+      "child": 33,
+      "parent": 32
+    },
+    {
+      "child": 35,
+      "parent": 33
+    },
+    {
+      "child": 49,
+      "parent": 35
+    },
+    {
+      "child": 38,
+      "parent": 36
+    },
+    {
+      "child": 42,
+      "parent": 38
+    },
+    {
+      "child": 45,
+      "parent": 43
+    },
+    {
+      "child": 46,
+      "parent": 45
+    },
+    {
+      "child": 50,
+      "parent": 49
+    },
+    {
+      "child": 54,
+      "parent": 51
+    },
+    {
+      "child": 56,
+      "parent": 51
+    },
+    {
+      "child": 55,
+      "parent": 54
+    },
+    {
+      "child": 57,
+      "parent": 55
+    },
+    {
+      "child": 59,
+      "parent": 56
+    },
+    {
+      "child": 58,
+      "parent": 57
+    },
+    {
+      "child": 61,
+      "parent": 59
+    },
+    {
+      "child": 65,
+      "parent": 64
+    },
+    {
+      "child": 66,
+      "parent": 65
+    },
+    {
+      "child": 69,
+      "parent": 67
+    },
+    {
+      "child": 70,
+      "parent": 67
+    },
+    {
+      "child": 72,
+      "parent": 67
+    },
+    {
+      "child": 74,
+      "parent": 72
+    },
+    {
+      "child": 81,
+      "parent": 79
+    },
+    {
+      "child": 83,
+      "parent": 82
+    },
+    {
+      "child": 84,
+      "parent": 82
+    },
+    {
+      "child": 85,
+      "parent": 84
+    },
+    {
+      "child": 86,
+      "parent": 85
+    },
+    {
+      "child": 88,
+      "parent": 85
+    },
+    {
+      "child": 90,
+      "parent": 87
+    },
+    {
+      "child": 89,
+      "parent": 88
+    },
+    {
+      "child": 92,
+      "parent": 90
+    },
+    {
+      "child": 93,
+      "parent": 92
+    },
+    {
+      "child": 95,
+      "parent": 93
+    },
+    {
+      "child": 98,
+      "parent": 95
+    },
+    {
+      "child": 97,
+      "parent": 96
+    },
+    {
+      "child": 99,
+      "parent": 97
+    },
+    {
+      "child": 100,
+      "parent": 97
+    },
+    {
+      "child": 103,
+      "parent": 101
+    },
+    {
+      "child": 106,
+      "parent": 101
+    },
+    {
+      "child": 104,
+      "parent": 102
+    },
+    {
+      "child": 105,
+      "parent": 104
+    },
+    {
+      "child": 107,
+      "parent": 105
+    },
+    {
+      "child": 108,
+      "parent": 106
+    },
+    {
+      "child": 110,
+      "parent": 108
+    },
+    {
+      "child": 113,
+      "parent": 111
+    },
+    {
+      "child": 115,
+      "parent": 114
+    },
+    {
+      "child": 116,
+      "parent": 115
+    },
+    {
+      "child": 117,
+      "parent": 115
+    },
+    {
+      "child": 118,
+      "parent": 115
+    },
+    {
+      "child": 119,
+      "parent": 117
+    },
+    {
+      "child": 120,
+      "parent": 118
+    },
+    {
+      "child": 121,
+      "parent": 119
+    },
+    {
+      "child": 122,
+      "parent": 121
+    },
+    {
+      "child": 123,
+      "parent": 122
+    },
+    {
+      "child": 124,
+      "parent": 123
+    },
+    {
+      "child": 129,
+      "parent": 128
+    },
+    {
+      "child": 132,
+      "parent": 129
+    },
+    {
+      "child": 131,
+      "parent": 130
+    },
+    {
+      "child": 137,
+      "parent": 131
+    },
+    {
+      "child": 134,
+      "parent": 133
+    },
+    {
+      "child": 136,
+      "parent": 133
+    },
+    {
+      "child": 139,
+      "parent": 136
+    },
+    {
+      "child": 138,
+      "parent": 137
+    },
+    {
+      "child": 140,
+      "parent": 139
+    },
+    {
+      "child": 143,
+      "parent": 140
+    },
+    {
+      "child": 144,
+      "parent": 141
+    },
+    {
+      "child": 148,
+      "parent": 146
+    },
+    {
+      "child": 147,
+      "parent": 146
+    },
+    {
+      "child": 151,
+      "parent": 150
+    },
+    {
+      "child": 158,
+      "parent": 153
+    },
+    {
+      "child": 156,
+      "parent": 155
+    },
+    {
+      "child": 159,
+      "parent": 157
+    },
+    {
+      "child": 160,
+      "parent": 159
+    },
+    {
+      "child": 164,
+      "parent": 163
+    },
+    {
+      "child": 165,
+      "parent": 164
+    },
+    {
+      "child": 166,
+      "parent": 164
+    },
+    {
+      "child": 167,
+      "parent": 166
+    },
+    {
+      "child": 168,
+      "parent": 166
+    },
+    {
+      "child": 173,
+      "parent": 170
+    },
+    {
+      "child": 176,
+      "parent": 173
+    },
+    {
+      "child": 177,
+      "parent": 176
+    },
+    {
+      "child": 178,
+      "parent": 177
+    },
+    {
+      "child": 183,
+      "parent": 181
+    },
+    {
+      "child": 184,
+      "parent": 181
+    },
+    {
+      "child": 187,
+      "parent": 185
+    },
+    {
+      "child": 188,
+      "parent": 187
+    },
+    {
+      "child": 189,
+      "parent": 187
+    },
+    {
+      "child": 190,
+      "parent": 188
+    },
+    {
+      "child": 191,
+      "parent": 189
+    },
+    {
+      "child": 194,
+      "parent": 193
+    },
+    {
+      "child": 195,
+      "parent": 193
+    },
+    {
+      "child": 202,
+      "parent": 193
+    },
+    {
+      "child": 199,
+      "parent": 197
+    },
+    {
+      "child": 200,
+      "parent": 199
+    },
+    {
+      "child": 209,
+      "parent": 202
+    },
+    {
+      "child": 207,
+      "parent": 206
+    },
+    {
+      "child": 210,
+      "parent": 209
+    },
+    {
+      "child": 211,
+      "parent": 210
+    },
+    {
+      "child": 212,
+      "parent": 211
+    },
+    {
+      "child": 218,
+      "parent": 211
+    },
+    {
+      "child": 213,
+      "parent": 212
+    },
+    {
+      "child": 221,
+      "parent": 214
+    },
+    {
+      "child": 222,
+      "parent": 218
+    },
+    {
+      "child": 223,
+      "parent": 222
+    },
+    {
+      "child": 227,
+      "parent": 225
+    },
+    {
+      "child": 243,
+      "parent": 231
+    },
+    {
+      "child": 234,
+      "parent": 233
+    },
+    {
+      "child": 236,
+      "parent": 235
+    },
+    {
+      "child": 237,
+      "parent": 236
+    },
+    {
+      "child": 240,
+      "parent": 239
+    },
+    {
+      "child": 244,
+      "parent": 239
+    },
+    {
+      "child": 245,
+      "parent": 239
+    },
+    {
+      "child": 241,
+      "parent": 240
+    },
+    {
+      "child": 249,
+      "parent": 242
+    },
+    {
+      "child": 246,
+      "parent": 243
+    },
+    {
+      "child": 247,
+      "parent": 246
+    },
+    {
+      "child": 248,
+      "parent": 247
+    },
+    {
+      "child": 0,
+      "parent": 0
+    },
+    {
+      "child": 1,
+      "parent": 1
+    },
+    {
+      "child": 2,
+      "parent": 2
+    },
+    {
+      "child": 4,
+      "parent": 3
+    },
+    {
+      "child": 5,
+      "parent": 3
+    },
+    {
+      "child": 6,
+      "parent": 5
+    },
+    {
+      "child": 7,
+      "parent": 5
+    },
+    {
+      "child": 8,
+      "parent": 7
+    },
+    {
+      "child": 9,
+      "parent": 8
+    },
+    {
+      "child": 10,
+      "parent": 6
+    },
+    {
+      "child": 12,
+      "parent": 5
+    },
+    {
+      "child": 14,
+      "parent": 14
+    },
+    {
+      "child": 15,
+      "parent": 15
+    },
+    {
+      "child": 16,
+      "parent": 16
+    },
+    {
+      "child": 17,
+      "parent": 17
+    },
+    {
+      "child": 18,
+      "parent": 18
+    },
+    {
+      "child": 19,
+      "parent": 19
+    },
+    {
+      "child": 20,
+      "parent": 20
+    },
+    {
+      "child": 22,
+      "parent": 22
+    },
+    {
+      "child": 25,
+      "parent": 18
+    },
+    {
+      "child": 26,
+      "parent": 25
+    },
+    {
+      "child": 28,
+      "parent": 27
+    },
+    {
+      "child": 29,
+      "parent": 28
+    },
+    {
+      "child": 30,
+      "parent": 29
+    },
+    {
+      "child": 31,
+      "parent": 31
+    },
+    {
+      "child": 32,
+      "parent": 30
+    },
+    {
+      "child": 34,
+      "parent": 34
+    },
+    {
+      "child": 37,
+      "parent": 37
+    },
+    {
+      "child": 39,
+      "parent": 39
+    },
+    {
+      "child": 40,
+      "parent": 36
+    },
+    {
+      "child": 41,
+      "parent": 41
+    },
+    {
+      "child": 44,
+      "parent": 44
+    },
+    {
+      "child": 43,
+      "parent": 42
+    },
+    {
+      "child": 47,
+      "parent": 32
+    },
+    {
+      "child": 48,
+      "parent": 48
+    },
+    {
+      "child": 51,
+      "parent": 51
+    },
+    {
+      "child": 52,
+      "parent": 50
+    },
+    {
+      "child": 53,
+      "parent": 48
+    },
+    {
+      "child": 60,
+      "parent": 60
+    },
+    {
+      "child": 62,
+      "parent": 61
+    },
+    {
+      "child": 63,
+      "parent": 62
+    },
+    {
+      "child": 64,
+      "parent": 62
+    },
+    {
+      "child": 67,
+      "parent": 64
+    },
+    {
+      "child": 68,
+      "parent": 68
+    },
+    {
+      "child": 71,
+      "parent": 71
+    },
+    {
+      "child": 73,
+      "parent": 73
+    },
+    {
+      "child": 75,
+      "parent": 75
+    },
+    {
+      "child": 76,
+      "parent": 76
+    },
+    {
+      "child": 78,
+      "parent": 78
+    },
+    {
+      "child": 79,
+      "parent": 49
+    },
+    {
+      "child": 80,
+      "parent": 80
+    },
+    {
+      "child": 82,
+      "parent": 82
+    },
+    {
+      "child": 91,
+      "parent": 91
+    },
+    {
+      "child": 94,
+      "parent": 93
+    },
+    {
+      "child": 96,
+      "parent": 90
+    },
+    {
+      "child": 101,
+      "parent": 96
+    },
+    {
+      "child": 102,
+      "parent": 96
+    },
+    {
+      "child": 109,
+      "parent": 96
+    },
+    {
+      "child": 111,
+      "parent": 110
+    },
+    {
+      "child": 112,
+      "parent": 109
+    },
+    {
+      "child": 114,
+      "parent": 101
+    },
+    {
+      "child": 125,
+      "parent": 123
+    },
+    {
+      "child": 126,
+      "parent": 126
+    },
+    {
+      "child": 127,
+      "parent": 125
+    },
+    {
+      "child": 128,
+      "parent": 127
+    },
+    {
+      "child": 130,
+      "parent": 130
+    },
+    {
+      "child": 133,
+      "parent": 128
+    },
+    {
+      "child": 141,
+      "parent": 138
+    },
+    {
+      "child": 142,
+      "parent": 142
+    },
+    {
+      "child": 145,
+      "parent": 145
+    },
+    {
+      "child": 146,
+      "parent": 141
+    },
+    {
+      "child": 149,
+      "parent": 149
+    },
+    {
+      "child": 150,
+      "parent": 144
+    },
+    {
+      "child": 152,
+      "parent": 150
+    },
+    {
+      "child": 153,
+      "parent": 153
+    },
+    {
+      "child": 154,
+      "parent": 154
+    },
+    {
+      "child": 155,
+      "parent": 82
+    },
+    {
+      "child": 157,
+      "parent": 152
+    },
+    {
+      "child": 161,
+      "parent": 161
+    },
+    {
+      "child": 163,
+      "parent": 159
+    },
+    {
+      "child": 169,
+      "parent": 166
+    },
+    {
+      "child": 170,
+      "parent": 169
+    },
+    {
+      "child": 171,
+      "parent": 171
+    },
+    {
+      "child": 172,
+      "parent": 172
+    },
+    {
+      "child": 174,
+      "parent": 174
+    },
+    {
+      "child": 175,
+      "parent": 175
+    },
+    {
+      "child": 179,
+      "parent": 178
+    },
+    {
+      "child": 180,
+      "parent": 180
+    },
+    {
+      "child": 181,
+      "parent": 181
+    },
+    {
+      "child": 182,
+      "parent": 182
+    },
+    {
+      "child": 185,
+      "parent": 184
+    },
+    {
+      "child": 192,
+      "parent": 192
+    },
+    {
+      "child": 193,
+      "parent": 193
+    },
+    {
+      "child": 198,
+      "parent": 198
+    },
+    {
+      "child": 201,
+      "parent": 197
+    },
+    {
+      "child": 204,
+      "parent": 203
+    },
+    {
+      "child": 205,
+      "parent": 205
+    },
+    {
+      "child": 206,
+      "parent": 204
+    },
+    {
+      "child": 208,
+      "parent": 208
+    },
+    {
+      "child": 214,
+      "parent": 214
+    },
+    {
+      "child": 215,
+      "parent": 215
+    },
+    {
+      "child": 216,
+      "parent": 216
+    },
+    {
+      "child": 217,
+      "parent": 217
+    },
+    {
+      "child": 219,
+      "parent": 219
+    },
+    {
+      "child": 220,
+      "parent": 218
+    },
+    {
+      "child": 224,
+      "parent": 222
+    },
+    {
+      "child": 225,
+      "parent": 224
+    },
+    {
+      "child": 226,
+      "parent": 226
+    },
+    {
+      "child": 228,
+      "parent": 228
+    },
+    {
+      "child": 230,
+      "parent": 230
+    },
+    {
+      "child": 231,
+      "parent": 231
+    },
+    {
+      "child": 232,
+      "parent": 232
+    },
+    {
+      "child": 233,
+      "parent": 229
+    },
+    {
+      "child": 235,
+      "parent": 235
+    },
+    {
+      "child": 238,
+      "parent": 227
+    },
+    {
+      "child": 239,
+      "parent": 232
+    },
+    {
+      "child": 242,
+      "parent": 237
+    },
+    {
+      "child": 36,
+      "parent": 36
+    },
+    {
+      "child": 77,
+      "parent": 77
+    },
+    {
+      "child": 135,
+      "parent": 135
+    },
+    {
+      "child": 162,
+      "parent": 162
+    },
+    {
+      "child": 186,
+      "parent": 184
+    },
+    {
+      "child": 196,
+      "parent": 196
+    },
+    {
+      "child": 197,
+      "parent": 196
+    },
+    {
+      "child": 203,
+      "parent": 201
+    },
+    {
+      "child": 229,
+      "parent": 207
+    }
+  ],
+  "threads": [
+    {
+      "id": 143,
+      "messages": [
+        87,
+        90,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        127,
+        128,
+        129,
+        132,
+        133,
+        134,
+        136,
+        139,
+        140,
+        143
+      ],
+      "size": 46
+    },
+    {
+      "id": 179,
+      "messages": [
+        130,
+        131,
+        137,
+        138,
+        141,
+        144,
+        146,
+        147,
+        148,
+        150,
+        151,
+        152,
+        157,
+        159,
+        160,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        173,
+        176,
+        177,
+        178,
+        179
+      ],
+      "size": 28
+    },
+    {
+      "id": 81,
+      "messages": [
+        18,
+        21,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        32,
+        33,
+        35,
+        47,
+        49,
+        50,
+        52,
+        79,
+        81
+      ],
+      "size": 19
+    },
+    {
+      "id": 74,
+      "messages": [
+        51,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        69,
+        70,
+        72,
+        74
+      ],
+      "size": 18
+    },
+    {
+      "id": 238,
+      "messages": [
+        193,
+        194,
+        195,
+        202,
+        209,
+        210,
+        211,
+        212,
+        213,
+        218,
+        220,
+        222,
+        223,
+        224,
+        225,
+        227,
+        238
+      ],
+      "size": 17
+    },
+    {
+      "id": 12,
+      "messages": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "size": 12
+    },
+    {
+      "id": 234,
+      "messages": [
+        196,
+        197,
+        199,
+        200,
+        201,
+        203,
+        204,
+        206,
+        207,
+        229,
+        233,
+        234
+      ],
+      "size": 12
+    },
+    {
+      "id": 186,
+      "messages": [
+        181,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191
+      ],
+      "size": 10
+    },
+    {
+      "id": 156,
+      "messages": [
+        82,
+        83,
+        84,
+        85,
+        86,
+        88,
+        89,
+        155,
+        156
+      ],
+      "size": 9
+    },
+    {
+      "id": 46,
+      "messages": [
+        36,
+        38,
+        40,
+        42,
+        43,
+        45,
+        46
+      ],
+      "size": 7
+    },
+    {
+      "id": 241,
+      "messages": [
+        232,
+        239,
+        240,
+        241,
+        244,
+        245
+      ],
+      "size": 6
+    },
+    {
+      "id": 248,
+      "messages": [
+        231,
+        243,
+        246,
+        247,
+        248
+      ],
+      "size": 5
+    },
+    {
+      "id": 249,
+      "messages": [
+        235,
+        236,
+        237,
+        242,
+        249
+      ],
+      "size": 5
+    },
+    {
+      "id": 53,
+      "messages": [
+        48,
+        53
+      ],
+      "size": 2
+    },
+    {
+      "id": 158,
+      "messages": [
+        153,
+        158
+      ],
+      "size": 2
+    },
+    {
+      "id": 221,
+      "messages": [
+        214,
+        221
+      ],
+      "size": 2
+    },
+    {
+      "id": 0,
+      "messages": [
+        0
+      ],
+      "size": 1
+    },
+    {
+      "id": 1,
+      "messages": [
+        1
+      ],
+      "size": 1
+    },
+    {
+      "id": 14,
+      "messages": [
+        14
+      ],
+      "size": 1
+    },
+    {
+      "id": 15,
+      "messages": [
+        15
+      ],
+      "size": 1
+    },
+    {
+      "id": 16,
+      "messages": [
+        16
+      ],
+      "size": 1
+    },
+    {
+      "id": 17,
+      "messages": [
+        17
+      ],
+      "size": 1
+    },
+    {
+      "id": 19,
+      "messages": [
+        19
+      ],
+      "size": 1
+    },
+    {
+      "id": 20,
+      "messages": [
+        20
+      ],
+      "size": 1
+    },
+    {
+      "id": 22,
+      "messages": [
+        22
+      ],
+      "size": 1
+    },
+    {
+      "id": 31,
+      "messages": [
+        31
+      ],
+      "size": 1
+    },
+    {
+      "id": 34,
+      "messages": [
+        34
+      ],
+      "size": 1
+    },
+    {
+      "id": 37,
+      "messages": [
+        37
+      ],
+      "size": 1
+    },
+    {
+      "id": 39,
+      "messages": [
+        39
+      ],
+      "size": 1
+    },
+    {
+      "id": 41,
+      "messages": [
+        41
+      ],
+      "size": 1
+    },
+    {
+      "id": 44,
+      "messages": [
+        44
+      ],
+      "size": 1
+    },
+    {
+      "id": 60,
+      "messages": [
+        60
+      ],
+      "size": 1
+    },
+    {
+      "id": 68,
+      "messages": [
+        68
+      ],
+      "size": 1
+    },
+    {
+      "id": 71,
+      "messages": [
+        71
+      ],
+      "size": 1
+    },
+    {
+      "id": 73,
+      "messages": [
+        73
+      ],
+      "size": 1
+    },
+    {
+      "id": 75,
+      "messages": [
+        75
+      ],
+      "size": 1
+    },
+    {
+      "id": 76,
+      "messages": [
+        76
+      ],
+      "size": 1
+    },
+    {
+      "id": 77,
+      "messages": [
+        77
+      ],
+      "size": 1
+    },
+    {
+      "id": 78,
+      "messages": [
+        78
+      ],
+      "size": 1
+    },
+    {
+      "id": 80,
+      "messages": [
+        80
+      ],
+      "size": 1
+    },
+    {
+      "id": 91,
+      "messages": [
+        91
+      ],
+      "size": 1
+    },
+    {
+      "id": 126,
+      "messages": [
+        126
+      ],
+      "size": 1
+    },
+    {
+      "id": 135,
+      "messages": [
+        135
+      ],
+      "size": 1
+    },
+    {
+      "id": 142,
+      "messages": [
+        142
+      ],
+      "size": 1
+    },
+    {
+      "id": 145,
+      "messages": [
+        145
+      ],
+      "size": 1
+    },
+    {
+      "id": 149,
+      "messages": [
+        149
+      ],
+      "size": 1
+    },
+    {
+      "id": 154,
+      "messages": [
+        154
+      ],
+      "size": 1
+    },
+    {
+      "id": 161,
+      "messages": [
+        161
+      ],
+      "size": 1
+    },
+    {
+      "id": 162,
+      "messages": [
+        162
+      ],
+      "size": 1
+    },
+    {
+      "id": 171,
+      "messages": [
+        171
+      ],
+      "size": 1
+    },
+    {
+      "id": 172,
+      "messages": [
+        172
+      ],
+      "size": 1
+    },
+    {
+      "id": 174,
+      "messages": [
+        174
+      ],
+      "size": 1
+    },
+    {
+      "id": 175,
+      "messages": [
+        175
+      ],
+      "size": 1
+    },
+    {
+      "id": 180,
+      "messages": [
+        180
+      ],
+      "size": 1
+    },
+    {
+      "id": 182,
+      "messages": [
+        182
+      ],
+      "size": 1
+    },
+    {
+      "id": 192,
+      "messages": [
+        192
+      ],
+      "size": 1
+    },
+    {
+      "id": 198,
+      "messages": [
+        198
+      ],
+      "size": 1
+    },
+    {
+      "id": 205,
+      "messages": [
+        205
+      ],
+      "size": 1
+    },
+    {
+      "id": 208,
+      "messages": [
+        208
+      ],
+      "size": 1
+    },
+    {
+      "id": 215,
+      "messages": [
+        215
+      ],
+      "size": 1
+    },
+    {
+      "id": 216,
+      "messages": [
+        216
+      ],
+      "size": 1
+    },
+    {
+      "id": 217,
+      "messages": [
+        217
+      ],
+      "size": 1
+    },
+    {
+      "id": 219,
+      "messages": [
+        219
+      ],
+      "size": 1
+    },
+    {
+      "id": 226,
+      "messages": [
+        226
+      ],
+      "size": 1
+    },
+    {
+      "id": 228,
+      "messages": [
+        228
+      ],
+      "size": 1
+    },
+    {
+      "id": 230,
+      "messages": [
+        230
+      ],
+      "size": 1
+    }
+  ]
+}
