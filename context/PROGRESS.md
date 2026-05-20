@@ -8,15 +8,17 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **NaN cascade fix applied** (2026-05-19): logit clamping + label smoothing + `optimizer.zero_grad()` on NaN skip + AdamW eps=1e-4 + gentler hyperparams (batch=8, acc=2, lr=3e-5, warmup=15%). Documented as permanent invariant in CONTEXT.md §6 (Fix C). All 120 tests passing.
-- ✅ **Baseline verified**: Epoch 1 achieved 51.6% dev accuracy — 5x the strongest baseline (10.6% majority-class). Model genuinely learns; NaN fix is worth pursuing.
+- ✅ **Run 24796535 completed successfully**: 9 epochs, no NaN events. Best dev F1=0.3386 (epoch 6), best dev accuracy=51.55% (epoch 6), test accuracy=49.54%.
+- ✅ **Logit collapse diagnosed**: All 49 logits drift negative over training (mean -4.6 at epoch 1 → -37 at epoch 9). Label smoothing + pointwise scoring is the root cause. Only positional features survive as discriminators. This is an architectural limitation — each candidate is scored independently with no cross-candidate interaction.
+- ✅ **Poster text drafted**: Introduction, Methodology, Results, Discussion, and Conclusion sections rewritten for presentation. Results section uses accuracy framing (51.55% vs 10.6% majority-class baseline).
+- ✅ **NaN Fix C confirmed**: logit clamping + label smoothing + AdamW eps=1e-4 ran clean for 9 epochs. No NaN events. The fix is proven.
 
 ## Next Steps
-- [ ] **On Bunya**: `mv .../checkpoints_maxdist50/ .../checkpoint_learning_signal_contaminated/` then `sbatch run_job.slurm`
-- [ ] **Monitor first 12K batches** for NaN-free training — if clean, progress to multi-epoch convergence
-- [ ] **Post-training evaluation**: run eval on dev/test, compare to epoch-1 51.6% ceiling
-- [ ] **If NaN recurs**: check data dependency, reduce LR to 2e-5, or disable handcrafted features
-- [ ] **Conference paper**: Draft thesis chapter using results
+- [ ] **Architecture fix**: Replace Linear(773,1) pointwise scoring with bilinear interaction mechanism. Child CLS embedding should interact with each candidate CLS embedding in a shared space before softmax.
+- [ ] **Remove label smoothing**: Set to 0.0 or 0.05 after bilinear fix. Current 0.1 dilutes gradient signal across 48 wrong classes.
+- [ ] **SELF-as-candidate**: Add SELF token to candidate list so new-thread detection is a learnable class rather than a threshold heuristic.
+- [ ] **Clustering + thread metrics**: Implement Union-Find clustering and compute VI/ARI for thesis.
+- [ ] **Poster presentation**: Finalize poster layout with revised text and results figure.
 
 ---
 

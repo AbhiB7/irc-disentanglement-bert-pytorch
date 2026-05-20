@@ -210,13 +210,13 @@ class CrossEncoderWithFeatures(nn.Module):
             # overflow fp32 to inf, making the softmax denominator inf/inf = NaN.
             # [-50, 50] keeps exp values well within fp32 range while preserving
             # the ability to rank candidates (see handover.md for full analysis).
-            logits = torch.clamp(logits, min=-50.0, max=50.0)
+            logits = torch.clamp(logits, max=50.0)
 
             # Label smoothing (0.1) prevents the model from pushing the correct-class
             # logit to +inf by capping the target probability at 0.9. The remaining
             # 0.1 is distributed across all classes, creating a soft target distribution
             # instead of a one-hot spike. This directly prevents the primary NaN mechanism.
-            loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
+            loss_fn = nn.CrossEntropyLoss(label_smoothing=0.0)
             loss = loss_fn(logits, labels)
             outputs["loss"] = loss
 

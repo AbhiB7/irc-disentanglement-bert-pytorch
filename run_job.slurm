@@ -26,7 +26,7 @@ REPO_DIR=$(pwd)
 # Bunya storage layout: relocate heavy outputs to /scratch
 export RUN_ROOT=/scratch/user/$USER/ircbert_runs
 export LOG_DIR=$RUN_ROOT/logs
-export CHECKPOINT_DIR=$RUN_ROOT/checkpoints_maxdist50
+export CHECKPOINT_DIR=$RUN_ROOT/checkpoints_maxdist30
 
 # Create directories (including repo-local logs for slurm output/error files)
 mkdir -p logs $LOG_DIR $CHECKPOINT_DIR
@@ -47,7 +47,7 @@ python src/train.py \
     --epochs 10 \
     --learning-rate 3e-5 \
     --max-length 96 \
-    --max-dist 50 \
+    --max-dist 30 \
     --warmup-ratio 0.15 \
     --patience 3 \
     --eval-every 1 \
@@ -72,7 +72,7 @@ else
         --data-dir "$REPO_DIR/data" \
         --split dev \
         --batch-size 64 \
-        --max-dist 50 \
+        --max-dist 30 \
         --metrics both
 
     echo ""
@@ -82,6 +82,6 @@ else
         --data-dir "$REPO_DIR/data" \
         --split test \
         --batch-size 64 \
-        --max-dist 50 \
+        --max-dist 30 \
         --metrics both
 fi

@@ -95,6 +95,14 @@ Zhu et al. (2021) found a 25-point F1 gap between raw BERT and BERT + features.
 - **Evaluation**: Uses argmax for multiclass predictions
 - **Status**: ✅ Ready for training
 
+### Known Limitation: Pointwise Scoring (Discovered 2026-05-20)
+The current architecture scores each candidate independently through a single `Linear(773, 1)` layer. There is no cross-candidate interaction until the softmax step. This means:
+- The model cannot learn relative rankings (A > B > C). It only learns absolute scores.
+- All 49 logits drift negative during training (mean -4.6 at epoch 1 → -37 at epoch 9) because there is no mechanism to elevate the correct candidate above others.
+- Only positional features survive as discriminators — recency bias dominates predictions.
+- **Fix**: Replace pointwise scoring with bilinear interaction where the child message CLS embedding is compared against each candidate embedding in a shared learned space. This is the standard cross-encoder formulation used in Kummerfeld 2019 and Zhu 2021.
+- **Invariant**: Any future classifier architecture must include candidate interaction before softmax. Pointwise scoring without cross-candidate comparison will reproduce logit collapse.
+
 ---
 
 ## 4. Hardware & Training Strategy
@@ -172,11 +180,30 @@ The bug was fixed on 2026-05-18. All evaluation results prior to this date shoul
 - Clusters: Dev 494 (55% singleton), Test 961 (63% singleton)
 - ARI ≈ 0, VI ≈ 0 (not meaningful due to singleton dominance)
 
-### Post-Fix Status
+### Post-Fix Status (Pre-Run)
 - Cross-links: 52,641 (75.9%) of total gold links
 - Training dataset: 49,676 valid samples
 - **First training attempt OOM'd**: Landed on MIG 1g.10gb (9.5 GiB) instead of a full GPU. Batch=4 with gradient accumulation OOM'd on first forward pass. Evaluation on the untrained random init produced Loss=3.8236, F1=0.008 (near-uniform distribution over 49 candidates; ln(49) ≈ 3.89).
 - **Fix**: `--constraint=cuda48gb|cuda80gb` added to SLURM headers. `run_job.slurm` ready to submit.
+
+### Run 24796535 — DeBERTa-v3-base (2026-05-19)
+| Metric | Dev | Test |
+|--------|-----|------|
+| Best Epoch | 6 | 6 |
+| Link-level F1 | **0.3386** | — |
+| Top-1 Accuracy | **51.55%** | **49.54%** |
+| Precision | 0.2500 | — |
+| Recall | 0.6132 | — |
+| Loss (best epoch) | ~3.82 | — |
+
+**Training config**: H100 GPU, 5.2h, batch=8, accumulation=2 (effective 16), lr=3e-5, warmup=15%, AdamW eps=1e-4, label_smoothing=0.1, logit_clamp=[-50,50], max_length=96, max_dist=50.
+
+**Key observations**:
+- No NaN events across all 9 epochs — Fix C confirmed stable.
+- Logit mean drifted from -4.6 (epoch 1) to -37 (epoch 9). Max logit was below 0 from epoch 2 onward. Predicted positions concentrated in positions 40-48 (recency).
+- Best epoch 6 was chosen by dev F1 early stopping (patience=3).
+- Dev accuracy (51.55%) is 5x the majority-class baseline (10.6%) and 3.2x the recency heuristic (16%), confirming the model extracts genuine signal.
+- The GloVe baseline (62.6% F1) is NOT directly comparable — it used a binary pairwise formulation on a different metric.
 
 ## 8. Clustering & Thread-Level Metrics
 - **Current**: Only link-level F1 is computed.
