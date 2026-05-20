@@ -1299,7 +1299,7 @@ def main():
                 logger.info(f"Dev Loss: {metrics['loss']:.4f}")
                 logger.info(f"Dev Accuracy: {metrics['accuracy']:.4f}")
 
-                current_score = metrics.get("accuracy", 0.0)
+                current_score = metrics.get("f1", 0.0)
                 if current_score > best_f1:
                     best_f1 = current_score
                     best_epoch = epoch

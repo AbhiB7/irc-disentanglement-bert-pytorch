@@ -72,6 +72,7 @@ else
         --data-dir "$REPO_DIR/data" \
         --split dev \
         --batch-size 64 \
+        --max-length 96 \
         --max-dist 30 \
         --metrics both
 
@@ -82,6 +83,7 @@ else
         --data-dir "$REPO_DIR/data" \
         --split test \
         --batch-size 64 \
+        --max-length 96 \
         --max-dist 30 \
         --metrics both
 fi
