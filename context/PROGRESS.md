@@ -8,17 +8,18 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
-- ✅ **Run 24796535 completed successfully**: 9 epochs, no NaN events. Best dev F1=0.3386 (epoch 6), best dev accuracy=51.55% (epoch 6), test accuracy=49.54%.
+- ✅ **Run 24836624 completed successfully**: 10 epochs, no NaN events. Best dev F1=0.3696 (epoch 8), test F1=0.4097 (epoch 8). Dev ARI=0.6053, Test ARI=0.5491.
+- ✅ **Best checkpoint selection bug fixed**: `src/train.py` was comparing by `accuracy` instead of `f1` — epochs 6–8 (F1 0.3637–0.3698) were not saved as `best/` despite outperforming epoch 5 (F1 0.3633). Fixed.
+- ✅ **max_length mismatch fixed**: `run_job.slurm` and `eval_job.slurm` evaluation calls omitted `--max-length`, defaulting to 128 while training used 96. Both now pass `--max-length 96`. `eval_job.slurm` also updated to use `checkpoints_maxdist30` dir and `--max-dist 30`.
 - ✅ **Logit collapse diagnosed**: All 49 logits drift negative over training (mean -4.6 at epoch 1 → -37 at epoch 9). Label smoothing + pointwise scoring is the root cause. Only positional features survive as discriminators. This is an architectural limitation — each candidate is scored independently with no cross-candidate interaction.
-- ✅ **Poster text drafted**: Introduction, Methodology, Results, Discussion, and Conclusion sections rewritten for presentation. Results section uses accuracy framing (51.55% vs 10.6% majority-class baseline).
-- ✅ **NaN Fix C confirmed**: logit clamping + label smoothing + AdamW eps=1e-4 ran clean for 9 epochs. No NaN events. The fix is proven.
+- ✅ **NaN Fix C confirmed**: logit clamping + label smoothing + AdamW eps=1e-4 ran clean for 10 epochs. No NaN events. The fix is proven.
 
 ## Next Steps
 - [ ] **Architecture fix**: Replace Linear(773,1) pointwise scoring with bilinear interaction mechanism. Child CLS embedding should interact with each candidate CLS embedding in a shared space before softmax.
 - [ ] **Remove label smoothing**: Set to 0.0 or 0.05 after bilinear fix. Current 0.1 dilutes gradient signal across 48 wrong classes.
 - [ ] **SELF-as-candidate**: Add SELF token to candidate list so new-thread detection is a learnable class rather than a threshold heuristic.
-- [ ] **Clustering + thread metrics**: Implement Union-Find clustering and compute VI/ARI for thesis.
 - [ ] **Poster presentation**: Finalize poster layout with revised text and results figure.
+- [ ] **Re-train with bilinear architecture**: Submit `run_job.slurm` with updated model for cross-candidate interaction.
 
 ---
 

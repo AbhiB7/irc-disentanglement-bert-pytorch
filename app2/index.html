@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRC Conversation Links</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <aside id="sidebar">
+            <h2>Threads</h2>
+            <ul id="thread-legend"></ul>
+        </aside>
+        <main id="chat-container">
+            <div id="chat-header"></div>
+            <div id="messages"></div>
+        </main>
+        <div id="graph-panel">
+            <svg id="links-svg"></svg>
+        </div>
+    </div>
+    <script src="visualize.js"></script>
+</body>
+</html>

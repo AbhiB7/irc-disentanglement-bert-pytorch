@@ -186,7 +186,7 @@ The bug was fixed on 2026-05-18. All evaluation results prior to this date shoul
 - **First training attempt OOM'd**: Landed on MIG 1g.10gb (9.5 GiB) instead of a full GPU. Batch=4 with gradient accumulation OOM'd on first forward pass. Evaluation on the untrained random init produced Loss=3.8236, F1=0.008 (near-uniform distribution over 49 candidates; ln(49) ≈ 3.89).
 - **Fix**: `--constraint=cuda48gb|cuda80gb` added to SLURM headers. `run_job.slurm` ready to submit.
 
-### Run 24796535 — DeBERTa-v3-base (2026-05-19)
+### Run 24796535 — DeBERTa-v3-base (2026-05-19, max_dist=50)
 | Metric | Dev | Test |
 |--------|-----|------|
 | Best Epoch | 6 | 6 |
@@ -204,6 +204,29 @@ The bug was fixed on 2026-05-18. All evaluation results prior to this date shoul
 - Best epoch 6 was chosen by dev F1 early stopping (patience=3).
 - Dev accuracy (51.55%) is 5x the majority-class baseline (10.6%) and 3.2x the recency heuristic (16%), confirming the model extracts genuine signal.
 - The GloVe baseline (62.6% F1) is NOT directly comparable — it used a binary pairwise formulation on a different metric.
+
+### Run 24836624 — DeBERTa-v3-base (2026-05-20, max_dist=30)
+| Metric | Dev | Test |
+|--------|-----|------|
+| Best Epoch | 8 | 8 |
+| Link-level F1 | **0.3696** | **0.4097** |
+| Top-1 Accuracy | **52.13%** | **54.76%** |
+| Precision | 0.4343 | 0.5086 |
+| Recall | 0.3487 | 0.3810 |
+| Loss (best epoch) | 2.9740 | 2.9569 |
+| ARI | **0.6053** | **0.5491** |
+| VI | 1.3721 | 1.5123 |
+
+**Training config**: H100 GPU, batch=8, accumulation=2 (effective 16), lr=3e-5, warmup=15%, AdamW eps=1e-4, label_smoothing=0.1, logit_clamp=[-50,50], max_length=96, max_dist=30.
+
+**Key observations**:
+- 10 epochs, no NaN events. Fix C confirmed stable at max_dist=30.
+- Test F1 (0.4097) exceeds dev F1 (0.3696) — unusual but consistent with the model generalising better on the larger test set (3937 vs 1972 samples).
+- ARI of 0.55–0.61 confirms the model produces coherent thread clusters well above random.
+- Verbose output shows genuine conversational threads being formed (e.g., Spaztic_One process-killing thread, pierre_ YouTube/fullscreen thread, luist python-pykickstart thread).
+- max_dist=30 reduces candidate count from 50 to 30, which may improve F1 by reducing the number of wrong classes the softmax must distribute probability over.
+- **Bug caught and fixed**: Best checkpoint selection in `src/train.py` was comparing by `accuracy` instead of `f1`. Epochs 6–8 (F1 0.3637–0.3698) were not saved as `best/` despite outperforming epoch 5 (F1 0.3633). Fixed.
+- **Bug caught and fixed**: Evaluation calls in `run_job.slurm` and `eval_job.slurm` omitted `--max-length`, defaulting to 128 while training used 96. Both now pass `--max-length 96`.
 
 ## 8. Clustering & Thread-Level Metrics
 - **Current**: Only link-level F1 is computed.
