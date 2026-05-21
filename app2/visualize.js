@@ -10,7 +10,7 @@
  * in both the chat panel and the graph panel.
  */
 
-var DATA_URL = "data/tiny.dev.json";
+var DATA_URL = "data/predicted.json";
 var messagesContainer = document.getElementById("messages");
 var chatHeader = document.getElementById("chat-header");
 var threadLegend = document.getElementById("thread-legend");

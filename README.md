@@ -79,3 +79,8 @@ salloc --nodes=1 --ntasks-per-node=1 --cpus-per-task=4 --mem=16G \
   --gres=gpu:1 \
   --account=a_hcc \
   srun --export=PATH,TERM,HOME,LANG --pty /bin/bash -l
+
+
+  ## Applications
+  cd app && python -m http.server 8080
+cd app2 && python -m http.server 8081
