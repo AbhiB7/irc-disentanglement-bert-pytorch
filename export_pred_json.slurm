@@ -24,8 +24,9 @@ export CHECKPOINT_DIR=$RUN_ROOT/checkpoints_maxdist30
 
 mkdir -p logs $LOG_DIR $CHECKPOINT_DIR app/predicted_data
 
-# Default checkpoint: epoch 8 from run 24836624 (highest F1, max_dist=30)
-CHECKPOINT=${1:-$CHECKPOINT_DIR/checkpoint_epoch_8.pt}
+# Use best_model.pt from the max_dist=30 checkpoint directory.
+# train.py saves the best checkpoint (by dev F1) to best_model.pt automatically.
+CHECKPOINT=${1:-$CHECKPOINT_DIR/best_model.pt}
 
 echo "=========================================="
 echo "IRC Disentanglement - Export Predicted JSONs"
