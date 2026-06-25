@@ -8,11 +8,11 @@
 This file tracks the dynamic working state, recent completions, and immediate next steps.
 
 ## Current Status
+- ✅ **Run 24888180 completed**: Exported predicted JSONs for dev (10 files) and test (10 files) from `best_model.pt` (epoch 8, max_dist=30). Dev F1=0.3696, Test F1=0.4097.
+- ✅ **Predicted JSON visualizer**: Created [`src/evaluate_pred.py`](src/evaluate_pred.py) — standalone copy of evaluate.py with `--export-json` flag. Produces JSONs matching the `export_chat_json.py` schema for the `app/` visualizer. Created [`export_pred_json.slurm`](export_pred_json.slurm) for Bunya.
+- ✅ **Demo setup**: `app/` (port 8080) serves gold data from `tiny.dev.json`; `app2/` (port 8081) serves predicted data from `predicted_test_2016-02-22_17.json` (442 links, highest link count file). Both visualized side-by-side in browser.
 - ✅ **Run 24836624 completed successfully**: 10 epochs, no NaN events. Best dev F1=0.3696 (epoch 8), test F1=0.4097 (epoch 8). Dev ARI=0.6053, Test ARI=0.5491.
-- ✅ **Best checkpoint selection bug fixed**: `src/train.py` was comparing by `accuracy` instead of `f1` — epochs 6–8 (F1 0.3637–0.3698) were not saved as `best/` despite outperforming epoch 5 (F1 0.3633). Fixed.
-- ✅ **max_length mismatch fixed**: `run_job.slurm` and `eval_job.slurm` evaluation calls omitted `--max-length`, defaulting to 128 while training used 96. Both now pass `--max-length 96`. `eval_job.slurm` also updated to use `checkpoints_maxdist30` dir and `--max-dist 30`.
-- ✅ **Logit collapse diagnosed**: All 49 logits drift negative over training (mean -4.6 at epoch 1 → -37 at epoch 9). Label smoothing + pointwise scoring is the root cause. Only positional features survive as discriminators. This is an architectural limitation — each candidate is scored independently with no cross-candidate interaction.
-- ✅ **NaN Fix C confirmed**: logit clamping + label smoothing + AdamW eps=1e-4 ran clean for 10 epochs. No NaN events. The fix is proven.
+- ✅ **NaN Fix C confirmed**: logit clamping + label smoothing + AdamW eps=1e-4 ran clean for 10 epochs. No NaN events.
 
 ## Next Steps
 - [ ] **Architecture fix**: Replace Linear(773,1) pointwise scoring with bilinear interaction mechanism. Child CLS embedding should interact with each candidate CLS embedding in a shared space before softmax.
